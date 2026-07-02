@@ -13,6 +13,41 @@ async function runMigrations() {
     ADD COLUMN IF NOT EXISTS metodo_pago VARCHAR(50) NOT NULL DEFAULT 'EFECTIVO'
   `);
 
+  try {
+    await db.query(`
+      ALTER TABLE producto
+      ADD CONSTRAINT IF NOT EXISTS producto_precio_check CHECK (precio >= 0)
+    `);
+  } catch (e) { /* ignore if already exists */ }
+
+  try {
+    await db.query(`
+      ALTER TABLE producto
+      ADD CONSTRAINT IF NOT EXISTS producto_stock_check CHECK (stock >= 0)
+    `);
+  } catch (e) { /* ignore */ }
+
+  try {
+    await db.query(`
+      ALTER TABLE producto
+      ADD CONSTRAINT IF NOT EXISTS producto_stock_minimo_check CHECK (stock_minimo >= 0)
+    `);
+  } catch (e) { /* ignore */ }
+
+  try {
+    await db.query(`
+      ALTER TABLE insumo
+      ADD CONSTRAINT IF NOT EXISTS insumo_precio_check CHECK (precio >= 0)
+    `);
+  } catch (e) { /* ignore */ }
+
+  try {
+    await db.query(`
+      ALTER TABLE insumo
+      ADD CONSTRAINT IF NOT EXISTS insumo_cantidad_check CHECK (cantidad >= 0)
+    `);
+  } catch (e) { /* ignore */ }
+
   await db.query(`
     ALTER TABLE inventario_movimiento
     ADD COLUMN IF NOT EXISTS usuario_id INTEGER REFERENCES usuario(id) ON DELETE SET NULL

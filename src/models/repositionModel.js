@@ -33,7 +33,7 @@ async function createReposition({ producto_id, cantidad, usuario_id }) {
     await client.query('BEGIN');
 
     const currentResult = await client.query(
-      'SELECT id, nombre, stock FROM producto WHERE id = $1',
+      'SELECT id, nombre, stock FROM producto WHERE id = $1 FOR UPDATE',
       [producto_id]
     );
 
@@ -77,49 +77,53 @@ async function createReposition({ producto_id, cantidad, usuario_id }) {
   }
 }
 
-async function updateReposition(id, data) {
-  const fields = [];
-  const values = [];
-  let index = 1;
-
-  if (data.producto_id !== undefined) {
-    fields.push(`producto_id = $${index}`);
-    values.push(data.producto_id);
-    index += 1;
-  }
-
-  if (data.cantidad !== undefined) {
-    fields.push(`cantidad = $${index}`);
-    values.push(data.cantidad);
-    index += 1;
-  }
-
-  if (fields.length === 0) {
-    return null;
-  }
-
-  values.push(id);
-
-  const query = `
-    UPDATE reposicion
-    SET ${fields.join(', ')}
-    WHERE id = $${index}
-    RETURNING id, producto_id, cantidad, fecha
-  `;
-
-  const result = await db.query(query, values);
-  return result.rows[0];
-}
-
 async function deleteReposition(id) {
-  const query = `
-    DELETE FROM reposicion
-    WHERE id = $1
-    RETURNING id
-  `;
+  const client = await db.pool.connect();
 
-  const result = await db.query(query, [id]);
-  return result.rowCount > 0;
+  try {
+    await client.query('BEGIN');
+
+    const reposResult = await client.query(
+      'SELECT producto_id, cantidad FROM reposicion WHERE id = $1 FOR UPDATE',
+      [id]
+    );
+
+    const repos = reposResult.rows[0];
+    if (!repos) return false;
+
+    const productResult = await client.query(
+      'SELECT stock FROM producto WHERE id = $1 FOR UPDATE',
+      [repos.producto_id]
+    );
+
+    const product = productResult.rows[0];
+    if (!product) throw new Error('Producto asociado no encontrado');
+
+    const stockNuevo = Number(product.stock) - Number(repos.cantidad);
+    if (stockNuevo < 0) {
+      throw new Error('No se puede eliminar la reposición porque dejaría el stock en negativo');
+    }
+
+    await client.query(
+      'UPDATE producto SET stock = $1 WHERE id = $2',
+      [stockNuevo, repos.producto_id]
+    );
+
+    await client.query(
+      'INSERT INTO producto_movimiento (producto_id, tipo, cantidad, stock_anterior, stock_nuevo, motivo) VALUES ($1, $2, $3, $4, $5, $6)',
+      [repos.producto_id, 'SALIDA', repos.cantidad, Number(product.stock), stockNuevo, 'Eliminación de reposición']
+    );
+
+    await client.query('DELETE FROM reposicion WHERE id = $1', [id]);
+
+    await client.query('COMMIT');
+    return true;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 module.exports = {

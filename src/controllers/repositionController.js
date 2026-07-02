@@ -28,29 +28,23 @@ async function createReposition(req, res) {
   try {
     const { producto_id, cantidad } = req.body;
 
-    if (!producto_id || cantidad === undefined) {
-      return res.status(400).json({ message: 'producto_id y cantidad son obligatorios' });
+    if (!producto_id) {
+      return res.status(400).json({ message: 'producto_id es obligatorio' });
     }
 
-    const reposition = await repositionModel.createReposition({ producto_id, cantidad, usuario_id: req.user.id });
+    if (cantidad === undefined || cantidad === null || !Number.isInteger(Number(cantidad)) || Number(cantidad) <= 0) {
+      return res.status(400).json({ message: 'La cantidad debe ser un número entero positivo' });
+    }
+
+    const reposition = await repositionModel.createReposition({
+      producto_id: Number(producto_id),
+      cantidad: Number(cantidad),
+      usuario_id: req.user.id,
+    });
     res.status(201).json({ message: 'Reposición creada correctamente', reposition });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error al crear reposición' });
-  }
-}
-
-async function updateReposition(req, res) {
-  try {
-    const reposition = await repositionModel.updateReposition(req.params.id, req.body);
-    if (!reposition) {
-      return res.status(404).json({ message: 'Reposición no encontrada' });
-    }
-
-    res.json({ message: 'Reposición actualizada correctamente', reposition });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al actualizar reposición' });
+    res.status(500).json({ message: error.message || 'Error al crear reposición' });
   }
 }
 
@@ -64,7 +58,7 @@ async function deleteReposition(req, res) {
     res.json({ message: 'Reposición eliminada correctamente' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error al eliminar reposición' });
+    res.status(500).json({ message: error.message || 'Error al eliminar reposición' });
   }
 }
 
@@ -72,6 +66,5 @@ module.exports = {
   getRepositions,
   getReposition,
   createReposition,
-  updateReposition,
   deleteReposition,
 };

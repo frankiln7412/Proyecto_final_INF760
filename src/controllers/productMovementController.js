@@ -27,7 +27,25 @@ async function getMovementsSummary(req, res) {
   }
 }
 
+async function getInventoryReport(req, res) {
+  try {
+    const { tipo, desde, hasta, producto_id, usuario_id } = req.query;
+    const report = await productMovementModel.getInventoryReport({
+      tipo,
+      desde,
+      hasta,
+      producto_id: producto_id ? Number(producto_id) : undefined,
+      usuario_id: usuario_id ? Number(usuario_id) : undefined,
+    });
+    res.json(report);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al obtener reporte de inventario' });
+  }
+}
+
 module.exports = {
   getMovements,
   getMovementsSummary,
+  getInventoryReport,
 };

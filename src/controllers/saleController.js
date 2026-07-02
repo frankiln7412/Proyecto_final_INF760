@@ -10,13 +10,33 @@ async function createSale(req, res) {
   try {
     const { total, items, fecha, metodo_pago } = req.body;
 
-    if (!total || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ message: 'total e items son obligatorios' });
+    if (total === undefined || total === null) {
+      return res.status(400).json({ message: 'total es obligatorio' });
+    }
+
+    if (Number(total) < 0) {
+      return res.status(400).json({ message: 'El total no puede ser negativo' });
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: 'Debe incluir al menos un producto' });
+    }
+
+    for (const item of items) {
+      if (!item.producto_id) {
+        return res.status(400).json({ message: 'Cada item debe tener un producto_id' });
+      }
+      if (item.cantidad === undefined || item.cantidad === null || !Number.isInteger(Number(item.cantidad)) || Number(item.cantidad) <= 0) {
+        return res.status(400).json({ message: `Cantidad inválida para el producto ${item.producto_id}` });
+      }
+      if (item.precio_unitario !== undefined && Number(item.precio_unitario) < 0) {
+        return res.status(400).json({ message: `Precio unitario inválido para el producto ${item.producto_id}` });
+      }
     }
 
     const sale = await saleModel.createSale({
       usuario_id: req.user.id,
-      total,
+      total: Number(total),
       items,
       fecha: fecha || undefined,
       metodo_pago: metodo_pago || 'EFECTIVO',

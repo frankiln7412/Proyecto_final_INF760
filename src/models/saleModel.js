@@ -126,7 +126,7 @@ async function createSale({ usuario_id, total, items, fecha, metodo_pago }) {
         [item.producto_id, item.cantidad, stockAnterior, stockNuevo, `Venta #${sale.id}`, usuario_id]
       );
 
-      itemsQr.push(`${item.nombre}x${item.cantidad}`);
+      itemsQr.push(`${item.nombre} x${item.cantidad} = $${Number(item.subtotal).toFixed(2)}`);
 
       if (stockNuevo <= currentProduct.stock_minimo) {
         const existingAlert = await client.query(
@@ -157,12 +157,18 @@ async function createSale({ usuario_id, total, items, fecha, metodo_pago }) {
       ? sale.fecha.toISOString()
       : new Date(sale.fecha).toISOString();
 
+    const totalFormatted = Number(total).toFixed(2);
     const qr_text = [
+      'INVENTARIO+',
+      '===========',
       `Venta #${sale.id}`,
       `Fecha: ${saleDateStr}`,
-      `Total: $${Number(total).toFixed(2)}`,
+      `Total: $${totalFormatted}`,
       `Pago: ${pago}`,
-      ...itemsQr.map((iq) => `  - ${iq}`),
+      '-----------',
+      'Productos:',
+      ...itemsQr.map((iq) => `  ${iq}`),
+      '===========',
     ].join('\n');
 
     return {

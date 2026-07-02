@@ -28,20 +28,55 @@ async function createSupply(req, res) {
   try {
     const { nombre, cantidad, unidad_medida, precio } = req.body;
 
-    if (!nombre || cantidad === undefined || !unidad_medida || precio === undefined) {
-      return res.status(400).json({ message: 'Nombre, cantidad, unidad y precio son obligatorios' });
+    if (!nombre || !nombre.trim()) {
+      return res.status(400).json({ message: 'El nombre del insumo es obligatorio' });
     }
 
-    const supply = await supplyModel.createSupply({ nombre, cantidad, unidad_medida, precio });
+    if (!unidad_medida || !unidad_medida.trim()) {
+      return res.status(400).json({ message: 'La unidad de medida es obligatoria' });
+    }
+
+    if (cantidad === undefined || cantidad === null || !Number.isInteger(Number(cantidad)) || Number(cantidad) < 0) {
+      return res.status(400).json({ message: 'La cantidad debe ser un número entero mayor o igual a 0' });
+    }
+
+    if (precio === undefined || precio === null || Number(precio) < 0) {
+      return res.status(400).json({ message: 'El precio debe ser mayor o igual a 0' });
+    }
+
+    const supply = await supplyModel.createSupply({
+      nombre: nombre.trim(),
+      cantidad: Number(cantidad),
+      unidad_medida: unidad_medida.trim(),
+      precio: Number(precio),
+    });
     res.status(201).json({ message: 'Insumo creado correctamente', supply });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error al crear insumo' });
+    res.status(500).json({ message: error.message || 'Error al crear insumo' });
   }
 }
 
 async function updateSupply(req, res) {
   try {
+    const { nombre, cantidad, unidad_medida, precio } = req.body;
+
+    if (nombre !== undefined && !nombre.trim()) {
+      return res.status(400).json({ message: 'El nombre del insumo no puede estar vacío' });
+    }
+
+    if (unidad_medida !== undefined && !unidad_medida.trim()) {
+      return res.status(400).json({ message: 'La unidad de medida no puede estar vacía' });
+    }
+
+    if (cantidad !== undefined && (!Number.isInteger(Number(cantidad)) || Number(cantidad) < 0)) {
+      return res.status(400).json({ message: 'La cantidad debe ser un número entero mayor o igual a 0' });
+    }
+
+    if (precio !== undefined && Number(precio) < 0) {
+      return res.status(400).json({ message: 'El precio debe ser mayor o igual a 0' });
+    }
+
     const data = { ...req.body, usuario_id: req.user.id };
     const supply = await supplyModel.updateSupply(req.params.id, data);
     if (!supply) {

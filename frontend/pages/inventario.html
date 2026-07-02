@@ -82,7 +82,7 @@
       <h5 class="fw-semibold mb-3">Movimientos de productos</h5>
       <div class="table-responsive">
         <table class="table align-middle">
-          <thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Stock anterior → nuevo</th><th>Motivo</th></tr></thead>
+          <thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Stock anterior → nuevo</th><th>Precio Venta</th><th>Total Venta</th><th>Motivo</th></tr></thead>
           <tbody id="productMovementsTable"></tbody>
         </table>
       </div>
@@ -218,7 +218,7 @@
 
       async function loadProductMovements() {
         try {
-          productMovements = await apiRequest('/api/product-movements');
+          productMovements = await apiRequest('/api/product-movements/reporte');
           renderProductMovements();
         } catch (e) { /* ignore */ }
       }
@@ -228,7 +228,7 @@
         if (!tbody) return;
         tbody.innerHTML = '';
         if (!productMovements.length) {
-          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Sin movimientos</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Sin movimientos</td></tr>';
           return;
         }
         productMovements.forEach((m) => {
@@ -239,6 +239,8 @@
               <td><span class="badge ${m.tipo === 'ENTRADA' ? 'badge-ok' : 'badge-critical'}">${m.tipo}</span></td>
               <td>${m.cantidad}</td>
               <td>${m.stock_anterior} → ${m.stock_nuevo}</td>
+              <td>${m.precio_venta ? '$' + Number(m.precio_venta).toFixed(2) : '-'}</td>
+              <td>${m.total_venta ? '$' + Number(m.total_venta).toFixed(2) : '-'}</td>
               <td>${m.motivo || '-'}</td>
             </tr>
           `;

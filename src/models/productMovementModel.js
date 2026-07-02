@@ -92,7 +92,92 @@ async function getMovementsSummary({ desde, hasta } = {}) {
   return result.rows[0];
 }
 
+async function getInventoryReport({ tipo, desde, hasta, producto_id, usuario_id } = {}) {
+  const conditions = [];
+  const values = [];
+  let index = 1;
+
+  if (tipo) {
+    conditions.push(`pm.tipo = $${index}`);
+    values.push(tipo);
+    index += 1;
+  }
+
+  if (producto_id) {
+    conditions.push(`pm.producto_id = $${index}`);
+    values.push(producto_id);
+    index += 1;
+  }
+
+  if (usuario_id) {
+    conditions.push(`pm.usuario_id = $${index}`);
+    values.push(usuario_id);
+    index += 1;
+  }
+
+  if (desde) {
+    conditions.push(`pm.fecha >= $${index}`);
+    values.push(desde);
+    index += 1;
+  }
+
+  if (hasta) {
+    conditions.push(`pm.fecha <= $${index}`);
+    values.push(hasta);
+    index += 1;
+  }
+
+  const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  const query = `
+    SELECT
+      pm.id,
+      pm.producto_id,
+      p.nombre AS producto_nombre,
+      pm.tipo,
+      pm.cantidad,
+      pm.stock_anterior,
+      pm.stock_nuevo,
+      pm.motivo,
+      pm.usuario_id,
+      u.nombre AS usuario_nombre,
+      pm.fecha,
+      CASE
+        WHEN pm.tipo = 'SALIDA' AND pm.motivo LIKE 'Venta #%' THEN
+          (SELECT dv.precio_unitario FROM detalle_venta dv
+           JOIN venta v ON v.id = dv.venta_id
+           WHERE dv.producto_id = pm.producto_id
+           ORDER BY ABS(EXTRACT(EPOCH FROM (v.fecha - pm.fecha))) LIMIT 1)
+        ELSE NULL
+      END AS precio_venta,
+      CASE
+        WHEN pm.tipo = 'SALIDA' AND pm.motivo LIKE 'Venta #%' THEN
+          (SELECT dv.precio_unitario * pm.cantidad FROM detalle_venta dv
+           JOIN venta v ON v.id = dv.venta_id
+           WHERE dv.producto_id = pm.producto_id
+           ORDER BY ABS(EXTRACT(EPOCH FROM (v.fecha - pm.fecha))) LIMIT 1)
+        ELSE NULL
+      END AS total_venta
+    FROM producto_movimiento pm
+    JOIN producto p ON p.id = pm.producto_id
+    LEFT JOIN usuario u ON u.id = pm.usuario_id
+    ${whereClause}
+    ORDER BY pm.fecha DESC, pm.id DESC
+  `;
+
+  const result = await db.query(query, values);
+  return result.rows.map((row) => ({
+    ...row,
+    cantidad: Number(row.cantidad),
+    stock_anterior: Number(row.stock_anterior),
+    stock_nuevo: Number(row.stock_nuevo),
+    precio_venta: row.precio_venta ? Number(row.precio_venta) : null,
+    total_venta: row.total_venta ? Number(row.total_venta) : null,
+  }));
+}
+
 module.exports = {
   getAllMovements,
   getMovementsSummary,
+  getInventoryReport,
 };
