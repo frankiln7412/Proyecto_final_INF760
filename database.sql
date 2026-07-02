@@ -1,0 +1,67 @@
+-- Script SQL completo para PostgreSQL
+-- Crear base de datos si no existe
+-- CREATE DATABASE inventario_db;
+
+CREATE TABLE IF NOT EXISTS usuario (
+  id SERIAL PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL,
+  correo VARCHAR(100) UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  rol VARCHAR(20) NOT NULL CHECK (rol IN ('PROPIETARIO', 'EMPLEADO')),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS producto (
+  id SERIAL PRIMARY KEY,
+  nombre VARCHAR(150) NOT NULL,
+  descripcion TEXT,
+  precio NUMERIC(10,2) NOT NULL DEFAULT 0,
+  stock INTEGER NOT NULL DEFAULT 0,
+  stock_minimo INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS insumo (
+  id SERIAL PRIMARY KEY,
+  nombre VARCHAR(150) NOT NULL,
+  cantidad INTEGER NOT NULL DEFAULT 0,
+  unidad_medida VARCHAR(50) NOT NULL,
+  precio NUMERIC(10,2) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS venta (
+  id SERIAL PRIMARY KEY,
+  usuario_id INTEGER NOT NULL REFERENCES usuario(id) ON DELETE RESTRICT,
+  total NUMERIC(10,2) NOT NULL DEFAULT 0,
+  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS detalle_venta (
+  id SERIAL PRIMARY KEY,
+  venta_id INTEGER NOT NULL REFERENCES venta(id) ON DELETE CASCADE,
+  producto_id INTEGER NOT NULL REFERENCES producto(id) ON DELETE RESTRICT,
+  cantidad INTEGER NOT NULL CHECK (cantidad > 0),
+  precio_unitario NUMERIC(10,2) NOT NULL,
+  subtotal NUMERIC(10,2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS reposicion (
+  id SERIAL PRIMARY KEY,
+  producto_id INTEGER NOT NULL REFERENCES producto(id) ON DELETE CASCADE,
+  cantidad INTEGER NOT NULL CHECK (cantidad > 0),
+  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS alerta (
+  id SERIAL PRIMARY KEY,
+  producto_id INTEGER NOT NULL REFERENCES producto(id) ON DELETE CASCADE,
+  mensaje TEXT NOT NULL,
+  estado VARCHAR(20) NOT NULL DEFAULT 'ACTIVA' CHECK (estado IN ('ACTIVA', 'SOLUCIONADA')),
+  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_venta_usuario_id ON venta(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_detalle_venta_venta_id ON detalle_venta(venta_id);
+CREATE INDEX IF NOT EXISTS idx_reposicion_producto_id ON reposicion(producto_id);
+CREATE INDEX IF NOT EXISTS idx_alerta_producto_id ON alerta(producto_id);

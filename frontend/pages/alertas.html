@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alertas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+  </head>
+  <body class="p-4">
+    <div class="page-shell">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="fw-bold mb-1">Alertas</h2>
+          <p class="text-muted mb-0">Productos con stock crítico y alertas activas</p>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table align-middle table-hover">
+          <thead><tr><th>Producto</th><th>Mensaje</th><th>Estado</th><th>Fecha</th></tr></thead>
+          <tbody id="alertsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script>
+      async function loadAlerts() {
+        const alerts = await apiRequest('/api/alerts');
+        const tbody = document.getElementById('alertsTable');
+        tbody.innerHTML = '';
+        if (!alerts.length) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No hay alertas</td></tr>';
+          return;
+        }
+        alerts.forEach((alert) => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${alert.producto_nombre}</td>
+              <td>${alert.mensaje}</td>
+              <td><span class="badge ${alert.estado === 'ACTIVA' ? 'badge-critical' : 'badge-ok'}">${alert.estado}</span></td>
+              <td>${new Date(alert.fecha).toLocaleString()}</td>
+            </tr>
+          `;
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        if (!protectPage()) return;
+        await loadAlerts();
+      });
+    </script>
+  </body>
+</html>

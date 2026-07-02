@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+  </head>
+  <body class="p-4">
+    <div class="page-shell">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="fw-bold mb-1">Gestión de Inventario</h2>
+          <p class="text-muted mb-0">Registra artículos, unidades y precios del inventario del negocio</p>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#supplyModal"><i class="bi bi-plus-circle"></i> Nuevo inventario</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table align-middle table-hover">
+          <thead>
+            <tr><th>Nombre</th><th>Cantidad</th><th>Unidad</th><th>Precio</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="suppliesTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="modal fade" id="supplyModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header"><h5 class="modal-title">Inventario</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+            <form id="supplyForm">
+              <input type="hidden" id="supplyId" />
+              <div class="mb-3"><label class="form-label">Nombre</label><input id="supplyNombre" class="form-control" required /></div>
+              <div class="mb-3"><label class="form-label">Cantidad</label><input id="supplyCantidad" type="number" class="form-control" required /></div>
+              <div class="mb-3"><label class="form-label">Unidad de medida</label><input id="supplyUnidad" class="form-control" required /></div>
+              <div class="mb-3"><label class="form-label">Precio unitario</label><input id="supplyPrecio" type="number" step="0.01" class="form-control" required /></div>
+              <button class="btn btn-primary w-100">Guardar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script>
+      let supplies = [];
+
+      function renderSupplies() {
+        const tbody = document.getElementById('suppliesTable');
+        tbody.innerHTML = '';
+        if (!supplies.length) {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay registros de inventario</td></tr>';
+          return;
+        }
+        supplies.forEach((supply) => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${supply.nombre}</td>
+              <td>${supply.cantidad}</td>
+              <td>${supply.unidad_medida}</td>
+              <td>$${Number(supply.precio || 0).toFixed(2)}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary me-2" onclick="editSupply(${supply.id})"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteSupply(${supply.id})"><i class="bi bi-trash"></i></button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      async function loadSupplies() {
+        supplies = await apiRequest('/api/supplies');
+        renderSupplies();
+      }
+
+      async function saveSupply(event) {
+        event.preventDefault();
+        const id = document.getElementById('supplyId').value;
+        const payload = {
+          nombre: document.getElementById('supplyNombre').value,
+          cantidad: Number(document.getElementById('supplyCantidad').value),
+          unidad_medida: document.getElementById('supplyUnidad').value,
+          precio: Number(document.getElementById('supplyPrecio').value),
+        };
+        try {
+          if (id) {
+            await apiRequest(`/api/supplies/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+          } else {
+            await apiRequest('/api/supplies', { method: 'POST', body: JSON.stringify(payload) });
+          }
+          bootstrap.Modal.getInstance(document.getElementById('supplyModal')).hide();
+          document.getElementById('supplyForm').reset();
+          loadSupplies();
+        } catch (error) {
+          showToast(error.message, 'danger');
+        }
+      }
+
+      async function deleteSupply(id) {
+        if (!confirm('¿Eliminar registro de inventario?')) return;
+        try {
+          await apiRequest(`/api/supplies/${id}`, { method: 'DELETE' });
+          loadSupplies();
+        } catch (error) {
+          showToast(error.message, 'danger');
+        }
+      }
+
+      function editSupply(id) {
+        const supply = supplies.find((item) => item.id === id);
+        if (!supply) return;
+        document.getElementById('supplyId').value = supply.id;
+        document.getElementById('supplyNombre').value = supply.nombre;
+        document.getElementById('supplyCantidad').value = supply.cantidad;
+        document.getElementById('supplyUnidad').value = supply.unidad_medida;
+        document.getElementById('supplyPrecio').value = supply.precio || 0;
+        new bootstrap.Modal(document.getElementById('supplyModal')).show();
+      }
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        if (!protectPage()) return;
+        document.getElementById('supplyForm').addEventListener('submit', saveSupply);
+        await loadSupplies();
+      });
+    </script>
+  </body>
+</html>
