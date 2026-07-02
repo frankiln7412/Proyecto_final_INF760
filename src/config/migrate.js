@@ -106,6 +106,23 @@ async function runMigrations() {
     ADD COLUMN IF NOT EXISTS codigo VARCHAR(50) UNIQUE
   `);
 
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS proveedor (
+      id SERIAL PRIMARY KEY,
+      nombre VARCHAR(150) NOT NULL,
+      contacto VARCHAR(100),
+      telefono VARCHAR(30),
+      email VARCHAR(150),
+      direccion TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await db.query(`
+    ALTER TABLE reposicion
+    ADD COLUMN IF NOT EXISTS proveedor_id INTEGER REFERENCES proveedor(id) ON DELETE SET NULL
+  `);
+
   console.log('Migraciones completadas.');
 }
 

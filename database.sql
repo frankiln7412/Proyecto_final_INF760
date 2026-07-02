@@ -53,7 +53,18 @@ CREATE TABLE IF NOT EXISTS reposicion (
   producto_id INTEGER NOT NULL REFERENCES producto(id) ON DELETE CASCADE,
   cantidad INTEGER NOT NULL CHECK (cantidad > 0),
   usuario_id INTEGER REFERENCES usuario(id) ON DELETE SET NULL,
+  proveedor_id INTEGER REFERENCES proveedor(id) ON DELETE SET NULL,
   fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS proveedor (
+  id SERIAL PRIMARY KEY,
+  nombre VARCHAR(150) NOT NULL,
+  contacto VARCHAR(100),
+  telefono VARCHAR(30),
+  email VARCHAR(150),
+  direccion TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS alerta (

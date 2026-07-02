@@ -19,7 +19,7 @@
       </div>
       <div class="table-responsive">
         <table class="table align-middle table-hover">
-          <thead><tr><th>Producto</th><th>Cantidad</th><th>Usuario</th><th>Fecha</th><th>Acciones</th></tr></thead>
+          <thead><tr><th>Producto</th><th>Cantidad</th><th>Proveedor</th><th>Usuario</th><th>Fecha</th><th class="text-center">Acciones</th></tr></thead>
           <tbody id="repositionsTable"></tbody>
         </table>
       </div>
@@ -28,12 +28,13 @@
     <div class="modal fade" id="repositionModal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-header"><h5 class="modal-title">Reposición</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-header"><h5 class="modal-title">Nueva reposición</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
           <div class="modal-body">
             <form id="repositionForm">
               <input type="hidden" id="repositionId" />
               <div class="mb-3"><label class="form-label">Producto</label><select id="repositionProducto" class="form-select" required></select></div>
               <div class="mb-3"><label class="form-label">Cantidad</label><input id="repositionCantidad" type="number" class="form-control" required /></div>
+              <div class="mb-3"><label class="form-label">Proveedor <small class="text-muted">(opcional)</small></label><select id="repositionProveedor" class="form-select"></select></div>
               <button class="btn btn-primary w-100">Guardar</button>
             </form>
           </div>
@@ -46,6 +47,7 @@
     <script>
       let repositions = [];
       let products = [];
+      let proveedores = [];
 
       async function loadProductsForSelect() {
         products = await apiRequest('/api/products');
@@ -56,25 +58,34 @@
         });
       }
 
+      async function loadProveedoresForSelect() {
+        proveedores = await apiRequest('/api/proveedores');
+        const select = document.getElementById('repositionProveedor');
+        select.innerHTML = '<option value="">Sin proveedor</option>';
+        proveedores.forEach((p) => {
+          select.innerHTML += `<option value="${p.id}">${p.nombre}</option>`;
+        });
+      }
+
       function renderRepositions() {
         const tbody = document.getElementById('repositionsTable');
         tbody.innerHTML = '';
         if (!repositions.length) {
-          tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay reposiciones</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No hay reposiciones</td></tr>';
           return;
         }
-        repositions.forEach((reposition) => {
+        repositions.forEach((r) => {
           tbody.innerHTML += `
             <tr>
-              <td>${reposition.producto_nombre}</td>
-              <td><span class="badge badge-ok">+${reposition.cantidad}</span></td>
-              <td>${reposition.usuario_nombre || '-'}</td>
-              <td>${new Date(reposition.fecha).toLocaleString()}</td>
-              <td>
-                <button class="btn btn-sm btn-outline-danger" onclick="deleteReposition(${reposition.id})"><i class="bi bi-trash"></i></button>
+              <td class="fw-medium">${r.producto_nombre}</td>
+              <td><span class="badge badge-ok">+${r.cantidad}</span></td>
+              <td>${r.proveedor_nombre || '<span class="text-muted">—</span>'}</td>
+              <td>${r.usuario_nombre || '-'}</td>
+              <td class="small text-nowrap">${new Date(r.fecha).toLocaleString()}</td>
+              <td class="text-center">
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteReposition(${r.id})"><i class="bi bi-trash"></i></button>
               </td>
-            </tr>
-          `;
+            </tr>`;
         });
       }
 
@@ -88,6 +99,7 @@
         const payload = {
           producto_id: Number(document.getElementById('repositionProducto').value),
           cantidad: Number(document.getElementById('repositionCantidad').value),
+          proveedor_id: document.getElementById('repositionProveedor').value || null,
         };
         try {
           await apiRequest('/api/repositions', { method: 'POST', body: JSON.stringify(payload) });
@@ -113,6 +125,7 @@
         if (!protectPage()) return;
         document.getElementById('repositionForm').addEventListener('submit', saveReposition);
         await loadProductsForSelect();
+        await loadProveedoresForSelect();
         await loadRepositions();
       });
     </script>

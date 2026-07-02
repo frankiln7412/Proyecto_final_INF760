@@ -26,7 +26,7 @@ async function getReposition(req, res) {
 
 async function createReposition(req, res) {
   try {
-    const { producto_id, cantidad } = req.body;
+    const { producto_id, cantidad, proveedor_id } = req.body;
 
     if (!producto_id) {
       return res.status(400).json({ message: 'producto_id es obligatorio' });
@@ -45,6 +45,7 @@ async function createReposition(req, res) {
       producto_id: Number(producto_id),
       cantidad: cantNum,
       usuario_id: req.user.id,
+      proveedor_id: proveedor_id ? Number(proveedor_id) : null,
     });
     res.status(201).json({ message: 'Reposición creada correctamente', reposition });
   } catch (error) {

@@ -11,6 +11,7 @@ const saleRoutes = require('./routes/saleRoutes');
 const inventoryMovementRoutes = require('./routes/inventoryMovementRoutes');
 const productMovementRoutes = require('./routes/productMovementRoutes');
 const productCostHistoryRoutes = require('./routes/productCostHistoryRoutes');
+const proveedorRoutes = require('./routes/proveedorRoutes');
 
 const app = express();
 
@@ -46,6 +47,7 @@ app.use('/api/sales', saleRoutes);
 app.use('/api/inventory-movements', inventoryMovementRoutes);
 app.use('/api/product-movements', productMovementRoutes);
 app.use('/api/product-cost-history', productCostHistoryRoutes);
+app.use('/api/proveedores', proveedorRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Ruta no encontrada' });

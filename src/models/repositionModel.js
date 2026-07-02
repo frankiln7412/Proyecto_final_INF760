@@ -2,10 +2,13 @@ const db = require('../config/db');
 
 async function getAllRepositions() {
   const query = `
-    SELECT r.id, r.producto_id, p.nombre AS producto_nombre, r.cantidad, r.fecha, r.usuario_id, u.nombre AS usuario_nombre
+    SELECT r.id, r.producto_id, p.nombre AS producto_nombre,
+           r.cantidad, r.fecha, r.usuario_id, u.nombre AS usuario_nombre,
+           r.proveedor_id, prv.nombre AS proveedor_nombre
     FROM reposicion r
     JOIN producto p ON p.id = r.producto_id
     LEFT JOIN usuario u ON u.id = r.usuario_id
+    LEFT JOIN proveedor prv ON prv.id = r.proveedor_id
     ORDER BY r.fecha DESC
   `;
 
@@ -15,10 +18,13 @@ async function getAllRepositions() {
 
 async function getRepositionById(id) {
   const query = `
-    SELECT r.id, r.producto_id, p.nombre AS producto_nombre, r.cantidad, r.fecha, r.usuario_id, u.nombre AS usuario_nombre
+    SELECT r.id, r.producto_id, p.nombre AS producto_nombre,
+           r.cantidad, r.fecha, r.usuario_id, u.nombre AS usuario_nombre,
+           r.proveedor_id, prv.nombre AS proveedor_nombre
     FROM reposicion r
     JOIN producto p ON p.id = r.producto_id
     LEFT JOIN usuario u ON u.id = r.usuario_id
+    LEFT JOIN proveedor prv ON prv.id = r.proveedor_id
     WHERE r.id = $1
   `;
 
@@ -26,7 +32,7 @@ async function getRepositionById(id) {
   return result.rows[0];
 }
 
-async function createReposition({ producto_id, cantidad, usuario_id }) {
+async function createReposition({ producto_id, cantidad, usuario_id, proveedor_id }) {
   const client = await db.pool.connect();
 
   try {
@@ -47,11 +53,11 @@ async function createReposition({ producto_id, cantidad, usuario_id }) {
 
     const repositionResult = await client.query(
       `
-        INSERT INTO reposicion (producto_id, cantidad, usuario_id)
-        VALUES ($1, $2, $3)
-        RETURNING id, producto_id, cantidad, fecha, usuario_id
+        INSERT INTO reposicion (producto_id, cantidad, usuario_id, proveedor_id)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id, producto_id, cantidad, fecha, usuario_id, proveedor_id
       `,
-      [producto_id, cantidad, usuario_id || null]
+      [producto_id, cantidad, usuario_id || null, proveedor_id || null]
     );
 
     await client.query(
