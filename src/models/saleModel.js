@@ -1,20 +1,10 @@
 const db = require('../config/db');
 const alertModel = require('./alertModel');
 
-async function ensureDetailVentaColumns() {
-  const result = await db.query("SELECT column_name FROM information_schema.columns WHERE table_name = 'detalle_venta'");
-  const columns = result.rows.map((row) => row.column_name);
-
-  if (!columns.includes('total_precio')) {
-    await db.query("ALTER TABLE detalle_venta ADD COLUMN IF NOT EXISTS total_precio NUMERIC(10,2) NOT NULL DEFAULT 0");
-  }
-}
-
 async function createSale({ usuario_id, total, items, fecha, metodo_pago }) {
   const client = await db.pool.connect();
 
   try {
-    await ensureDetailVentaColumns();
     await client.query('BEGIN');
 
     let expectedTotal = 0;
@@ -88,10 +78,10 @@ async function createSale({ usuario_id, total, items, fecha, metodo_pago }) {
     for (const item of validatedItems) {
       await client.query(
         `
-          INSERT INTO detalle_venta (venta_id, producto_id, cantidad, precio_unitario, subtotal, total_precio)
-          VALUES ($1, $2, $3, $4, $5, $6)
+          INSERT INTO detalle_venta (venta_id, producto_id, cantidad, precio_unitario, subtotal)
+          VALUES ($1, $2, $3, $4, $5)
         `,
-        [sale.id, item.producto_id, item.cantidad, item.precio_unitario, item.subtotal, item.subtotal]
+        [sale.id, item.producto_id, item.cantidad, item.precio_unitario, item.subtotal]
       );
 
       const stockResult = await client.query(
@@ -186,8 +176,7 @@ async function createSale({ usuario_id, total, items, fecha, metodo_pago }) {
 async function getSalesSummary() {
   const query = `
     SELECT
-      COALESCE(SUM(total), 0)::numeric(10,2) AS total_ventas,
-      COALESCE(SUM(total), 0)::numeric(10,2) AS total_ganancias
+      COALESCE(SUM(total), 0)::numeric(10,2) AS total_ventas
     FROM venta
   `;
 
@@ -208,8 +197,6 @@ async function getLowStockProducts() {
 }
 
 async function getSalesReport({ tipo = 'detalle', desde, hasta } = {}) {
-  await ensureDetailVentaColumns();
-
   const conditions = [];
   const values = [];
   let index = 1;
@@ -314,7 +301,6 @@ async function getDashboard() {
   return {
     total_productos: Number(productCount.rows[0].total),
     total_ventas: Number(salesSummary.total_ventas),
-    total_ganancias: Number(salesSummary.total_ganancias),
     ventas_hoy: Number(hoyQuery.rows[0].total_hoy),
     productos_stock_bajo: lowStock,
     alertas_activas: activeAlerts,

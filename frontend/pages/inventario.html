@@ -18,14 +18,71 @@
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#movementModal"><i class="bi bi-plus-circle"></i> Nuevo movimiento</button>
       </div>
 
+      <!-- Reporte de entradas/salidas -->
+      <div class="card table-card p-3 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-semibold mb-0">Reporte de movimientos de productos</h5>
+          <button class="btn btn-outline-secondary btn-sm no-print" onclick="window.print()"><i class="bi bi-printer"></i> Imprimir</button>
+        </div>
+        <div class="row g-3 align-items-end mb-3 no-print">
+          <div class="col-md-2">
+            <label class="form-label">Tipo</label>
+            <select id="reportType" class="form-select">
+              <option value="">Todos</option>
+              <option value="ENTRADA">Solo entradas</option>
+              <option value="SALIDA">Solo salidas</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Producto</label>
+            <select id="filterProducto" class="form-select">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Desde</label>
+            <input id="dateFrom" type="date" class="form-control" />
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Hasta</label>
+            <input id="dateTo" type="date" class="form-control" />
+          </div>
+          <div class="col-md-3">
+            <button id="applyFiltersBtn" class="btn btn-primary w-100">Filtrar</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table align-middle table-hover">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Producto</th>
+                <th>Código</th>
+                <th class="text-center">Tipo</th>
+                <th class="text-end">Cantidad</th>
+                <th class="text-end">Stock ant.</th>
+                <th class="text-end">Stock nuevo</th>
+                <th class="text-end">Precio venta</th>
+                <th class="text-end">Total venta</th>
+                <th>Motivo</th>
+                <th>Usuario</th>
+              </tr>
+            </thead>
+            <tbody id="productReportTable"></tbody>
+          </table>
+        </div>
+        <div id="reportSummary" class="mt-3 p-3 bg-light rounded d-none no-print"></div>
+      </div>
+
+      <!-- Movimientos de insumos -->
       <div class="row g-4 mb-4">
         <div class="col-lg-7">
           <div class="card table-card p-3">
-            <h5 class="fw-semibold mb-3">Movimientos</h5>
+            <h5 class="fw-semibold mb-3">Movimientos de insumos</h5>
             <div class="table-responsive">
               <table class="table align-middle">
                 <thead>
-                  <tr><th>Fecha</th><th>Inventario</th><th>Tipo</th><th>Cantidad</th><th>Costo</th><th>Total</th></tr>
+                  <tr><th>Fecha</th><th>Insumo</th><th>Tipo</th><th>Cantidad</th><th>Costo</th><th>Total</th></tr>
                 </thead>
                 <tbody id="movementsTable"></tbody>
               </table>
@@ -37,7 +94,7 @@
             <h5 class="fw-semibold mb-3">Registrar movimiento</h5>
             <form id="movementForm">
               <div class="mb-3">
-                <label class="form-label">Inventario</label>
+                <label class="form-label">Insumo</label>
                 <select id="movementInventory" class="form-select" required></select>
               </div>
               <div class="mb-3">
@@ -66,7 +123,7 @@
       </div>
 
       <div class="card table-card p-3">
-        <h5 class="fw-semibold mb-3">Histórico de costos</h5>
+        <h5 class="fw-semibold mb-3">Histórico de costos de insumos</h5>
         <div class="table-responsive">
           <table class="table align-middle">
             <thead>
@@ -75,16 +132,6 @@
             <tbody id="costHistoryTable"></tbody>
           </table>
         </div>
-      </div>
-    </div>
-
-    <div class="card table-card p-3 mt-4">
-      <h5 class="fw-semibold mb-3">Movimientos de productos</h5>
-      <div class="table-responsive">
-        <table class="table align-middle">
-          <thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Stock anterior → nuevo</th><th>Precio Venta</th><th>Total Venta</th><th>Motivo</th></tr></thead>
-          <tbody id="productMovementsTable"></tbody>
-        </table>
       </div>
     </div>
 
@@ -105,7 +152,7 @@
           <div class="modal-body">
             <form id="movementFormModal">
               <input type="hidden" id="movementId" />
-              <div class="mb-3"><label class="form-label">Inventario</label><select id="movementInventoryModal" class="form-select" required></select></div>
+              <div class="mb-3"><label class="form-label">Insumo</label><select id="movementInventoryModal" class="form-select" required></select></div>
               <div class="mb-3"><label class="form-label">Tipo</label><select id="movementTypeModal" class="form-select" required><option value="ENTRADA">Entrada</option><option value="SALIDA">Salida</option></select></div>
               <div class="mb-3"><label class="form-label">Cantidad</label><input id="movementCantidadModal" type="number" class="form-control" required /></div>
               <div class="mb-3"><label class="form-label">Costo unitario</label><input id="movementCostoModal" type="number" step="0.01" class="form-control" required /></div>
@@ -120,6 +167,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/js/auth.js"></script>
     <script>
+      let products = [];
       let inventory = [];
       let movements = [];
       let costHistory = [];
@@ -213,38 +261,82 @@
       }
 
       // ----- Productos -----
-      let productMovements = [];
       let productCostHistory = [];
 
-      async function loadProductMovements() {
+      async function loadProducts() {
         try {
-          productMovements = await apiRequest('/api/product-movements/reporte');
-          renderProductMovements();
+          products = await apiRequest('/api/products');
+          const select = document.getElementById('filterProducto');
+          select.innerHTML = '<option value="">Todos</option>';
+          products.forEach((p) => {
+            select.innerHTML += `<option value="${p.id}">${p.nombre}${p.codigo ? ' (' + p.codigo + ')' : ''}</option>`;
+          });
         } catch (e) { /* ignore */ }
       }
 
-      function renderProductMovements() {
-        const tbody = document.getElementById('productMovementsTable');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        if (!productMovements.length) {
-          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Sin movimientos</td></tr>';
-          return;
-        }
-        productMovements.forEach((m) => {
-          tbody.innerHTML += `
-            <tr>
-              <td>${new Date(m.fecha).toLocaleString()}</td>
-              <td>${m.producto_nombre}</td>
-              <td><span class="badge ${m.tipo === 'ENTRADA' ? 'badge-ok' : 'badge-critical'}">${m.tipo}</span></td>
-              <td>${m.cantidad}</td>
-              <td>${m.stock_anterior} → ${m.stock_nuevo}</td>
-              <td>${m.precio_venta ? '$' + Number(m.precio_venta).toFixed(2) : '-'}</td>
-              <td>${m.total_venta ? '$' + Number(m.total_venta).toFixed(2) : '-'}</td>
-              <td>${m.motivo || '-'}</td>
-            </tr>
+      async function loadProductReport() {
+        try {
+          const tipo = document.getElementById('reportType').value;
+          const producto_id = document.getElementById('filterProducto').value;
+          const from = document.getElementById('dateFrom').value;
+          const to = document.getElementById('dateTo').value;
+
+          const params = new URLSearchParams();
+          if (tipo) params.append('tipo', tipo);
+          if (producto_id) params.append('producto_id', producto_id);
+          if (from) params.append('desde', `${from}T00:00:00`);
+          if (to) params.append('hasta', `${to}T23:59:59`);
+
+          const rows = await apiRequest(`/api/product-movements/reporte?${params.toString()}`);
+          const tbody = document.getElementById('productReportTable');
+          tbody.innerHTML = '';
+
+          if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted">No hay resultados</td></tr>';
+            document.getElementById('reportSummary').classList.add('d-none');
+            return;
+          }
+
+          let totalEntradas = 0, totalSalidas = 0, totalVenta = 0;
+
+          rows.forEach((row) => {
+            const badge = row.tipo === 'ENTRADA' ? 'badge-ok' : 'badge-critical';
+            totalEntradas += row.tipo === 'ENTRADA' ? row.cantidad : 0;
+            totalSalidas += row.tipo === 'SALIDA' ? row.cantidad : 0;
+            totalVenta += row.total_venta || 0;
+
+            const product = products.find((p) => p.id === row.producto_id);
+            const codigo = product ? (product.codigo || '-') : '-';
+
+            tbody.innerHTML += `
+              <tr>
+                <td class="text-nowrap small">${new Date(row.fecha).toLocaleString()}</td>
+                <td class="fw-medium">${row.producto_nombre}</td>
+                <td class="text-muted small">${codigo}</td>
+                <td class="text-center"><span class="badge ${badge}">${row.tipo}</span></td>
+                <td class="text-end fw-semibold">${row.cantidad}</td>
+                <td class="text-end">${row.stock_anterior}</td>
+                <td class="text-end">${row.stock_nuevo}</td>
+                <td class="text-end">${row.precio_venta ? '$' + Number(row.precio_venta).toFixed(2) : '-'}</td>
+                <td class="text-end">${row.total_venta ? '$' + Number(row.total_venta).toFixed(2) : '-'}</td>
+                <td class="text-muted small">${row.motivo || '-'}</td>
+                <td class="small">${row.usuario_nombre || '-'}</td>
+              </tr>
+            `;
+          });
+
+          const summary = document.getElementById('reportSummary');
+          summary.classList.remove('d-none');
+          summary.innerHTML = `
+            <div class="row g-3">
+              <div class="col-md-4"><strong>Total entradas:</strong> ${totalEntradas} unidades</div>
+              <div class="col-md-4"><strong>Total salidas:</strong> ${totalSalidas} unidades</div>
+              <div class="col-md-4"><strong>Total ventas:</strong> $${totalVenta.toFixed(2)}</div>
+            </div>
           `;
-        });
+        } catch (error) {
+          document.getElementById('productReportTable').innerHTML = `<tr><td colspan="11" class="text-center text-danger">${error.message}</td></tr>`;
+        }
       }
 
       async function loadProductCostHistory() {
@@ -280,10 +372,12 @@
         document.getElementById('movementFormModal').addEventListener('submit', saveMovement);
         document.getElementById('movementInventory').addEventListener('change', loadCostHistory);
         document.getElementById('movementInventoryModal').addEventListener('change', loadCostHistory);
+        document.getElementById('applyFiltersBtn').addEventListener('click', loadProductReport);
+        await loadProducts();
         await loadInventoryOptions();
         await loadMovements();
         await loadCostHistory();
-        await loadProductMovements();
+        await loadProductReport();
         await loadProductCostHistory();
       });
     </script>

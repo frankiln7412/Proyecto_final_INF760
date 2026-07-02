@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 async function getAllProducts() {
   const query = `
-    SELECT id, nombre, descripcion, precio, stock, stock_minimo, created_at
+    SELECT id, nombre, codigo, descripcion, precio, stock, stock_minimo, created_at
     FROM producto
     ORDER BY created_at DESC
   `;
@@ -13,7 +13,7 @@ async function getAllProducts() {
 
 async function getProductById(id) {
   const query = `
-    SELECT id, nombre, descripcion, precio, stock, stock_minimo, created_at
+    SELECT id, nombre, codigo, descripcion, precio, stock, stock_minimo, created_at
     FROM producto
     WHERE id = $1
   `;
@@ -22,14 +22,14 @@ async function getProductById(id) {
   return result.rows[0];
 }
 
-async function createProduct({ nombre, descripcion, precio, stock, stock_minimo }) {
+async function createProduct({ nombre, codigo, descripcion, precio, stock, stock_minimo }) {
   const query = `
-    INSERT INTO producto (nombre, descripcion, precio, stock, stock_minimo)
-    VALUES ($1, $2, $3, $4, $5)
-    RETURNING id, nombre, descripcion, precio, stock, stock_minimo, created_at
+    INSERT INTO producto (nombre, codigo, descripcion, precio, stock, stock_minimo)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id, nombre, codigo, descripcion, precio, stock, stock_minimo, created_at
   `;
 
-  const result = await db.query(query, [nombre, descripcion, precio, stock, stock_minimo]);
+  const result = await db.query(query, [nombre, codigo || null, descripcion, precio, stock, stock_minimo]);
   return result.rows[0];
 }
 
@@ -41,6 +41,12 @@ async function updateProduct(id, data) {
   if (data.nombre !== undefined) {
     fields.push(`nombre = $${index}`);
     values.push(data.nombre);
+    index += 1;
+  }
+
+  if (data.codigo !== undefined) {
+    fields.push(`codigo = $${index}`);
+    values.push(data.codigo);
     index += 1;
   }
 

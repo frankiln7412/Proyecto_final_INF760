@@ -1,9 +1,9 @@
 const saleModel = require('../models/saleModel');
 
-function normalizeDateParam(dateStr) {
+function normalizeDateParam(dateStr, endOfDay = false) {
   if (!dateStr) return null;
   if (dateStr.includes('T')) return dateStr;
-  return `${dateStr}T00:00:00`;
+  return `${dateStr}${endOfDay ? 'T23:59:59' : 'T00:00:00'}`;
 }
 
 async function createSale(req, res) {
@@ -26,7 +26,8 @@ async function createSale(req, res) {
       if (!item.producto_id) {
         return res.status(400).json({ message: 'Cada item debe tener un producto_id' });
       }
-      if (item.cantidad === undefined || item.cantidad === null || !Number.isInteger(Number(item.cantidad)) || Number(item.cantidad) <= 0) {
+      const itemCant = Number(item.cantidad);
+      if (item.cantidad === undefined || item.cantidad === null || !Number.isInteger(itemCant) || itemCant <= 0) {
         return res.status(400).json({ message: `Cantidad inválida para el producto ${item.producto_id}` });
       }
       if (item.precio_unitario !== undefined && Number(item.precio_unitario) < 0) {
@@ -55,7 +56,7 @@ async function getSalesReport(req, res) {
     const report = await saleModel.getSalesReport({
       tipo,
       desde: normalizeDateParam(desde),
-      hasta: normalizeDateParam(hasta),
+      hasta: normalizeDateParam(hasta, true),
     });
     res.json(report);
   } catch (error) {

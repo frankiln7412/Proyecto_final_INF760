@@ -130,6 +130,5 @@ module.exports = {
   getAllRepositions,
   getRepositionById,
   createReposition,
-  updateReposition,
   deleteReposition,
 };

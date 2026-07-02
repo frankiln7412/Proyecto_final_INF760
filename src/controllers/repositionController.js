@@ -32,18 +32,23 @@ async function createReposition(req, res) {
       return res.status(400).json({ message: 'producto_id es obligatorio' });
     }
 
-    if (cantidad === undefined || cantidad === null || !Number.isInteger(Number(cantidad)) || Number(cantidad) <= 0) {
+    if (cantidad === undefined || cantidad === null) {
+      return res.status(400).json({ message: 'La cantidad es obligatoria' });
+    }
+
+    const cantNum = Number(cantidad);
+    if (!Number.isInteger(cantNum) || cantNum <= 0) {
       return res.status(400).json({ message: 'La cantidad debe ser un número entero positivo' });
     }
 
     const reposition = await repositionModel.createReposition({
       producto_id: Number(producto_id),
-      cantidad: Number(cantidad),
+      cantidad: cantNum,
       usuario_id: req.user.id,
     });
     res.status(201).json({ message: 'Reposición creada correctamente', reposition });
   } catch (error) {
-    console.error(error);
+    console.error('Error en createReposition:', error.message || error);
     res.status(500).json({ message: error.message || 'Error al crear reposición' });
   }
 }

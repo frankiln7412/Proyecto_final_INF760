@@ -46,6 +46,7 @@ async function createProduct(req, res) {
 
     const product = await productModel.createProduct({
       nombre: nombre.trim(),
+      codigo: req.body.codigo || null,
       descripcion: descripcion || '',
       precio: Number(precio),
       stock: Number(stock),

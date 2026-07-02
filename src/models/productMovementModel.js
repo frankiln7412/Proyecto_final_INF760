@@ -134,6 +134,7 @@ async function getInventoryReport({ tipo, desde, hasta, producto_id, usuario_id 
       pm.id,
       pm.producto_id,
       p.nombre AS producto_nombre,
+      p.precio AS precio_actual,
       pm.tipo,
       pm.cantidad,
       pm.stock_anterior,
@@ -142,25 +143,21 @@ async function getInventoryReport({ tipo, desde, hasta, producto_id, usuario_id 
       pm.usuario_id,
       u.nombre AS usuario_nombre,
       pm.fecha,
-      CASE
-        WHEN pm.tipo = 'SALIDA' AND pm.motivo LIKE 'Venta #%' THEN
-          (SELECT dv.precio_unitario FROM detalle_venta dv
-           JOIN venta v ON v.id = dv.venta_id
-           WHERE dv.producto_id = pm.producto_id
-           ORDER BY ABS(EXTRACT(EPOCH FROM (v.fecha - pm.fecha))) LIMIT 1)
-        ELSE NULL
-      END AS precio_venta,
-      CASE
-        WHEN pm.tipo = 'SALIDA' AND pm.motivo LIKE 'Venta #%' THEN
-          (SELECT dv.precio_unitario * pm.cantidad FROM detalle_venta dv
-           JOIN venta v ON v.id = dv.venta_id
-           WHERE dv.producto_id = pm.producto_id
-           ORDER BY ABS(EXTRACT(EPOCH FROM (v.fecha - pm.fecha))) LIMIT 1)
-        ELSE NULL
-      END AS total_venta
+      dv.precio_unitario AS precio_venta,
+      (dv.precio_unitario * pm.cantidad)::numeric(10,2) AS total_venta
     FROM producto_movimiento pm
     JOIN producto p ON p.id = pm.producto_id
     LEFT JOIN usuario u ON u.id = pm.usuario_id
+    LEFT JOIN LATERAL (
+      SELECT dv.precio_unitario
+      FROM detalle_venta dv
+      JOIN venta v ON v.id = dv.venta_id
+      WHERE dv.producto_id = pm.producto_id
+        AND v.fecha::date = pm.fecha::date
+        AND pm.motivo LIKE 'Venta #%'
+      ORDER BY v.fecha DESC
+      LIMIT 1
+    ) dv ON TRUE
     ${whereClause}
     ORDER BY pm.fecha DESC, pm.id DESC
   `;
@@ -171,6 +168,7 @@ async function getInventoryReport({ tipo, desde, hasta, producto_id, usuario_id 
     cantidad: Number(row.cantidad),
     stock_anterior: Number(row.stock_anterior),
     stock_nuevo: Number(row.stock_nuevo),
+    precio_actual: Number(row.precio_actual),
     precio_venta: row.precio_venta ? Number(row.precio_venta) : null,
     total_venta: row.total_venta ? Number(row.total_venta) : null,
   }));
