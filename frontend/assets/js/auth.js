@@ -2,7 +2,11 @@ const API_URL = 'http://localhost:5000';
 
 function showToast(message, type = 'success') {
   const container = document.getElementById('toastContainer');
-  if (!container) return;
+  if (!container) {
+    try { if (window.parent && window.parent.showToast) { window.parent.showToast(message, type); return; } } catch (e) {}
+    try { if (window.top && window.top.showToast) { window.top.showToast(message, type); return; } } catch (e) {}
+    return;
+  }
 
   const toast = document.createElement('div');
   toast.className = `toast align-items-center text-bg-${type} border-0 show`;

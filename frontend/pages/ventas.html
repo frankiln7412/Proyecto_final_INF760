@@ -189,7 +189,7 @@
             body: JSON.stringify({ total: cart.reduce((acc, item) => acc + item.subtotal, 0), items: cart, fecha, metodo_pago }),
           });
           
-          showToast(`Venta registrada. QR listo para el comprobante.`, 'success');
+          showToast(`Venta registrada con éxito!`, 'success');
           
           if (result.sale && result.sale.qr_text) {
             const itemsHtml = cart.map((item) =>
