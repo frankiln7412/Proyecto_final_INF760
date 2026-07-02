@@ -68,15 +68,58 @@ async function updateSupply(id, data) {
 
   values.push(id);
 
-  const query = `
-    UPDATE insumo
-    SET ${fields.join(', ')}
-    WHERE id = $${index}
-    RETURNING id, nombre, cantidad, unidad_medida, precio, created_at
-  `;
+  const client = await db.pool.connect();
 
-  const result = await db.query(query, values);
-  return result.rows[0];
+  try {
+    await client.query('BEGIN');
+
+    const current = await client.query('SELECT precio, cantidad FROM insumo WHERE id = $1', [id]);
+    if (!current.rows[0]) throw new Error('Insumo no encontrado');
+
+    const oldPrice = Number(current.rows[0].precio);
+    const oldCantidad = Number(current.rows[0].cantidad);
+
+    const result = await client.query(
+      `
+        UPDATE insumo
+        SET ${fields.join(', ')}
+        WHERE id = $${index}
+        RETURNING id, nombre, cantidad, unidad_medida, precio, created_at
+      `,
+      values
+    );
+
+    if (data.precio !== undefined && Number(data.precio) !== oldPrice) {
+      const priceDiff = Number(data.precio) - oldPrice;
+      await client.query(
+        `
+          INSERT INTO inventario_movimiento (inventario_id, tipo, cantidad, costo_unitario, total, descripcion, usuario_id, costo_anterior)
+          VALUES ($1, 'ENTRADA', 1, $2, $2, $3, $4, $5)
+        `,
+        [id, Number(data.precio), `Cambio de precio: $${oldPrice.toFixed(2)} → $${Number(data.precio).toFixed(2)}`, data.usuario_id || null, oldPrice]
+      );
+    }
+
+    if (data.cantidad !== undefined && Number(data.cantidad) !== oldCantidad) {
+      const diff = Number(data.cantidad) - oldCantidad;
+      const tipo = diff > 0 ? 'ENTRADA' : 'SALIDA';
+      await client.query(
+        `
+          INSERT INTO inventario_movimiento (inventario_id, tipo, cantidad, costo_unitario, total, descripcion, usuario_id)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `,
+        [id, tipo, Math.abs(diff), Number(data.precio ?? current.rows[0].precio), Math.abs(diff) * Number(data.precio ?? current.rows[0].precio), 'Ajuste manual', data.usuario_id || null]
+      );
+    }
+
+    await client.query('COMMIT');
+    return result.rows[0];
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 async function deleteSupply(id) {

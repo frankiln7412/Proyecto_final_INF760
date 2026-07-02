@@ -32,36 +32,47 @@
 
       <div id="dashboardContent" class="d-none">
         <div class="row g-4 mb-4">
-          <div class="col-md-4">
+          <div class="col-md-3">
             <div class="card card-stat p-3">
               <div class="d-flex align-items-center justify-content-between">
                 <div>
                   <p class="text-muted mb-1">Productos</p>
-                  <h3 id="totalProductos">0</h3>
+                  <h3 id="totalProductos" class="fw-bold">0</h3>
                 </div>
                 <div class="kpi-icon bg-primary"><i class="bi bi-box2"></i></div>
               </div>
             </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <div class="card card-stat p-3">
               <div class="d-flex align-items-center justify-content-between">
                 <div>
-                  <p class="text-muted mb-1">Ventas</p>
-                  <h3 id="totalVentas">0</h3>
+                  <p class="text-muted mb-1">Ventas totales</p>
+                  <h3 id="totalVentas" class="fw-bold">$0</h3>
                 </div>
                 <div class="kpi-icon bg-success"><i class="bi bi-cart3"></i></div>
               </div>
             </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <div class="card card-stat p-3">
               <div class="d-flex align-items-center justify-content-between">
                 <div>
-                  <p class="text-muted mb-1">Ganancias</p>
-                  <h3 id="totalGanancias">0</h3>
+                  <p class="text-muted mb-1">Ventas hoy</p>
+                  <h3 id="ventasHoy" class="fw-bold">$0</h3>
                 </div>
-                <div class="kpi-icon bg-warning"><i class="bi bi-cash-stack"></i></div>
+                <div class="kpi-icon bg-info"><i class="bi bi-calendar-check"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card card-stat p-3">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <p class="text-muted mb-1">Alertas activas</p>
+                  <h3 id="alertasActivas" class="fw-bold">0</h3>
+                </div>
+                <div class="kpi-icon bg-warning"><i class="bi bi-exclamation-triangle"></i></div>
               </div>
             </div>
           </div>
@@ -97,28 +108,29 @@
       async function loadDashboard() {
         try {
           const data = await apiRequest('/api/sales/dashboard');
-          document.getElementById('totalProductos').textContent = '—';
+          document.getElementById('totalProductos').textContent = data.total_productos ?? '—';
           document.getElementById('totalVentas').textContent = `$${Number(data.total_ventas).toFixed(2)}`;
-          document.getElementById('totalGanancias').textContent = `$${Number(data.total_ganancias).toFixed(2)}`;
-
-          const products = await apiRequest('/api/products');
-          document.getElementById('totalProductos').textContent = products.length;
+          document.getElementById('ventasHoy').textContent = `$${Number(data.ventas_hoy).toFixed(2)}`;
+          document.getElementById('alertasActivas').textContent = data.alertas_activas ?? 0;
 
           const tableBody = document.getElementById('stockLowTable');
           tableBody.innerHTML = '';
-          if (data.productos_stock_bajo.length === 0) {
+          if (!data.productos_stock_bajo || data.productos_stock_bajo.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="4" class="text-muted text-center">No hay productos con stock bajo</td></tr>';
           } else {
             data.productos_stock_bajo.forEach((product) => {
-              tableBody.innerHTML += `<tr><td>${product.nombre}</td><td>${product.stock}</td><td>${product.stock_minimo}</td><td><span class="badge badge-critical">Crítico</span></td></tr>`;
+              const ratio = product.stock / product.stock_minimo;
+              const badge = ratio <= 0.5 ? 'badge-critical' : 'badge-warning';
+              tableBody.innerHTML += `<tr><td>${product.nombre}</td><td>${product.stock}</td><td>${product.stock_minimo}</td><td><span class="badge ${badge}">${ratio <= 0.5 ? 'Crítico' : 'Bajo'}</span></td></tr>`;
             });
           }
 
           const summaryList = document.getElementById('summaryList');
           summaryList.innerHTML = `
-            <li class="list-group-item"><strong>Total de productos:</strong> ${products.length}</li>
-            <li class="list-group-item"><strong>Ventas registradas:</strong> ${Number(data.total_ventas).toFixed(2)}</li>
-            <li class="list-group-item"><strong>Ganancias:</strong> $${Number(data.total_ganancias).toFixed(2)}</li>
+            <li class="list-group-item d-flex justify-content-between"><span>Total productos</span><strong>${data.total_productos}</strong></li>
+            <li class="list-group-item d-flex justify-content-between"><span>Ventas totales</span><strong>$${Number(data.total_ventas).toFixed(2)}</strong></li>
+            <li class="list-group-item d-flex justify-content-between"><span>Ventas hoy</span><strong>$${Number(data.ventas_hoy).toFixed(2)}</strong></li>
+            <li class="list-group-item d-flex justify-content-between"><span>Alertas activas</span><strong>${data.alertas_activas}</strong></li>
           `;
         } catch (error) {
           document.getElementById('dashboardContent').innerHTML = `<div class="alert alert-danger">${error.message}</div>`;

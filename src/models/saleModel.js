@@ -26,6 +26,7 @@ async function createSale({ usuario_id, total, items, fecha, metodo_pago }) {
           SELECT id, nombre, precio, stock, stock_minimo
           FROM producto
           WHERE id = $1
+          FOR UPDATE
         `,
         [item.producto_id]
       );
@@ -293,12 +294,22 @@ async function getSalesReport({ tipo = 'detalle', desde, hasta } = {}) {
 
 async function getDashboard() {
   const salesSummary = await getSalesSummary();
+
+  const hoyQuery = await db.query(`
+    SELECT COALESCE(SUM(total), 0)::numeric(10,2) AS total_hoy
+    FROM venta
+    WHERE fecha::date = CURRENT_DATE
+  `);
+
+  const productCount = await db.query('SELECT COUNT(*)::int AS total FROM producto');
   const lowStock = await getLowStockProducts();
   const activeAlerts = await alertModel.getActiveAlertsCount();
 
   return {
+    total_productos: Number(productCount.rows[0].total),
     total_ventas: Number(salesSummary.total_ventas),
     total_ganancias: Number(salesSummary.total_ganancias),
+    ventas_hoy: Number(hoyQuery.rows[0].total_hoy),
     productos_stock_bajo: lowStock,
     alertas_activas: activeAlerts,
   };

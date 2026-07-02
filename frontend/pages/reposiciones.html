@@ -19,7 +19,7 @@
       </div>
       <div class="table-responsive">
         <table class="table align-middle table-hover">
-          <thead><tr><th>Producto</th><th>Cantidad</th><th>Fecha</th><th>Acciones</th></tr></thead>
+          <thead><tr><th>Producto</th><th>Cantidad</th><th>Usuario</th><th>Fecha</th><th>Acciones</th></tr></thead>
           <tbody id="repositionsTable"></tbody>
         </table>
       </div>
@@ -60,14 +60,15 @@
         const tbody = document.getElementById('repositionsTable');
         tbody.innerHTML = '';
         if (!repositions.length) {
-          tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No hay reposiciones</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay reposiciones</td></tr>';
           return;
         }
         repositions.forEach((reposition) => {
           tbody.innerHTML += `
             <tr>
               <td>${reposition.producto_nombre}</td>
-              <td>${reposition.cantidad}</td>
+              <td><span class="badge badge-ok">+${reposition.cantidad}</span></td>
+              <td>${reposition.usuario_nombre || '-'}</td>
               <td>${new Date(reposition.fecha).toLocaleString()}</td>
               <td>
                 <button class="btn btn-sm btn-outline-danger" onclick="deleteReposition(${reposition.id})"><i class="bi bi-trash"></i></button>

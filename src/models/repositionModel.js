@@ -2,9 +2,10 @@ const db = require('../config/db');
 
 async function getAllRepositions() {
   const query = `
-    SELECT r.id, r.producto_id, p.nombre AS producto_nombre, r.cantidad, r.fecha, r.usuario_id
+    SELECT r.id, r.producto_id, p.nombre AS producto_nombre, r.cantidad, r.fecha, r.usuario_id, u.nombre AS usuario_nombre
     FROM reposicion r
     JOIN producto p ON p.id = r.producto_id
+    LEFT JOIN usuario u ON u.id = r.usuario_id
     ORDER BY r.fecha DESC
   `;
 
@@ -14,9 +15,10 @@ async function getAllRepositions() {
 
 async function getRepositionById(id) {
   const query = `
-    SELECT r.id, r.producto_id, p.nombre AS producto_nombre, r.cantidad, r.fecha, r.usuario_id
+    SELECT r.id, r.producto_id, p.nombre AS producto_nombre, r.cantidad, r.fecha, r.usuario_id, u.nombre AS usuario_nombre
     FROM reposicion r
     JOIN producto p ON p.id = r.producto_id
+    LEFT JOIN usuario u ON u.id = r.usuario_id
     WHERE r.id = $1
   `;
 

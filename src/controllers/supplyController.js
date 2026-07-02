@@ -42,7 +42,8 @@ async function createSupply(req, res) {
 
 async function updateSupply(req, res) {
   try {
-    const supply = await supplyModel.updateSupply(req.params.id, req.body);
+    const data = { ...req.body, usuario_id: req.user.id };
+    const supply = await supplyModel.updateSupply(req.params.id, data);
     if (!supply) {
       return res.status(404).json({ message: 'Insumo no encontrado' });
     }
@@ -50,7 +51,7 @@ async function updateSupply(req, res) {
     res.json({ message: 'Insumo actualizado correctamente', supply });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error al actualizar insumo' });
+    res.status(500).json({ message: error.message || 'Error al actualizar insumo' });
   }
 }
 

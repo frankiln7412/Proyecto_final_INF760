@@ -144,3 +144,31 @@ body {
   padding: 0.45em 0.7em;
   border-radius: 999px;
 }
+
+.badge-warning {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 0.45em 0.7em;
+  border-radius: 999px;
+}
+
+@media print {
+  body { background: white !important; padding: 0 !important; }
+  .no-print { display: none !important; }
+  .page-shell { box-shadow: none !important; border: 1px solid #ddd !important; }
+  .card, .table-card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ddd !important; }
+  table { font-size: 10pt; }
+  .btn { display: none !important; }
+  .modal { position: static !important; display: block !important; }
+  .modal-dialog { max-width: 100% !important; margin: 0 !important; }
+  .modal-content { box-shadow: none !important; border: none !important; }
+  .modal-header .btn-close { display: none !important; }
+  #contentFrame { height: auto !important; }
+}
+
+.card-print {
+  border: 2px dashed #2563eb;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: white;
+}

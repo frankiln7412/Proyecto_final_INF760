@@ -58,23 +58,29 @@
       </div>
     </div>
 
-    <!-- Modal para mostrar QR -->
+    <!-- Modal para mostrar QR / Comprobante -->
     <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="qrModalLabel">Detalle de Venta y QR</h5>
+          <div class="modal-header no-print">
+            <h5 class="modal-title" id="qrModalLabel">Comprobante de Venta</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body text-center">
-            <p class="mb-3">Escanea este código o guarda la información para tu comprobante:</p>
-            <div id="qrCodeContainer" class="d-flex justify-content-center mb-3">
-              <!-- Aquí se generaría la imagen del QR si se usa una librería de JS -->
-              <p class="border p-3">Cargando QR...</p>
+          <div class="modal-body">
+            <div id="comprobantePrint" class="card-print p-4">
+              <div class="text-center mb-3">
+                <h4 class="fw-bold mb-0">INVENTARIO+</h4>
+                <small class="text-muted">Comprobante de Venta</small>
+              </div>
+              <hr />
+              <div id="comprobanteBody"></div>
+              <hr />
+              <div id="qrCodeContainer" class="d-flex justify-content-center mb-2"></div>
+              <p class="text-muted small text-center mb-0">Escanea el código QR para verificar</p>
             </div>
-            <p class="text-muted small">El QR se genera con los detalles de la venta. Para una imagen visual se necesita una librería de QR.</p>
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer no-print">
+            <button type="button" class="btn btn-outline-secondary" onclick="imprimirComprobante()"><i class="bi bi-printer"></i> Imprimir</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
           </div>
         </div>
@@ -186,6 +192,22 @@
           showToast(`Venta registrada. QR listo para el comprobante.`, 'success');
           
           if (result.sale && result.sale.qr_text) {
+            const itemsHtml = cart.map((item) =>
+              `<tr><td>${item.nombre}</td><td class="text-center">${item.cantidad}</td><td class="text-end">$${Number(item.precio_unitario).toFixed(2)}</td><td class="text-end">$${Number(item.subtotal).toFixed(2)}</td></tr>`
+            ).join('');
+
+            const total = cart.reduce((acc, item) => acc + item.subtotal, 0);
+
+            document.getElementById('comprobanteBody').innerHTML = `
+              <p><strong>Venta #${result.sale.id}</strong></p>
+              <p class="small text-muted">${new Date().toLocaleString()} &middot; ${document.getElementById('pagoMetodo').value}</p>
+              <table class="table table-sm mb-0">
+                <thead><tr><th>Producto</th><th>Cant.</th><th>P/U</th><th>Subtotal</th></tr></thead>
+                <tbody>${itemsHtml}</tbody>
+                <tfoot><tr class="fw-bold"><td colspan="3" class="text-end">TOTAL</td><td class="text-end">$${total.toFixed(2)}</td></tr></tfoot>
+              </table>
+            `;
+
             const qrCodeContainer = document.getElementById('qrCodeContainer');
             qrCodeContainer.innerHTML = '';
             new QRCode(qrCodeContainer, {
@@ -211,6 +233,26 @@
       async function loadProducts() {
         products = await apiRequest('/api/products');
         renderProducts();
+      }
+
+      function imprimirComprobante() {
+        const printContents = document.getElementById('comprobantePrint').innerHTML;
+        const win = window.open('', '_blank');
+        win.document.write(`
+          <html><head><title>Comprobante #${document.querySelector('#comprobanteBody p strong')?.textContent || ''}</title>
+          <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+          <style>
+            body { padding: 20px; font-family: 'Courier New', monospace; font-size: 12px; }
+            table { width: 100%; border-collapse: collapse; }
+            td, th { padding: 4px 8px; }
+            hr { border-top: 1px dashed #000; }
+            .text-center { text-align: center; }
+            .text-end { text-align: right; }
+            @media print { .no-print { display: none; } body { padding: 0; } }
+          </style></head><body>${printContents}</body></html>
+        `);
+        win.document.close();
+        setTimeout(() => { win.print(); }, 500);
       }
 
       document.addEventListener('DOMContentLoaded', async () => {
