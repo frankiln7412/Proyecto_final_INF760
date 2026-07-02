@@ -43,13 +43,14 @@
             </div>
             <div class="mb-3">
               <label class="form-label">Método de pago</label>
-              <select id="pagoMetodo" class="form-select">
+              <select id="pagoMetodo" class="form-select" onchange="togglePagoQR()">
                 <option value="EFECTIVO">Efectivo</option>
-                <option value="TARJETA">Tarjeta</option>
-                <option value="TRANSFERENCIA">Transferencia</option>
-                <option value="YAPE">Yape</option>
-                <option value="PLIN">Plin</option>
+                <option value="QR">QR</option>
               </select>
+              <div id="qrPagoContainer" class="d-none mt-2 text-center p-3 bg-light rounded">
+                <p class="mb-1 small text-muted">Escanea para pagar</p>
+                <div id="qrPagoCode"></div>
+              </div>
             </div>
             <div class="small text-muted mb-3">El precio y la cantidad se validan contra el inventario real antes de registrar la venta. Se genera un código QR con el detalle de la venta.</div>
             <button class="btn btn-success w-100 mt-3" id="checkoutBtn">Registrar venta</button>
@@ -94,6 +95,20 @@
       let products = [];
       let cart = [];
 
+      function togglePagoQR() {
+        const metodo = document.getElementById('pagoMetodo').value;
+        const container = document.getElementById('qrPagoContainer');
+        const qrDiv = document.getElementById('qrPagoCode');
+        if (metodo === 'QR') {
+          container.classList.remove('d-none');
+          qrDiv.innerHTML = '';
+          const randomCode = 'PAGO-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+          new QRCode(qrDiv, { text: randomCode, width: 160, height: 160, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+        } else {
+          container.classList.add('d-none');
+        }
+      }
+
       function getCartQuantity(productId) {
         const item = cart.find((i) => i.producto_id === productId);
         return item ? item.cantidad : 0;
@@ -112,7 +127,6 @@
               <td class="text-end">${stockDisponible}</td>
               <td class="text-center">
                 <button class="btn btn-sm ${stockDisponible <= 0 ? 'btn-outline-secondary' : 'btn-outline-primary'}" onclick="addToCart(${product.id})" ${stockDisponible <= 0 ? 'disabled' : ''}><i class="bi bi-plus-lg"></i></button>
-                ${inCart > 0 ? `<button class="btn btn-sm btn-outline-danger ms-1" onclick="removeFromCart(${product.id})"><i class="bi bi-dash-lg"></i></button>` : ''}
               </td>
             </tr>
           `;
