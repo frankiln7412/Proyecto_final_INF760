@@ -85,8 +85,12 @@
       }
 
       async function loadProveedores() {
-        proveedores = await apiRequest('/api/proveedores');
-        renderProveedores();
+        try {
+          proveedores = await apiRequest('/api/proveedores');
+          renderProveedores();
+        } catch (e) {
+          showToast(e.message, 'danger');
+        }
       }
 
       async function saveProveedor(event) {
