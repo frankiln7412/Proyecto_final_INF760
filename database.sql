@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS reposicion (
   id SERIAL PRIMARY KEY,
   producto_id INTEGER NOT NULL REFERENCES producto(id) ON DELETE CASCADE,
   cantidad INTEGER NOT NULL CHECK (cantidad > 0),
+  usuario_id INTEGER REFERENCES usuario(id) ON DELETE SET NULL,
   fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -61,7 +62,45 @@ CREATE TABLE IF NOT EXISTS alerta (
   fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ============================================================
+-- Mejoras: agregar columnas a inventario_movimiento
+-- ============================================================
+ALTER TABLE inventario_movimiento ADD COLUMN IF NOT EXISTS usuario_id INTEGER REFERENCES usuario(id) ON DELETE SET NULL;
+ALTER TABLE inventario_movimiento ADD COLUMN IF NOT EXISTS costo_anterior NUMERIC(10,2);
+
+-- ============================================================
+-- Tabla: producto_movimiento (entradas/salidas de productos)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS producto_movimiento (
+  id SERIAL PRIMARY KEY,
+  producto_id INTEGER NOT NULL REFERENCES producto(id) ON DELETE CASCADE,
+  tipo VARCHAR(20) NOT NULL CHECK (tipo IN ('ENTRADA', 'SALIDA')),
+  cantidad INTEGER NOT NULL CHECK (cantidad > 0),
+  stock_anterior INTEGER NOT NULL DEFAULT 0,
+  stock_nuevo INTEGER NOT NULL DEFAULT 0,
+  motivo TEXT,
+  usuario_id INTEGER REFERENCES usuario(id) ON DELETE SET NULL,
+  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================================
+-- Tabla: producto_costo_historico (cambios de precio)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS producto_costo_historico (
+  id SERIAL PRIMARY KEY,
+  producto_id INTEGER NOT NULL REFERENCES producto(id) ON DELETE CASCADE,
+  costo_anterior NUMERIC(10,2) NOT NULL DEFAULT 0,
+  costo_nuevo NUMERIC(10,2) NOT NULL DEFAULT 0,
+  usuario_id INTEGER REFERENCES usuario(id) ON DELETE SET NULL,
+  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================================
+-- Índices
+-- ============================================================
 CREATE INDEX IF NOT EXISTS idx_venta_usuario_id ON venta(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_detalle_venta_venta_id ON detalle_venta(venta_id);
 CREATE INDEX IF NOT EXISTS idx_reposicion_producto_id ON reposicion(producto_id);
 CREATE INDEX IF NOT EXISTS idx_alerta_producto_id ON alerta(producto_id);
+CREATE INDEX IF NOT EXISTS idx_producto_movimiento_producto_id ON producto_movimiento(producto_id);
+CREATE INDEX IF NOT EXISTS idx_producto_costo_historico_producto_id ON producto_costo_historico(producto_id);

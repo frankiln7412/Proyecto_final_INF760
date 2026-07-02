@@ -9,6 +9,8 @@ const repositionRoutes = require('./routes/repositionRoutes');
 const alertRoutes = require('./routes/alertRoutes');
 const saleRoutes = require('./routes/saleRoutes');
 const inventoryMovementRoutes = require('./routes/inventoryMovementRoutes');
+const productMovementRoutes = require('./routes/productMovementRoutes');
+const productCostHistoryRoutes = require('./routes/productCostHistoryRoutes');
 
 const app = express();
 
@@ -42,6 +44,8 @@ app.use('/api/repositions', repositionRoutes);
 app.use('/api/alerts', alertRoutes);
 app.use('/api/sales', saleRoutes);
 app.use('/api/inventory-movements', inventoryMovementRoutes);
+app.use('/api/product-movements', productMovementRoutes);
+app.use('/api/product-cost-history', productCostHistoryRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Ruta no encontrada' });

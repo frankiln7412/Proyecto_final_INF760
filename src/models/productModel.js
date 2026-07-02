@@ -74,15 +74,64 @@ async function updateProduct(id, data) {
 
   values.push(id);
 
-  const query = `
-    UPDATE producto
-    SET ${fields.join(', ')}
-    WHERE id = $${index}
-    RETURNING id, nombre, descripcion, precio, stock, stock_minimo, created_at
-  `;
+  const client = await db.pool.connect();
 
-  const result = await db.query(query, values);
-  return result.rows[0];
+  try {
+    await client.query('BEGIN');
+
+    const oldProduct = await client.query(
+      'SELECT precio, stock FROM producto WHERE id = $1',
+      [id]
+    );
+
+    if (!oldProduct.rows[0]) {
+      throw new Error('Producto no encontrado');
+    }
+
+    const oldPrice = Number(oldProduct.rows[0].precio);
+    const oldStock = Number(oldProduct.rows[0].stock);
+
+    const result = await client.query(
+      `
+        UPDATE producto
+        SET ${fields.join(', ')}
+        WHERE id = $${index}
+        RETURNING id, nombre, descripcion, precio, stock, stock_minimo, created_at
+      `,
+      values
+    );
+
+    if (data.precio !== undefined && Number(data.precio) !== oldPrice) {
+      await client.query(
+        `
+          INSERT INTO producto_costo_historico (producto_id, costo_anterior, costo_nuevo, usuario_id)
+          VALUES ($1, $2, $3, $4)
+        `,
+        [id, oldPrice, data.precio, data.usuario_id || null]
+      );
+    }
+
+    if (data.stock !== undefined && Number(data.stock) !== oldStock) {
+      const diff = Number(data.stock) - oldStock;
+      const tipo = diff > 0 ? 'ENTRADA' : 'SALIDA';
+
+      await client.query(
+        `
+          INSERT INTO producto_movimiento (producto_id, tipo, cantidad, stock_anterior, stock_nuevo, motivo, usuario_id)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `,
+        [id, tipo, Math.abs(diff), oldStock, Number(data.stock), 'Ajuste manual', data.usuario_id || null]
+      );
+    }
+
+    await client.query('COMMIT');
+    return result.rows[0];
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 async function deleteProduct(id) {

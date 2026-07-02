@@ -78,6 +78,26 @@
       </div>
     </div>
 
+    <div class="card table-card p-3 mt-4">
+      <h5 class="fw-semibold mb-3">Movimientos de productos</h5>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Stock anterior → nuevo</th><th>Motivo</th></tr></thead>
+          <tbody id="productMovementsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card table-card p-3 mt-4">
+      <h5 class="fw-semibold mb-3">Historial de costos de productos</h5>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead><tr><th>Fecha</th><th>Producto</th><th>Costo anterior</th><th>Costo nuevo</th></tr></thead>
+          <tbody id="productCostHistoryTable"></tbody>
+        </table>
+      </div>
+    </div>
+
     <div class="modal fade" id="movementModal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -192,6 +212,66 @@
         }
       }
 
+      // ----- Productos -----
+      let productMovements = [];
+      let productCostHistory = [];
+
+      async function loadProductMovements() {
+        try {
+          productMovements = await apiRequest('/api/product-movements');
+          renderProductMovements();
+        } catch (e) { /* ignore */ }
+      }
+
+      function renderProductMovements() {
+        const tbody = document.getElementById('productMovementsTable');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        if (!productMovements.length) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Sin movimientos</td></tr>';
+          return;
+        }
+        productMovements.forEach((m) => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${new Date(m.fecha).toLocaleString()}</td>
+              <td>${m.producto_nombre}</td>
+              <td><span class="badge ${m.tipo === 'ENTRADA' ? 'badge-ok' : 'badge-critical'}">${m.tipo}</span></td>
+              <td>${m.cantidad}</td>
+              <td>${m.stock_anterior} → ${m.stock_nuevo}</td>
+              <td>${m.motivo || '-'}</td>
+            </tr>
+          `;
+        });
+      }
+
+      async function loadProductCostHistory() {
+        try {
+          productCostHistory = await apiRequest('/api/product-cost-history');
+          renderProductCostHistory();
+        } catch (e) { /* ignore */ }
+      }
+
+      function renderProductCostHistory() {
+        const tbody = document.getElementById('productCostHistoryTable');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        if (!productCostHistory.length) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Sin historial</td></tr>';
+          return;
+        }
+        productCostHistory.forEach((h) => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${new Date(h.fecha).toLocaleString()}</td>
+              <td>${h.producto_nombre}</td>
+              <td>$${Number(h.costo_anterior).toFixed(2)}</td>
+              <td>$${Number(h.costo_nuevo).toFixed(2)}</td>
+            </tr>
+          `;
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', async () => {
         if (!protectPage()) return;
         document.getElementById('movementForm').addEventListener('submit', saveMovement);
@@ -201,6 +281,8 @@
         await loadInventoryOptions();
         await loadMovements();
         await loadCostHistory();
+        await loadProductMovements();
+        await loadProductCostHistory();
       });
     </script>
   </body>

@@ -15,8 +15,26 @@ async function ensureInventoryMovementTable() {
   `);
 }
 
-async function getInventoryMovements() {
+async function getInventoryMovements({ desde, hasta } = {}) {
   await ensureInventoryMovementTable();
+
+  const conditions = [];
+  const values = [];
+  let index = 1;
+
+  if (desde) {
+    conditions.push(`im.fecha >= $${index}`);
+    values.push(desde);
+    index += 1;
+  }
+
+  if (hasta) {
+    conditions.push(`im.fecha <= $${index}`);
+    values.push(hasta);
+    index += 1;
+  }
+
+  const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
   const query = `
     SELECT
@@ -28,13 +46,18 @@ async function getInventoryMovements() {
       im.total,
       im.descripcion,
       im.fecha,
+      im.costo_anterior,
+      im.usuario_id,
+      u.nombre AS usuario_nombre,
       s.nombre AS inventario_nombre
     FROM inventario_movimiento im
     JOIN insumo s ON s.id = im.inventario_id
+    LEFT JOIN usuario u ON u.id = im.usuario_id
+    ${whereClause}
     ORDER BY im.fecha DESC, im.id DESC
   `;
 
-  const result = await db.query(query);
+  const result = await db.query(query, values);
   return result.rows.map((row) => ({
     ...row,
     cantidad: Number(row.cantidad),
@@ -43,8 +66,32 @@ async function getInventoryMovements() {
   }));
 }
 
-async function getInventoryCostHistory({ inventario_id } = {}) {
+async function getInventoryCostHistory({ inventario_id, desde, hasta } = {}) {
   await ensureInventoryMovementTable();
+
+  const conditions = [];
+  const values = [];
+  let index = 1;
+
+  if (inventario_id) {
+    conditions.push(`im.inventario_id = $${index}`);
+    values.push(inventario_id);
+    index += 1;
+  }
+
+  if (desde) {
+    conditions.push(`im.fecha >= $${index}`);
+    values.push(desde);
+    index += 1;
+  }
+
+  if (hasta) {
+    conditions.push(`im.fecha <= $${index}`);
+    values.push(hasta);
+    index += 1;
+  }
+
+  const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
   const query = `
     SELECT
@@ -56,14 +103,18 @@ async function getInventoryCostHistory({ inventario_id } = {}) {
       im.total,
       im.descripcion,
       im.fecha,
+      im.costo_anterior,
+      im.usuario_id,
+      u.nombre AS usuario_nombre,
       s.nombre AS inventario_nombre
     FROM inventario_movimiento im
     JOIN insumo s ON s.id = im.inventario_id
-    WHERE ($1::int IS NULL OR im.inventario_id = $1)
+    LEFT JOIN usuario u ON u.id = im.usuario_id
+    ${whereClause}
     ORDER BY im.fecha ASC, im.id ASC
   `;
 
-  const result = await db.query(query, [inventario_id ?? null]);
+  const result = await db.query(query, values);
   return result.rows.map((row) => ({
     ...row,
     cantidad: Number(row.cantidad),
@@ -72,7 +123,7 @@ async function getInventoryCostHistory({ inventario_id } = {}) {
   }));
 }
 
-async function createInventoryMovement({ inventario_id, tipo, cantidad, costo_unitario, descripcion }) {
+async function createInventoryMovement({ inventario_id, tipo, cantidad, costo_unitario, descripcion, usuario_id }) {
   await ensureInventoryMovementTable();
 
   const client = await db.pool.connect();
@@ -90,6 +141,7 @@ async function createInventoryMovement({ inventario_id, tipo, cantidad, costo_un
     const movementTotal = qty * unitCost;
     let newQuantity = Number(current.cantidad) || 0;
     let newCost = Number(current.precio) || 0;
+    const oldCost = newCost;
 
     if (tipo === 'ENTRADA') {
       const currentValue = newQuantity * newCost;
@@ -106,11 +158,11 @@ async function createInventoryMovement({ inventario_id, tipo, cantidad, costo_un
 
     const movementResult = await client.query(
       `
-        INSERT INTO inventario_movimiento (inventario_id, tipo, cantidad, costo_unitario, total, descripcion)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING id, inventario_id, tipo, cantidad, costo_unitario, total, descripcion, fecha
+        INSERT INTO inventario_movimiento (inventario_id, tipo, cantidad, costo_unitario, total, descripcion, usuario_id, costo_anterior)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING id, inventario_id, tipo, cantidad, costo_unitario, total, descripcion, usuario_id, costo_anterior, fecha
       `,
-      [inventario_id, tipo, qty, unitCost, movementTotal, descripcion || null]
+      [inventario_id, tipo, qty, unitCost, movementTotal, descripcion || null, usuario_id || null, oldCost]
     );
 
     await client.query(

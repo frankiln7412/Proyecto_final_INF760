@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 async function getAllRepositions() {
   const query = `
-    SELECT r.id, r.producto_id, p.nombre AS producto_nombre, r.cantidad, r.fecha
+    SELECT r.id, r.producto_id, p.nombre AS producto_nombre, r.cantidad, r.fecha, r.usuario_id
     FROM reposicion r
     JOIN producto p ON p.id = r.producto_id
     ORDER BY r.fecha DESC
@@ -14,7 +14,7 @@ async function getAllRepositions() {
 
 async function getRepositionById(id) {
   const query = `
-    SELECT r.id, r.producto_id, p.nombre AS producto_nombre, r.cantidad, r.fecha
+    SELECT r.id, r.producto_id, p.nombre AS producto_nombre, r.cantidad, r.fecha, r.usuario_id
     FROM reposicion r
     JOIN producto p ON p.id = r.producto_id
     WHERE r.id = $1
@@ -24,15 +24,55 @@ async function getRepositionById(id) {
   return result.rows[0];
 }
 
-async function createReposition({ producto_id, cantidad }) {
-  const query = `
-    INSERT INTO reposicion (producto_id, cantidad)
-    VALUES ($1, $2)
-    RETURNING id, producto_id, cantidad, fecha
-  `;
+async function createReposition({ producto_id, cantidad, usuario_id }) {
+  const client = await db.pool.connect();
 
-  const result = await db.query(query, [producto_id, cantidad]);
-  return result.rows[0];
+  try {
+    await client.query('BEGIN');
+
+    const currentResult = await client.query(
+      'SELECT id, nombre, stock FROM producto WHERE id = $1',
+      [producto_id]
+    );
+
+    const product = currentResult.rows[0];
+    if (!product) {
+      throw new Error('Producto no encontrado');
+    }
+
+    const stockAnterior = Number(product.stock);
+    const stockNuevo = stockAnterior + Number(cantidad);
+
+    const repositionResult = await client.query(
+      `
+        INSERT INTO reposicion (producto_id, cantidad, usuario_id)
+        VALUES ($1, $2, $3)
+        RETURNING id, producto_id, cantidad, fecha, usuario_id
+      `,
+      [producto_id, cantidad, usuario_id || null]
+    );
+
+    await client.query(
+      'UPDATE producto SET stock = $1 WHERE id = $2',
+      [stockNuevo, producto_id]
+    );
+
+    await client.query(
+      `
+        INSERT INTO producto_movimiento (producto_id, tipo, cantidad, stock_anterior, stock_nuevo, motivo, usuario_id)
+        VALUES ($1, 'ENTRADA', $2, $3, $4, $5, $6)
+      `,
+      [producto_id, cantidad, stockAnterior, stockNuevo, 'Reposición de stock', usuario_id || null]
+    );
+
+    await client.query('COMMIT');
+    return repositionResult.rows[0];
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 async function updateReposition(id, data) {

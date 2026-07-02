@@ -49,7 +49,8 @@ async function createProduct(req, res) {
 
 async function updateProduct(req, res) {
   try {
-    const product = await productModel.updateProduct(req.params.id, req.body);
+    const data = { ...req.body, usuario_id: req.user.id };
+    const product = await productModel.updateProduct(req.params.id, data);
     if (!product) {
       return res.status(404).json({ message: 'Producto no encontrado' });
     }
@@ -57,7 +58,7 @@ async function updateProduct(req, res) {
     res.json({ message: 'Producto actualizado correctamente', product });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error al actualizar producto' });
+    res.status(500).json({ message: error.message || 'Error al actualizar producto' });
   }
 }
 

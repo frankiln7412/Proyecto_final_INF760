@@ -32,7 +32,7 @@ async function createReposition(req, res) {
       return res.status(400).json({ message: 'producto_id y cantidad son obligatorios' });
     }
 
-    const reposition = await repositionModel.createReposition({ producto_id, cantidad });
+    const reposition = await repositionModel.createReposition({ producto_id, cantidad, usuario_id: req.user.id });
     res.status(201).json({ message: 'Reposición creada correctamente', reposition });
   } catch (error) {
     console.error(error);

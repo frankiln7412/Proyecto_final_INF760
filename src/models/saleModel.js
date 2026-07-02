@@ -81,6 +81,7 @@ async function createSale({ usuario_id, total, items, fecha }) {
     );
 
     const sale = saleResult.rows[0];
+    const itemsQr = [];
 
     for (const item of validatedItems) {
       await client.query(
@@ -91,17 +92,7 @@ async function createSale({ usuario_id, total, items, fecha }) {
         [sale.id, item.producto_id, item.cantidad, item.precio_unitario, item.subtotal, item.subtotal]
       );
 
-      await client.query(
-        `
-          UPDATE producto
-          SET stock = stock - $1
-          WHERE id = $2
-          RETURNING id
-        `,
-        [item.cantidad, item.producto_id]
-      );
-
-      const updatedProductResult = await client.query(
+      const stockResult = await client.query(
         `
           SELECT stock, stock_minimo, nombre
           FROM producto
@@ -110,9 +101,32 @@ async function createSale({ usuario_id, total, items, fecha }) {
         [item.producto_id]
       );
 
-      const updatedProduct = updatedProductResult.rows[0];
+      const currentProduct = stockResult.rows[0];
+      if (!currentProduct) continue;
 
-      if (updatedProduct && updatedProduct.stock <= updatedProduct.stock_minimo) {
+      const stockAnterior = Number(currentProduct.stock) + Number(item.cantidad);
+      const stockNuevo = Number(currentProduct.stock);
+
+      await client.query(
+        `
+          UPDATE producto
+          SET stock = $1
+          WHERE id = $2
+        `,
+        [stockNuevo, item.producto_id]
+      );
+
+      await client.query(
+        `
+          INSERT INTO producto_movimiento (producto_id, tipo, cantidad, stock_anterior, stock_nuevo, motivo, usuario_id)
+          VALUES ($1, 'SALIDA', $2, $3, $4, $5, $6)
+        `,
+        [item.producto_id, item.cantidad, stockAnterior, stockNuevo, `Venta #${sale.id}`, usuario_id]
+      );
+
+      itemsQr.push(`${item.nombre}x${item.cantidad}`);
+
+      if (currentProduct.stock <= currentProduct.stock_minimo) {
         const existingAlert = await client.query(
           `
             SELECT id
@@ -129,16 +143,28 @@ async function createSale({ usuario_id, total, items, fecha }) {
               INSERT INTO alerta (producto_id, mensaje, estado)
               VALUES ($1, $2, $3)
             `,
-            [item.producto_id, `Stock bajo para ${updatedProduct.nombre}`, 'ACTIVA']
+            [item.producto_id, `Stock bajo para ${currentProduct.nombre}`, 'ACTIVA']
           );
         }
       }
     }
 
     await client.query('COMMIT');
+
+    const saleDateStr = sale.fecha instanceof Date
+      ? sale.fecha.toISOString()
+      : new Date(sale.fecha).toISOString();
+
+    const qr_text = [
+      `Venta #${sale.id}`,
+      `Fecha: ${saleDateStr}`,
+      `Total: $${Number(total).toFixed(2)}`,
+      ...itemsQr.map((iq) => `  - ${iq}`),
+    ].join('\n');
+
     return {
       ...sale,
-      qr_text: `Venta:${sale.id};Monto:${Number(total).toFixed(2)};Fecha:${sale.fecha.toISOString ? sale.fecha.toISOString() : sale.fecha}`
+      qr_text,
     };
   } catch (error) {
     await client.query('ROLLBACK');
@@ -208,6 +234,7 @@ async function getSalesReport({ tipo = 'detalle', desde, hasta } = {}) {
     const result = await db.query(query, values);
     return result.rows.map((row) => ({
       ...row,
+      fecha: row.fecha,
       ventas: Number(row.ventas),
       total: Number(row.total),
     }));
@@ -228,6 +255,7 @@ async function getSalesReport({ tipo = 'detalle', desde, hasta } = {}) {
     const result = await db.query(query, values);
     return result.rows.map((row) => ({
       ...row,
+      fecha: row.fecha,
       ventas: Number(row.ventas),
       total: Number(row.total),
     }));
@@ -237,6 +265,7 @@ async function getSalesReport({ tipo = 'detalle', desde, hasta } = {}) {
     SELECT
       v.id AS venta_id,
       v.fecha,
+      u.nombre AS usuario,
       p.nombre AS producto,
       dv.cantidad,
       dv.precio_unitario,
@@ -245,6 +274,7 @@ async function getSalesReport({ tipo = 'detalle', desde, hasta } = {}) {
     FROM detalle_venta dv
     JOIN venta v ON v.id = dv.venta_id
     JOIN producto p ON p.id = dv.producto_id
+    LEFT JOIN usuario u ON u.id = v.usuario_id
     ${whereClause}
     ORDER BY v.fecha DESC, v.id DESC, p.nombre ASC
   `;
