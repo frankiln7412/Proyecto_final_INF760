@@ -30,8 +30,25 @@
     <div class="main-content">
       <nav class="topbar">
         <button class="btn btn-outline-secondary btn-sm" id="toggleSidebar"><i class="bi bi-list"></i></button>
-        <div class="ms-auto d-flex align-items-center gap-3">
-          <span id="userLabel" class="fw-semibold"></span>
+        <div class="ms-auto d-flex align-items-center gap-2">
+          <div class="theme-controls">
+            <button class="theme-btn" id="themeToggle" title="Cambiar modo oscuro/claro"><i class="bi bi-moon-stars"></i></button>
+            <div class="color-palette-toggle" id="colorPaletteToggle" title="Cambiar color del sistema">
+              <span class="color-dot"></span>
+            </div>
+            <div class="color-palette-popover" id="colorPalettePopover">
+              <div class="popover-title">Color primario</div>
+              <div class="color-options">
+                <button class="color-picker-btn active" data-color="default" style="background:#2563eb" title="Azul"></button>
+                <button class="color-picker-btn" data-color="purple" style="background:#7c3aed" title="Púrpura"></button>
+                <button class="color-picker-btn" data-color="green" style="background:#059669" title="Verde"></button>
+                <button class="color-picker-btn" data-color="orange" style="background:#ea580c" title="Naranja"></button>
+                <button class="color-picker-btn" data-color="pink" style="background:#db2777" title="Rosa"></button>
+                <button class="color-picker-btn" data-color="teal" style="background:#0d9488" title="Teal"></button>
+              </div>
+            </div>
+          </div>
+          <span id="userLabel" class="fw-semibold mx-2"></span>
           <button class="btn btn-danger btn-sm" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Salir</button>
         </div>
       </nav>
