@@ -8,7 +8,7 @@ function normalizeDateParam(dateStr) {
 
 async function createSale(req, res) {
   try {
-    const { total, items, fecha } = req.body;
+    const { total, items, fecha, metodo_pago } = req.body;
 
     if (!total || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ message: 'total e items son obligatorios' });
@@ -19,6 +19,7 @@ async function createSale(req, res) {
       total,
       items,
       fecha: fecha || undefined,
+      metodo_pago: metodo_pago || 'EFECTIVO',
     });
 
     res.status(201).json({ message: 'Venta registrada correctamente', sale });

@@ -10,7 +10,7 @@ async function ensureDetailVentaColumns() {
   }
 }
 
-async function createSale({ usuario_id, total, items, fecha }) {
+async function createSale({ usuario_id, total, items, fecha, metodo_pago }) {
   const client = await db.pool.connect();
 
   try {
@@ -71,13 +71,14 @@ async function createSale({ usuario_id, total, items, fecha }) {
     }
 
     const saleDate = fecha ? new Date(fecha) : new Date();
+    const pago = metodo_pago || 'EFECTIVO';
     const saleResult = await client.query(
       `
-        INSERT INTO venta (usuario_id, total, fecha)
-        VALUES ($1, $2, $3)
-        RETURNING id, usuario_id, total, fecha
+        INSERT INTO venta (usuario_id, total, metodo_pago, fecha)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id, usuario_id, total, metodo_pago, fecha
       `,
-      [usuario_id, total, saleDate]
+      [usuario_id, total, pago, saleDate]
     );
 
     const sale = saleResult.rows[0];
@@ -104,8 +105,8 @@ async function createSale({ usuario_id, total, items, fecha }) {
       const currentProduct = stockResult.rows[0];
       if (!currentProduct) continue;
 
-      const stockAnterior = Number(currentProduct.stock) + Number(item.cantidad);
-      const stockNuevo = Number(currentProduct.stock);
+      const stockAnterior = Number(currentProduct.stock);
+      const stockNuevo = stockAnterior - Number(item.cantidad);
 
       await client.query(
         `
@@ -126,7 +127,7 @@ async function createSale({ usuario_id, total, items, fecha }) {
 
       itemsQr.push(`${item.nombre}x${item.cantidad}`);
 
-      if (currentProduct.stock <= currentProduct.stock_minimo) {
+      if (stockNuevo <= currentProduct.stock_minimo) {
         const existingAlert = await client.query(
           `
             SELECT id
@@ -159,6 +160,7 @@ async function createSale({ usuario_id, total, items, fecha }) {
       `Venta #${sale.id}`,
       `Fecha: ${saleDateStr}`,
       `Total: $${Number(total).toFixed(2)}`,
+      `Pago: ${pago}`,
       ...itemsQr.map((iq) => `  - ${iq}`),
     ].join('\n');
 

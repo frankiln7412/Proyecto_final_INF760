@@ -9,6 +9,11 @@ async function runMigrations() {
   `);
 
   await db.query(`
+    ALTER TABLE venta
+    ADD COLUMN IF NOT EXISTS metodo_pago VARCHAR(50) NOT NULL DEFAULT 'EFECTIVO'
+  `);
+
+  await db.query(`
     ALTER TABLE inventario_movimiento
     ADD COLUMN IF NOT EXISTS usuario_id INTEGER REFERENCES usuario(id) ON DELETE SET NULL
   `);
