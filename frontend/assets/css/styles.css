@@ -84,7 +84,7 @@
 [data-theme="dark"] .table td { border-bottom-color: rgba(51,65,85,0.4); }
 [data-theme="dark"] .table-hover tbody tr:hover { background: rgba(255,255,255,0.04); }
 [data-theme="dark"] .card-print { background: var(--surface); }
-[data-theme="dark"] .card-stat::after { background: radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 70%); }
+[data-theme="dark"] .card-stat::after, [data-theme="dark"] .card-premium::after { background: radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 70%); }
 [data-theme="dark"] ::-webkit-scrollbar-thumb { background: #475569; }
 [data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #64748b; }
 [data-theme="dark"] .topbar #toggleSidebar { border-color: var(--border); }
@@ -277,14 +277,14 @@ body {
 .container-fluid.p-4 { padding: 1.5rem !important; height: calc(100vh - 64px); overflow-y: auto; }
 
 /* ===== Cards & Shells ===== */
-.card-stat, .table-card {
+.card-stat, .table-card, .card-premium {
   border: none;
   border-radius: var(--radius);
   box-shadow: var(--shadow-soft);
   background: var(--surface);
   transition: box-shadow 0.3s ease, transform 0.2s ease, background 0.3s ease;
 }
-.table-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.card-stat:hover, .table-card:hover, .card-premium:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
 .card-stat {
   padding: 1.25rem;
   position: relative;

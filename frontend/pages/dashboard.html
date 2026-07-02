@@ -33,7 +33,7 @@
       <div id="dashboardContent" class="d-none">
         <div class="row g-4 mb-4">
           <div class="col-md-3">
-            <div class="card card-stat p-3">
+            <div class="card card-premium card-stat p-3">
               <div class="d-flex align-items-center justify-content-between">
                 <div>
                   <p class="text-muted mb-1">Productos</p>
@@ -44,29 +44,29 @@
             </div>
           </div>
           <div class="col-md-3">
-            <div class="card card-stat p-3">
+            <div class="card card-premium card-stat p-3">
               <div class="d-flex align-items-center justify-content-between">
                 <div>
                   <p class="text-muted mb-1">Ventas totales</p>
-                  <h3 id="totalVentas" class="fw-bold">$0</h3>
+                  <h3 id="totalVentas" class="display-money">$0</h3>
                 </div>
                 <div class="kpi-icon bg-success"><i class="bi bi-cart3"></i></div>
               </div>
             </div>
           </div>
           <div class="col-md-3">
-            <div class="card card-stat p-3">
+            <div class="card card-premium card-stat p-3">
               <div class="d-flex align-items-center justify-content-between">
                 <div>
                   <p class="text-muted mb-1">Ventas hoy</p>
-                  <h3 id="ventasHoy" class="fw-bold">$0</h3>
+                  <h3 id="ventasHoy" class="display-money">$0</h3>
                 </div>
                 <div class="kpi-icon bg-info"><i class="bi bi-calendar-check"></i></div>
               </div>
             </div>
           </div>
           <div class="col-md-3">
-            <div class="card card-stat p-3">
+            <div class="card card-premium card-stat p-3">
               <div class="d-flex align-items-center justify-content-between">
                 <div>
                   <p class="text-muted mb-1">Alertas activas</p>
@@ -128,8 +128,8 @@
           const summaryList = document.getElementById('summaryList');
           summaryList.innerHTML = `
             <li class="list-group-item d-flex justify-content-between"><span>Total productos</span><strong>${data.total_productos}</strong></li>
-            <li class="list-group-item d-flex justify-content-between"><span>Ventas totales</span><strong>$${Number(data.total_ventas).toFixed(2)}</strong></li>
-            <li class="list-group-item d-flex justify-content-between"><span>Ventas hoy</span><strong>$${Number(data.ventas_hoy).toFixed(2)}</strong></li>
+            <li class="list-group-item d-flex justify-content-between"><span>Ventas totales</span><strong class="display-money-sm">$${Number(data.total_ventas).toFixed(2)}</strong></li>
+            <li class="list-group-item d-flex justify-content-between"><span>Ventas hoy</span><strong class="display-money-sm">$${Number(data.ventas_hoy).toFixed(2)}</strong></li>
             <li class="list-group-item d-flex justify-content-between"><span>Alertas activas</span><strong>${data.alertas_activas}</strong></li>
           `;
         } catch (error) {

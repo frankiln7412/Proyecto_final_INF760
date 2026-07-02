@@ -35,7 +35,7 @@
             <div id="cartItems"></div>
             <div class="d-flex justify-content-between mt-3 fw-bold">
               <span>Total</span>
-              <span id="cartTotal">$0.00</span>
+              <span id="cartTotal" class="display-money">$0.00</span>
             </div>
             <div class="mb-3">
               <label class="form-label">Fecha de venta</label>
@@ -127,7 +127,7 @@
           tbody.innerHTML += `
             <tr>
               <td class="fw-medium">${product.nombre}</td>
-              <td class="text-end">$${Number(product.precio).toFixed(2)}</td>
+              <td class="text-end display-money-sm">$${Number(product.precio).toFixed(2)}</td>
               <td class="text-end">${stockDisponible}</td>
               <td class="text-center">
                 <button class="btn btn-sm ${stockDisponible <= 0 ? 'btn-outline-secondary' : 'btn-outline-primary'}" onclick="addToCart(${product.id})" ${stockDisponible <= 0 ? 'disabled' : ''}><i class="bi bi-plus-lg"></i></button>
@@ -156,7 +156,7 @@
                 <strong>${item.nombre}</strong><br>
                 <small>${item.cantidad} × $${Number(item.precio_unitario).toFixed(2)}</small>
               </div>
-              <span>$${Number(item.subtotal).toFixed(2)}</span>
+              <span class="display-money-sm">$${Number(item.subtotal).toFixed(2)}</span>
             </div>
           `;
         });

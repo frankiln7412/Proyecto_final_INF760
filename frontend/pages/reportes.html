@@ -95,7 +95,7 @@
                 <tr>
                   <td class="fw-medium">${row.fecha}</td>
                   <td class="text-end">${row.ventas}</td>
-                  <td class="text-end fw-semibold">$${Number(row.total).toFixed(2)}</td>
+                  <td class="text-end display-money-sm">$${Number(row.total).toFixed(2)}</td>
                 </tr>
               `;
             });
@@ -109,8 +109,8 @@
                 <td class="fw-medium">${row.producto}</td>
                 <td class="text-end">${row.cantidad}</td>
                 <td class="text-end">$${Number(row.precio_unitario).toFixed(2)}</td>
-                <td class="text-end fw-semibold">$${Number(row.total_producto).toFixed(2)}</td>
-                <td class="text-end fw-semibold">$${Number(row.total_venta).toFixed(2)}</td>
+                <td class="text-end display-money-sm">$${Number(row.total_producto).toFixed(2)}</td>
+                <td class="text-end display-money-sm">$${Number(row.total_venta).toFixed(2)}</td>
               </tr>
             `;
           });

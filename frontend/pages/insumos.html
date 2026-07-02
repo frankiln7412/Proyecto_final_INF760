@@ -63,7 +63,7 @@
               <td>${supply.nombre}</td>
               <td>${supply.cantidad}</td>
               <td>${supply.unidad_medida}</td>
-              <td>$${Number(supply.precio || 0).toFixed(2)}</td>
+              <td class="display-money-sm">$${Number(supply.precio || 0).toFixed(2)}</td>
               <td>
                 <button class="btn btn-sm btn-outline-primary me-2" onclick="editSupply(${supply.id})"><i class="bi bi-pencil"></i></button>
                 <button class="btn btn-sm btn-outline-danger" onclick="deleteSupply(${supply.id})"><i class="bi bi-trash"></i></button>
