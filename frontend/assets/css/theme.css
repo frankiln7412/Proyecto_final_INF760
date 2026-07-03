@@ -1,0 +1,107 @@
+/* ============================================
+   INVENTARIO+ — Theme System "Tierra Cálida"
+   ============================================ */
+
+/* ----- Google Fonts (importadas en HTML) ----- */
+/* Sora: headings, UI, botones, números tabulares */
+/* Source Serif 4: cuerpo, descripciones, texto secundario */
+
+/* ----- Light Mode (default) ----- */
+:root {
+  /* === Paleta === */
+  --primary:       #C49B6C;
+  --primary-hover: #B88956;
+  --primary-soft:  rgba(196, 155, 108, 0.14);
+
+  --secondary:     #7A9A6D;
+  --secondary-hover: #68895B;
+  --secondary-soft:  rgba(122, 154, 109, 0.14);
+
+  --bg:            #F7F3EE;
+  --surface:       #FFFCF8;
+  --surface-alt:   #F0EAE2;
+  --border:        #E5DDD2;
+  --border-light:  #F0EAE2;
+
+  --text:          #2C241B;
+  --text-soft:     #4A4137;
+  --text-muted:    #8C8172;
+
+  /* === Estados === */
+  --danger:        #C44545;
+  --danger-bg:     #FDF2F2;
+  --warning:       #D4913A;
+  --warning-bg:    #FFF9F0;
+  --success:       #5D8C5A;
+  --success-bg:    #F4F9F3;
+  --info:          #6D8A9E;
+  --info-bg:       #F2F6F8;
+
+  /* === Tipografía === */
+  --font-display: 'Sora', system-ui, sans-serif;
+  --font-body:    'Source Serif 4', Georgia, serif;
+
+  /* === Espaciado === */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  40px;
+
+  /* === Radius === */
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  16px;
+  --radius-full: 999px;
+
+  /* === Sombras (tinte tierra — rgba con marrón) === */
+  --shadow-sm: 0 2px 8px rgba(60, 50, 40, 0.06);
+  --shadow-md: 0 4px 16px rgba(60, 50, 40, 0.08);
+  --shadow-lg: 0 8px 30px rgba(60, 50, 40, 0.10);
+  --shadow-xl: 0 16px 48px rgba(60, 50, 40, 0.12);
+
+  /* === Sidebar === */
+  --sidebar-bg: #2C241B;
+  --sidebar-hover: rgba(255, 255, 255, 0.07);
+  --sidebar-active: rgba(196, 155, 108, 0.18);
+  --sidebar-text: #A69B8E;
+  --sidebar-text-active: #FFFCF8;
+
+  /* === Topbar === */
+  --topbar-bg: rgba(255, 252, 248, 0.85);
+}
+
+/* ----- Dark Mode (cálido, no invertido) ----- */
+[data-theme="dark"] {
+  --bg:            #1C1814;
+  --surface:       #2B241E;
+  --surface-alt:   #352E27;
+  --border:        #443C34;
+  --border-light:  #352E27;
+  --text:          #EDE6DC;
+  --text-soft:     #CEC2B4;
+  --text-muted:    #9C9083;
+
+  --primary:       #D4A373;
+  --primary-hover: #C49B6C;
+  --primary-soft:  rgba(212, 163, 115, 0.18);
+
+  --secondary:     #8DB380;
+  --secondary-soft: rgba(141, 179, 128, 0.18);
+
+  --danger-bg:     rgba(196, 69, 69, 0.12);
+  --warning-bg:    rgba(212, 145, 58, 0.12);
+  --success-bg:    rgba(93, 140, 90, 0.12);
+  --info-bg:       rgba(109, 138, 158, 0.12);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.30);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.40);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.50);
+
+  --topbar-bg: rgba(28, 24, 20, 0.92);
+
+  --sidebar-bg: #181410;
+  --sidebar-hover: rgba(255, 255, 255, 0.06);
+  --sidebar-active: rgba(212, 163, 115, 0.15);
+}
