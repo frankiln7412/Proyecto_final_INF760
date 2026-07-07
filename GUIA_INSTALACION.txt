@@ -1,0 +1,95 @@
+========================================
+  GUIA DE INSTALACION - INVENTARIO+
+  Sistema de Inventario y Ventas POS
+  Proyecto Final INF760
+========================================
+
+1. REQUISITOS DEL SISTEMA
+-------------------------
+- Node.js 18.0 o superior
+- PostgreSQL 14 o superior
+- Navegador web (Chrome 90+, Firefox 88+, Edge 90+)
+- 1 GB de RAM minimo
+- 500 MB de espacio en disco
+
+2. INSTALACION DE POSTGRESQL
+-----------------------------
+a) Descargar PostgreSQL desde: https://www.postgresql.org/download/
+b) Instalar con la configuracion por defecto
+c) Establecer la contrasena para el usuario 'postgres'
+d) Puerto por defecto: 5432
+
+3. CREAR LA BASE DE DATOS
+--------------------------
+Abrir pgAdmin o terminal y ejecutar:
+
+  CREATE DATABASE inventario;
+  CREATE USER postgres WITH PASSWORD 'postgres';
+  GRANT ALL PRIVILEGES ON DATABASE inventario TO postgres;
+
+4. CONFIGURAR VARIABLES DE ENTORNO
+-----------------------------------
+En la raiz del proyecto crear o editar el archivo .env:
+
+  DB_HOST=localhost
+  DB_PORT=5432
+  DB_USER=postgres
+  DB_PASSWORD=postgres
+  DB_NAME=inventario
+  JWT_SECRET=tu_clave_secreta_aqui
+  NODE_ENV=development
+
+5. RESTAURAR BACKUP DE BASE DE DATOS
+-------------------------------------
+Metodo 1 (formato .backup):
+  pg_restore -U postgres -d inventario -h localhost -p 5432 backup_inventario.backup
+
+Metodo 2 (formato .sql):
+  psql -U postgres -d inventario -h localhost -p 5432 -f backup_inventario.sql
+
+6. INSTALAR DEPENDENCIAS
+-------------------------
+Abrir terminal en la raiz del proyecto y ejecutar:
+
+  npm install
+
+7. INICIAR EL SERVIDOR
+-----------------------
+  npm start
+
+O en modo desarrollo:
+  npm run dev
+
+El servidor se iniciara en: http://localhost:3000
+
+8. CREDENCIALES POR DEFECTO
+----------------------------
+Usuario: admin
+Contrasena: admin123
+
+9. ESTRUCTURA DEL PROYECTO
+---------------------------
+/
+├── frontend/          Interfaz de usuario (HTML, CSS, JS)
+├── scripts/           Scripts de utilidad
+├── src/               Codigo fuente del backend
+│   ├── config/        Configuracion (DB, migraciones)
+│   ├── controllers/   Controladores MVC
+│   ├── middleware/     Middlewares (auth, roles)
+│   ├── models/        Modelos de datos
+│   └── routes/        Rutas de la API
+├── tests/             Pruebas automatizadas
+├── .env               Variables de entorno
+└── server.js          Punto de entrada
+
+10. COMANDOS UTILES
+--------------------
+npm start           Iniciar servidor
+npm run dev         Iniciar en modo desarrollo
+npm test            Ejecutar pruebas
+npm run backup      Crear backup de BD
+npm run restore     Restaurar backup de BD
+
+========================================
+  FIN DE LA GUIA
+========================================

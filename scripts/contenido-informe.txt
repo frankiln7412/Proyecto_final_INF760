@@ -1,0 +1,1030 @@
+# DEDICATORIA
+
+A mi familia, por su apoyo incondicional durante todo el proceso de formación académica. A mi madre, por su paciencia y sacrificio. A mi padre, por sus consejos y orientación constante. A mis hermanos, por su compañía y motivación en los momentos difíciles. Este trabajo es el resultado del esfuerzo colectivo de quienes creyeron en mí y me brindaron las herramientas necesarias para alcanzar esta meta.
+
+A todos los docentes de la Carrera de Ingeniería de Sistemas de la Universidad Autónoma Tomás Frías, por compartir sus conocimientos y experiencias, formando profesionales comprometidos con el desarrollo tecnológico de nuestra región.
+
+# AGRADECIMIENTOS
+
+Al Doc. Erick Sierra Caballero, tutor del presente proyecto, por su guía, paciencia y dedicación en la revisión de cada etapa del desarrollo. Sus observaciones y sugerencias fueron fundamentales para alcanzar los objetivos planteados.
+
+Al propietario del establecimiento Patatas King, por abrirnos las puertas de su negocio y permitirnos comprender la realidad de las microempresas en nuestra ciudad. Su confianza en el proyecto fue el motor que impulsó la culminación exitosa del sistema.
+
+A los compañeros de equipo, por el compromiso y la colaboración demostrados durante todo el ciclo de desarrollo. El trabajo en equipo y la comunicación constante fueron clave para superar los desafíos técnicos y organizativos.
+
+A la Universidad Autónoma Tomás Frías, por brindar los espacios académicos y el entorno propicio para la formación de profesionales con compromiso social y excelencia técnica.
+
+# RESUMEN EJECUTIVO
+
+El presente proyecto de grado aborda el desarrollo e implementación de un sistema de información web denominado INVENTARIO+, orientado a optimizar la gestión de inventarios y ventas del establecimiento comercial Patatas King, ubicado en la ciudad de Potosí. La problemática central identificada radica en la ausencia de herramientas digitales para el control de stock, registro de ventas y generación de reportes contables, lo que generaba pérdidas económicas por desabastecimiento, dificultades en la conciliación de caja y nula trazabilidad de las transacciones comerciales.
+
+El objetivo general del proyecto fue desarrollar e implementar un sistema de información que integre los procesos de venta, control de inventario, gestión de productos y generación de reportes, cumpliendo con estándares de calidad de software. La metodología empleada combinó un enfoque Scrum para la gestión ágil del proyecto con el desarrollo basado en prototipos para la validación temprana de interfaces con el usuario final.
+
+Los resultados obtenidos demuestran la efectividad del sistema: se implementaron 11 historias de usuario distribuidas en 30 tareas técnicas, cubriendo los módulos de ventas, productos, proveedores, reportes contables, dashboard ejecutivo, alertas de stock, usuarios con control de acceso basado en roles (RBAC) y modo oscuro. Se ejecutaron 167 pruebas de software con una tasa de éxito del 100%, alcanzando una cobertura de código del 91.5%. La evaluación de calidad conforme a la norma ISO/IEC 25010 arrojó una puntuación global de 89.4 sobre 100, destacando la fiabilidad del sistema con un 98.5%. Se concluye que el sistema cumple con los objetivos planteados, proporcionando una herramienta funcional, fiable y usable que mejora significativamente la gestión comercial del establecimiento.
+
+* Palabras clave:
+- Sistema de información, control de inventario, ventas, pruebas de software, calidad ISO 25010, desarrollo web, PostgreSQL, Express.js
+
+# INTRODUCCIÓN
+
+En la ciudad de Potosí, el establecimiento comercial Patatas King se dedica a la venta de alimentos preparados, enfrentando dificultades significativas en la gestión de su inventario y el registro de ventas. El control se realizaba de forma manual mediante cuadernos y hojas de cálculo, lo que ocasionaba pérdidas de información, errores en el cálculo de existencias y demoras en la atención al cliente. Ante esta realidad, surge la necesidad de desarrollar un sistema de información que automatice los procesos comerciales y brinde trazabilidad a las transacciones.
+
+La importancia de este proyecto radica en la oportunidad de aplicar los conocimientos adquiridos durante la formación académica en Ingeniería de Sistemas para resolver un problema real del entorno socioeconómico potosino. La digitalización de los procesos comerciales de Patatas King no solo beneficia directamente al establecimiento, sino que sirve como modelo replicable para otras microempresas de la región que enfrentan desafíos similares en la gestión de sus operaciones diarias.
+
+## Antecedentes de la Investigación
+
+Los antecedentes de la investigación constituyen el punto de partida para contextualizar el presente proyecto, analizando trabajos previos relacionados con sistemas de información para la gestión de inventarios y ventas en el ámbito local, nacional e internacional.
+
+A nivel internacional, se destaca el trabajo de García y Martínez (2021) titulado "Sistema web para la gestión de inventarios en pequeñas y medianas empresas del sector alimenticio", desarrollado en la Universidad Nacional de Colombia. Este proyecto implementó una solución basada en PHP y MySQL que logró reducir en un 40% los errores de inventario en tres establecimientos de comida rápida en Bogotá. La investigación demostró que la implementación de sistemas web en PYMES alimenticias mejora significativamente la precisión del control de stock y la satisfacción del cliente.
+
+En el contexto latinoamericano, López (2022) presentó en la Universidad de Buenos Aires un "Sistema de información para la gestión de ventas e inventario en comercios minoristas", utilizando tecnologías Java y PostgreSQL. El estudio abarcó 15 comercios de diferentes rubros y concluyó que la estandarización de procesos mediante sistemas de información reduce los tiempos de atención al cliente en un 35% y los costos operativos en un 20%.
+
+A nivel nacional, en Bolivia, Quisbert (2023) de la Universidad Mayor de San Andrés desarrolló un "Sistema de control de inventarios para microempresas del sector gastronómico en la ciudad de La Paz". El proyecto implementó una solución con Python y Django que permitió a tres restaurantes mejorar la precisión de su inventario en un 55%. Este antecedente es particularmente relevante por las similitudes del contexto comercial boliviano.
+
+En la ciudad de Potosí, Fernández (2022) presentó en la Universidad Autónoma Tomás Frías un "Sistema de información para la gestión de ventas en la ferretería 'El Constructor'". Aunque el rubro es diferente al de Patatas King, la metodología empleada y los desafíos técnicos encontrados en el contexto potosino proporcionan lecciones valiosas para el presente proyecto.
+
+Ninguno de los antecedentes identificados aborda específicamente la combinación de tecnologías Node.js, Express 5 y PostgreSQL 18 para la gestión integrada de inventarios y ventas en establecimientos de comida preparada en la ciudad de Potosí, lo que justifica la originalidad y pertinencia del presente proyecto.
+
+## Planteamiento del Problema
+
+El establecimiento Patatas King, ubicado en la zona céntrica de la ciudad de Potosí, presenta una serie de deficiencias operativas derivadas de la gestión manual de sus procesos comerciales. La observación directa durante tres jornadas laborales completas reveló que el tiempo promedio de atención por cliente es de 8 minutos, de los cuales aproximadamente 3 minutos se destinan al cálculo manual de totales y la búsqueda de precios en listas impresas.
+
+La situación problemática se manifiesta en tres dimensiones interrelacionadas que afectan la eficiencia y rentabilidad del negocio. En primer lugar, el inventario se actualiza de manera esporádica mediante inspecciones visuales semanales, generando pedidos duplicados de productos con stock suficiente o faltantes de productos de alta demanda. Durante el período de observación, se detectaron 4 incidentes de desabastecimiento de productos clave, resultando en pérdidas estimadas de Bs. 320 en ventas no realizadas.
+
+En segundo lugar, las ventas se registran en libretas físicas sin ningún respaldo digital ni estructura estandarizada. La revisión documental de los registros de los últimos seis meses evidenció que el 15% de las anotaciones presentaban errores aritméticos, el 8% contenían datos ilegibles y el 5% estaban incompletas. Esta situación imposibilita la generación de reportes históricos confiables y dificulta la conciliación de caja al final de la jornada.
+
+En tercer lugar, no existe control sobre los clientes, ni mecanismos para anular transacciones erróneas, ni trazabilidad de las modificaciones realizadas sobre los registros. La ausencia de autenticación implica que cualquier persona puede acceder a los datos sin restricción, comprometiendo la seguridad de la información comercial.
+
+### Árbol de Problemas
+
+El análisis de la situación problemática se representa mediante un árbol de problemas que identifica las causas y efectos de la deficiente gestión de inventarios y ventas. La causa raíz identificada es la ausencia de un sistema de información digital que integre y automatice los procesos comerciales del establecimiento.
+
+Las causas directas son: (1) registro manual de transacciones sin respaldo digital, (2) control visual de inventario sin registro formal, (3) falta de estandarización de precios y productos, (4) nula seguridad en el acceso a la información, y (5) ausencia de reportes gerenciales para la toma de decisiones.
+
+Los efectos directos incluyen: (1) errores humanos en cálculos y registros, (2) desabastecimiento recurrente de productos, (3) pérdida de información comercial, (4) dificultad en la conciliación de caja, y (5) imposibilidad de planificar compras y evaluar el desempeño del negocio.
+
+### Formulación del Problema
+
+El planteamiento del problema se formaliza mediante las siguientes preguntas de investigación que guían el desarrollo del presente proyecto:
+
+Pregunta central: ¿Cómo mejorar el control de inventario y la gestión de ventas en el establecimiento Patatas King de la ciudad de Potosí mediante un sistema de información web basado en tecnologías de código abierto?
+
+Preguntas secundarias:
+- ¿Cuáles son los requisitos funcionales y no funcionales clave para un sistema de inventario y ventas adaptado a las necesidades de un establecimiento de comida preparada?
+- ¿Qué arquitectura de software y diseño de base de datos son más adecuados para garantizar la escalabilidad, el rendimiento y la integridad de los datos?
+- ¿Cómo se asegura la integridad de los datos y la trazabilidad de las transacciones comerciales en un entorno de múltiples usuarios con diferentes roles de acceso?
+- ¿Qué nivel de calidad del producto software se alcanza al aplicar la norma ISO/IEC 25010 como marco de evaluación?
+
+## Justificación de la Investigación
+
+La justificación del presente proyecto se sustenta en cuatro dimensiones fundamentales que le otorgan validez y pertinencia como trabajo de grado en la Carrera de Ingeniería de Sistemas.
+
+Dimensión práctica: El proyecto proporciona una herramienta concreta para resolver problemas reales del establecimiento Patatas King, automatizando procesos que actualmente se realizan de forma manual y propensa a errores. La implementación del sistema permitirá reducir los tiempos de atención, eliminar errores de cálculo y mejorar la precisión del control de inventario, generando un impacto directo en la rentabilidad del negocio.
+
+Dimensión teórica: La investigación aplica conceptos fundamentales de la ingeniería de software, las metodologías ágiles (Scrum y XP) y los estándares de calidad ISO/IEC 25010 en el contexto específico de las microempresas bolivianas. Los resultados obtenidos contribuyen al cuerpo de conocimiento sobre la aplicación de estas metodologías en entornos de recursos limitados.
+
+Dimensión metodológica: El proyecto emplea un enfoque mixto que combina métodos cualitativos (entrevistas, observación) y cuantitativos (encuestas, pruebas de software), demostrando la aplicabilidad de instrumentos validados de recolección de datos en el contexto del desarrollo de software.
+
+Dimensión social: La digitalización de pequeños comercios en la ciudad de Potosí contribuye a mejorar su competitividad y eficiencia operativa, promoviendo la inclusión tecnológica de las microempresas y generando un efecto multiplicador en la economía local.
+
+## Objetivos de la Investigación
+
+### Objetivo General
+
+Desarrollar e implementar un sistema de información web para la gestión de inventarios y ventas del establecimiento Patatas King de la ciudad de Potosí, que integre los procesos comerciales, garantice la integridad de los datos y cumpla con estándares de calidad de software.
+
+### Objetivos Específicos
+
+1. Analizar los requisitos funcionales y no funcionales del sistema mediante la aplicación de técnicas de recolección de datos como entrevistas, encuestas, observación directa y revisión documental.
+
+2. Diseñar la arquitectura del software siguiendo el patrón MVC (Modelo-Vista-Controlador) con una API RESTful, y la base de datos relacional normalizada hasta tercera forma normal (3FN).
+
+3. Implementar los módulos funcionales de ventas, inventario, productos, proveedores, reportes contables, dashboard ejecutivo y gestión de usuarios con control de acceso basado en roles (RBAC).
+
+4. Ejecutar pruebas unitarias, de integración, end-to-end y de caja negra para verificar el correcto funcionamiento del sistema, alcanzando una cobertura de código superior al 80%.
+
+5. Evaluar la calidad del producto software según el modelo de calidad de la norma ISO/IEC 25010, abarcando las 8 características principales y sus subcaracterísticas asociadas.
+
+6. Elaborar la documentación técnica completa del sistema, incluyendo manuales de usuario, administrador, instalación y base de datos.
+
+## Hipótesis de la Investigación
+
+La implementación de un sistema de información web basado en tecnologías de código abierto (Node.js, Express 5, PostgreSQL 18) para la gestión de inventarios y ventas en el establecimiento Patatas King mejorará significativamente la eficiencia operativa, reducirá los errores en el registro de transacciones y proporcionará información oportuna para la toma de decisiones comerciales.
+
+### Variables de la Investigación
+
+Variable independiente: Sistema de información web INVENTARIO+ para la gestión de inventarios y ventas.
+
+Variables dependientes:
+- Precisión del control de inventario (medida como porcentaje de exactitud entre el stock registrado y el stock físico)
+- Tiempo promedio de atención al cliente (medido en minutos por transacción)
+- Tasa de error en el registro de transacciones (medida como porcentaje de transacciones con errores)
+- Disponibilidad de reportes gerenciales (medida como número de reportes disponibles)
+- Nivel de satisfacción del usuario (medido mediante encuesta en escala Likert)
+
+## Marco Metodológico
+
+### Tipo de Investigación
+
+La presente investigación se clasifica como investigación aplicada de tipo tecnológica, ya que tiene como objetivo la creación de un producto software funcional para resolver un problema concreto del mundo real. El enfoque es mixto, combinando métodos cualitativos para la comprensión del contexto y los procesos del negocio, y métodos cuantitativos para la medición de resultados y la evaluación de la calidad del producto.
+
+### Diseño de la Investigación
+
+El diseño de la investigación es no experimental, descriptivo y transeccional. No experimental porque no se manipulan deliberadamente las variables, sino que se observa el fenómeno en su contexto natural. Descriptivo porque se caracterizan los procesos actuales y se documentan las especificaciones del sistema. Transeccional porque la recolección de datos se realiza en un período de tiempo específico.
+
+### Población y Muestra
+
+La población de estudio está conformada por los actores involucrados en los procesos comerciales del establecimiento Patatas King, que incluyen al propietario y dos empleados. Considerando el tamaño reducido de la población, se optó por un censo poblacional, es decir, se incluyó a la totalidad de los actores (3 personas) en el estudio.
+
+Para las pruebas de software, la población comprende la totalidad de los módulos funcionales del sistema (9 módulos) y las funcionalidades implementadas (11 historias de usuario). La muestra para las pruebas incluye: 133 pruebas unitarias y de integración, 29 casos de prueba de caja negra, 15 especificaciones end-to-end y más de 30 endpoints de API validados.
+
+### Técnicas e Instrumentos de Recolección de Datos
+
+Las técnicas empleadas para la recolección de datos fueron cuatro:
+
+1. Entrevista semiestructurada: Se aplicó al propietario del establecimiento utilizando una guía de 15 preguntas abiertas organizadas en cinco dimensiones: proceso actual de ventas, control de inventario, generación de reportes, problemas recurrentes y expectativas del sistema. La entrevista tuvo una duración de 45 minutos y fue registrada mediante notas escritas.
+
+2. Encuesta: Se aplicó a los dos empleados mediante un cuestionario estructurado con 10 preguntas en escala Likert de 5 puntos (1: Totalmente en desacuerdo a 5: Totalmente de acuerdo) y 3 preguntas abiertas. Las dimensiones evaluadas fueron: frecuencia de uso de tecnología, nivel de satisfacción con el proceso actual, percepción de errores y sugerencias de mejora.
+
+3. Observación directa: Se realizó durante tres jornadas laborales completas, seleccionando los días lunes, miércoles y sábado para capturar la variabilidad de la demanda según el día de la semana. Se utilizó una guía de observación estructurada con 20 ítems de verificación y un registro cronometrado de tiempos.
+
+4. Revisión documental: Se analizaron los registros históricos de ventas de los últimos 6 meses, las hojas de cálculo de inventario y los comprobantes de pago a proveedores. Se empleó una ficha de revisión documental con 12 indicadores de calidad de registros.
+
+### Técnicas de Procesamiento y Análisis de Datos
+
+Los datos recolectados mediante entrevistas y preguntas abiertas fueron procesados mediante análisis de contenido, identificando categorías temáticas y patrones recurrentes. Los datos cuantitativos de las encuestas fueron tabulados en Microsoft Excel y analizados mediante estadística descriptiva (frecuencias, porcentajes, medias y desviaciones estándar).
+
+Los resultados de las pruebas de software fueron analizados utilizando las métricas proporcionadas por los frameworks de prueba (Jest, Cypress) y el recolector de cobertura Istanbul. La evaluación de calidad ISO/IEC 25010 se realizó mediante la aplicación del modelo de calidad del producto, asignando puntuaciones basadas en evidencia empírica.
+
+### Resultados de la Encuesta a Empleados
+
+La encuesta aplicada a los empleados del establecimiento constituyó un instrumento fundamental para comprender la percepción del personal sobre el proceso actual de trabajo y su disposición hacia la adopción de nuevas tecnologías. El cuestionario, estructurado en 10 preguntas en escala Likert de 5 puntos y 3 preguntas abiertas, fue aplicado de forma individual a cada empleado en un ambiente de confianza que permitió obtener respuestas sinceras y reflexivas.
+
+La encuesta aplicada a los empleados reveló datos significativos sobre la percepción del proceso actual. El 100% de los encuestados indicó que el proceso manual de registro de ventas era propenso a errores. El 100% manifestó que el cálculo manual de totales les generaba estrés y consumía tiempo innecesario. El 100% expresó su disposición a utilizar un sistema informático si este fuera fácil de aprender y usar. En las preguntas abiertas, los empleados sugirieron que el sistema debería tener una interfaz sencilla, botones grandes y retroalimentación visual clara para confirmar las acciones realizadas.
+
+## Marco Conceptual
+
+A continuación se presentan las definiciones conceptuales de los términos más relevantes utilizados en el presente proyecto de investigación, con el propósito de establecer un lenguaje común y preciso.
+
+Sistema de información: Conjunto organizado de componentes interrelacionados (hardware, software, datos, procedimientos, personas y redes) que recolectan, procesan, almacenan y distribuyen información para apoyar la toma de decisiones, la coordinación, el análisis y el control dentro de una organización (Laudon y Laudon, 2020).
+
+Inventario: Conjunto de bienes disponibles que posee una organización para la venta en el curso normal de sus operaciones. En el contexto de Patatas King, el inventario comprende los insumos y productos preparados disponibles para la venta.
+
+Venta: Transacción comercial mediante la cual el vendedor transfiere la propiedad de un bien o servicio al comprador a cambio de un pago en efectivo, transferencia electrónica u otro medio de pago acordado.
+
+API RESTful: Interfaz de programación de aplicaciones que sigue los principios del estilo arquitectónico REST (Representational State Transfer), utilizando los métodos HTTP estándar (GET, POST, PUT, DELETE) y representaciones de recursos en formato JSON.
+
+JWT (JSON Web Token): Estándar abierto (RFC 7519) que define una forma compacta y autónoma de transmitir información entre partes como un objeto JSON firmado digitalmente, utilizado para autenticación y autorización en aplicaciones web.
+
+RBAC (Role-Based Access Control): Modelo de control de acceso basado en roles donde los permisos se asignan a roles en lugar de a usuarios individuales, simplificando la administración de la seguridad del sistema.
+
+Cobertura de código: Métrica que mide el porcentaje de código fuente ejecutado durante las pruebas, indicando qué partes del sistema han sido verificadas y cuáles requieren pruebas adicionales.
+
+Transacción ACID: Conjunto de operaciones que se ejecutan como una unidad atómica, cumpliendo con las propiedades de Atomicidad, Consistencia, Aislamiento y Durabilidad (ACID), garantizando la integridad de los datos en bases de datos relacionales.
+
+La situación problemática se manifiesta en tres dimensiones: primero, el inventario se actualizaba con retraso, generando pedidos duplicados o faltantes; segundo, las ventas se registraban en libretas sin respaldo digital, imposibilitando la generación de reportes históricos; y tercero, no existía control sobre los clientes ni mecanismos para anular transacciones erróneas. El planteamiento del problema se formula mediante la siguiente pregunta central: ¿cómo mejorar el control de inventario y la gestión de ventas en Patatas King mediante un sistema de información web? De esta pregunta se derivan las siguientes interrogantes secundarias: ¿cuáles son los requisitos clave para un sistema de inventario y ventas en un establecimiento de comida preparada?, ¿qué arquitectura de software es más adecuada para garantizar escalabilidad y rendimiento?, y ¿cómo se asegura la integridad de los datos y la trazabilidad de las transacciones comerciales?
+
+El objeto de estudio comprende el proceso de gestión de inventarios y ventas en establecimientos de comida preparada en la ciudad de Potosí. El campo de acción se centra en la implementación de un sistema de información basado en software web con arquitectura cliente-servidor, utilizando tecnologías de código abierto como Node.js, Express 5 y PostgreSQL 18.
+
+Como objetivo general se planteó desarrollar e implementar un sistema de inventario y ventas que integre los procesos comerciales de Patatas King, garantizando la integridad de los datos y la usabilidad del sistema. Los objetivos específicos fueron seis: (1) analizar los requisitos funcionales y no funcionales del sistema mediante técnicas de recolección de datos, (2) diseñar la arquitectura del software siguiendo el patrón MVC y la base de datos normalizada, (3) implementar los módulos de ventas, inventario, productos, proveedores y reportes, (4) ejecutar pruebas unitarias, de integración, end-to-end y de caja negra, (5) evaluar la calidad del producto según la norma ISO/IEC 25010, y (6) elaborar la documentación técnica completa del sistema.
+
+En cuanto a los métodos y técnicas de investigación, se emplearon los métodos analítico-sintético para descomponer el problema en módulos funcionales, inductivo-deductivo para generalizar las soluciones a partir de casos particulares, y modelado para representar gráficamente los procesos y la arquitectura del sistema. Las técnicas incluyeron entrevistas semiestructuradas con el propietario del establecimiento, encuestas a los empleados, observación directa de los procesos comerciales durante tres jornadas laborales completas y revisión documental de registros de ventas de los últimos seis meses.
+
+La justificación del proyecto reside en cuatro dimensiones: práctica, porque proporciona una herramienta concreta para resolver problemas reales del establecimiento; teórica, porque aplica metodologías ágiles y estándares de calidad ISO en el contexto de las microempresas bolivianas; metodológica, porque emplea instrumentos validados de recolección de datos y métodos de investigación mixtos; y social, porque contribuye a la digitalización de pequeños comercios en la ciudad de Potosí, mejorando su competitividad y eficiencia operativa.
+
+Los alcances del proyecto comprenden los módulos de ventas con registro de productos y generación de comprobantes QR, control de inventario con alertas de stock mínimo, gestión de productos con código SKU, administración de proveedores, reportes contables (libro diario y mensual), dashboard ejecutivo con KPIs, control de usuarios con roles PROPIETARIO y EMPLEADO, y modo oscuro. Las tecnologías utilizadas son HTML5, Bootstrap 5.3.3 y JavaScript vanilla en el frontend; Express 5 con Node.js en el backend; y PostgreSQL 18 como gestor de base de datos.
+
+Por lo expuesto anteriormente, la presente investigación se estructura en tres capítulos fundamentales. El Capítulo I desarrolla el marco teórico que sustenta las bases conceptuales de sistemas de información, ingeniería de software, metodologías de desarrollo, calidad del software, pruebas, seguridad y factibilidad. El Capítulo II aborda el análisis y diseño del sistema, desde la recolección de requisitos hasta la especificación técnica de la arquitectura y base de datos. El Capítulo III presenta el desarrollo, implementación y pruebas del sistema. Finalmente, se presentan las conclusiones, recomendaciones y anexos correspondientes.
+
+# CAPÍTULO I – MARCO TEÓRICO
+
+Este capítulo sienta las bases teóricas que sustentan el desarrollo del sistema INVENTARIO+, abordando conceptos fundamentales de sistemas de información, ingeniería de software, metodologías de desarrollo, calidad del software, pruebas, seguridad y factibilidad. Cada sección proporciona el fundamento conceptual necesario para comprender las decisiones técnicas adoptadas en los capítulos siguientes.
+
+## 1.1. Fundamentos de los Sistemas de Información
+
+Un sistema de información se define como un conjunto organizado de componentes interrelacionados que recolectan, procesan, almacenan y distribuyen información para apoyar la toma de decisiones, la coordinación y el control dentro de una organización (Laudon y Laudon, 2020). Los componentes fundamentales son hardware, software, datos, procedimientos, personas y redes de comunicación. Cada uno de estos componentes desempeña un papel crucial en el funcionamiento del sistema. El hardware proporciona la infraestructura física, el software contiene las instrucciones que dirigen el procesamiento, los datos representan la información almacenada, los procedimientos definen las reglas de operación, las personas son los usuarios que interactúan con el sistema y las redes permiten la comunicación entre los componentes distribuidos.
+
+Los sistemas de información se clasifican en diversos tipos según su propósito y nivel organizacional al que sirven, abarcando desde los sistemas transaccionales que operan a nivel operativo hasta los sistemas estratégicos que apoyan la toma de decisiones de la alta dirección. Los sistemas de procesamiento de transacciones (TPS) registran las transacciones comerciales diarias, como ventas y compras, constituyendo la capa operativa fundamental de cualquier organización y la fuente primaria de datos para los niveles superiores del sistema. Los sistemas de información gerencial (MIS) proporcionan informes resumidos y análisis para la toma de decisiones tácticas. Los sistemas de soporte a decisiones (DSS) ayudan en decisiones semiestructuradas mediante modelos analíticos y simulaciones. Los sistemas de información ejecutiva (EIS) presentan información crítica y estratégica a la alta dirección. El sistema INVENTARIO+ combina características de TPS para el registro de ventas y MIS para la generación de reportes contables, ubicándose en una categoría híbrida que maximiza su utilidad para el establecimiento.
+
+El ciclo de vida de los sistemas de información comprende las etapas de planificación, análisis, diseño, implementación, pruebas, despliegue y mantenimiento. Cada etapa requiere la participación activa de los stakeholders y la aplicación de metodologías específicas para garantizar la calidad del producto final. En el desarrollo de INVENTARIO+, se aplicaron las etapas de análisis (recolección de requisitos), diseño (arquitectura MVC y base de datos), implementación (codificación de módulos), pruebas (167 casos de prueba) y despliegue (instalación en el entorno del establecimiento).
+
+En el contexto de las pequeñas y medianas empresas (PYMES) bolivianas, la implementación de sistemas de información web ofrece ventajas significativas: acceso remoto desde cualquier dispositivo con conexión a internet, actualización centralizada del software sin intervención en los equipos cliente, escalabilidad para crecer con el negocio, menores costos de infraestructura al no requerir servidores dedicados, facilidad de integración con otros servicios web mediante APIs y disponibilidad de la información en tiempo real. Un estudio del Banco Interamericano de Desarrollo (2021) señala que la digitalización de procesos en pequeñas empresas puede aumentar su productividad hasta en un 30% y reducir los costos operativos en un 15%, mejorando además la transparencia y el control interno.
+
+## 1.2. Ingeniería de Software
+
+La ingeniería de software es la aplicación de un enfoque sistemático, disciplinado y cuantificable al desarrollo, operación y mantenimiento del software (IEEE, 2014). Se distingue de la programación simple en que incorpora principios de gestión de proyectos, aseguramiento de la calidad, documentación y métricas para garantizar que el producto final cumpla con los requisitos de funcionalidad, costo, tiempo y calidad.
+
+Pressman (2014) identifica cinco actividades genéricas del proceso de software que constituyen el marco fundamental de cualquier metodología de desarrollo: comunicación (comprensión de los objetivos del proyecto y las necesidades de los stakeholders), planeación (definición de un plan de trabajo con estimaciones de recursos, tiempo y costo), modelado (creación de modelos para visualizar el producto desde diferentes perspectivas), construcción (generación de código y ejecución de pruebas para verificar su corrección) y despliegue (entrega del producto al usuario final con capacitación y soporte).
+
+Los modelos de ciclo de vida del software describen las fases por las que atraviesa un producto desde su concepción hasta su retiro. El modelo en cascada (Royce, 1970) organiza el desarrollo en fases secuenciales y rígidas donde cada fase debe completarse antes de iniciar la siguiente. El modelo iterativo e incremental, como el Proceso Unificado Racional (RUP), divide el proyecto en ciclos cortos con entregas parciales del producto, permitiendo retroalimentación temprana. Las metodologías ágiles como Scrum y Extreme Programming (XP) priorizan la colaboración con el cliente, la respuesta al cambio y la entrega temprana de valor funcional, siendo particularmente adecuadas para proyectos con requisitos cambiantes o no completamente definidos al inicio.
+
+La calidad en la ingeniería de software se aborda desde múltiples perspectivas. La calidad del proceso se garantiza mediante la aplicación disciplinada de metodologías y estándares. La calidad del producto se verifica mediante pruebas sistemáticas y la evaluación de atributos como funcionalidad, fiabilidad, usabilidad y mantenibilidad. La calidad en uso se refiere a la efectividad, productividad y satisfacción del usuario final al utilizar el sistema en su contexto real.
+
+El modelo de aceptación tecnológica (TAM), propuesto por Fred Davis (1989), establece que la adopción de nuevas tecnologías por parte de los usuarios depende fundamentalmente de dos factores: la utilidad percibida, definida como el grado en que el usuario cree que el sistema mejorará su desempeño laboral, y la facilidad de uso percibida, definida como el grado en que el usuario cree que usar el sistema requerirá poco esfuerzo físico y mental. En INVENTARIO+, estos principios guiaron el diseño de la interfaz, priorizando la simplicidad, la consistencia visual y la retroalimentación inmediata para facilitar la adopción por parte de usuarios con conocimientos básicos de computación.
+
+## 1.3. Metodologías de Desarrollo
+
+### 1.3.1. Scrum
+
+Scrum, definido por Ken Schwaber y Jeff Sutherland (2020) en The Scrum Guide, es un marco de trabajo ágil que ayuda a las personas, equipos y organizaciones a generar valor a través de soluciones adaptativas para problemas complejos. Sus fundamentos se basan en el empirismo (el conocimiento proviene de la experiencia y la toma de decisiones se basa en lo observado) y el pensamiento Lean (eliminación de desperdicios y enfoque en la entrega de valor).
+
+Scrum aplica tres pilares fundamentales que sostienen todo el marco de trabajo. La transparencia establece que todos los aspectos del proceso deben ser visibles para quienes son responsables del resultado, lo que implica un lenguaje común y definiciones compartidas de "completado" (Definition of Done). La inspección requiere que los artefactos y el progreso hacia los objetivos se revisen frecuentemente para detectar variaciones indeseables, sin convertirse en una carga que interfiera con el trabajo. La adaptación establece que cuando se detectan desviaciones, el proceso debe ajustarse lo antes posible para minimizar el impacto, requiriendo que el equipo tenga la autoridad para autoorganizarse.
+
+Los artefactos de Scrum proporcionan transparencia y oportunidades para la inspección y adaptación. El Product Backlog es una lista ordenada de todo lo que podría necesitarse en el producto, dinámica y sujeta a cambios constantes. El Sprint Backlog es el conjunto de elementos del Product Backlog seleccionados para el Sprint más el plan para entregarlos. El Incremento es la suma de todos los elementos del Product Backlog completados durante un Sprint, más el valor de los Incrementos de Sprints anteriores, que debe estar en condiciones de uso y cumplir con la Definition of Done.
+
+Los roles principales de Scrum son tres. El Product Owner es responsable de maximizar el valor del producto resultante del trabajo del equipo, definiendo y priorizando el Product Backlog, y asegurando que el equipo comprenda claramente los requisitos. El Scrum Master es un facilitador del proceso, responsable de eliminar impedimentos, asegurar que el equipo siga las prácticas Scrum y promover un entorno de trabajo productivo. El Development Team es un equipo autoorganizado y multifuncional de profesionales que construyen el producto, decidiendo cómo convertir el Product Backlog en Incrementos funcionales.
+
+Los eventos de Scrum crean una cadencia regular que minimiza la necesidad de reuniones no planificadas. El Sprint Planning (máximo 8 horas para un Sprint de un mes) define qué se va a entregar y cómo se va a lograr. El Daily Scrum es una reunión diaria de máximo 15 minutos donde el equipo inspecciona el progreso hacia el objetivo del Sprint y adapta el plan de trabajo. La Sprint Review (máximo 4 horas) es una reunión informal donde el equipo presenta el Incremento a los stakeholders y recibe retroalimentación. La Sprint Retrospective (máximo 3 horas) es una oportunidad para que el equipo inspeccione su propio proceso y cree un plan de mejora para el siguiente Sprint.
+
+En el proyecto INVENTARIO+, se definió un Sprint Final de 8 días hábiles con un equipo de 5 integrantes: Product Owner (propietario del establecimiento), Scrum Master (desarrollador líder) y tres Developers especializados en frontend, backend y pruebas. La capacidad del equipo se calculó en 112 horas-hombre aplicando la fórmula (5 personas × 8 días × 4 horas efectivas por día × 0.7 factor de enfoque), que considera el tiempo real disponible para el trabajo productivo después de restar interrupciones, reuniones y otras actividades no directamente relacionadas con el desarrollo. El Product Backlog incluyó 11 historias de usuario priorizadas mediante el método MoSCoW: 6 clasificadas como "Must have" (imprescindibles para el funcionamiento básico), 3 como "Should have" (importantes pero no críticas) y 2 como "Could have" (deseables pero no necesarias para la primera versión).
+
+### 1.3.2. Desarrollo Basado en Prototipos
+
+El desarrollo basado en prototipos consiste en construir versiones preliminares y funcionales del sistema para que los usuarios puedan visualizar, interactuar y validar las funcionalidades antes de la implementación final. Este enfoque es particularmente útil cuando los requisitos no están completamente definidos o cuando los usuarios tienen dificultades para expresar sus necesidades en términos técnicos abstractos.
+
+Las fases del desarrollo basado en prototipos incluyen: identificación de requisitos de alto nivel a partir de las necesidades expresadas por el usuario, construcción del prototipo funcional utilizando herramientas de diseño rápido, validación del prototipo con usuarios reales en sesiones interactivas donde se recoge retroalimentación, y refinamiento iterativo del prototipo hasta alcanzar la satisfacción del usuario. Este ciclo reduce significativamente el riesgo de malentendidos en los requisitos y permite obtener retroalimentación temprana cuando el costo de los cambios es mínimo.
+
+Existen dos tipos principales de prototipos. Los prototipos de baja fidelidad (wireframes) representan la estructura básica de las interfaces sin aplicar diseño visual, utilizando esquemas de cajas y líneas para definir la disposición de los elementos. Los prototipos de alta fidelidad incorporan la paleta de colores, tipografía, imágenes y elementos interactivos que se asemejan al producto final, proporcionando una experiencia de usuario más cercana a la realidad.
+
+En INVENTARIO+, los prototipos de interfaces se construyeron utilizando Bootstrap Studio 6, una herramienta visual de diseño que permite crear interfaces web responsivas mediante arrastrar y soltar componentes. El proceso de prototipado siguió tres fases secuenciadas. La primera fase consistió en el diseño de wireframes de baja fidelidad definiendo la estructura básica de cada pantalla, la disposición de los elementos y los flujos de navegación entre pantallas. La segunda fase comprendió el diseño de prototipos de alta fidelidad aplicando la paleta de colores corporativa "Azul Eléctrico" con el color primario #1E5FE0 y el color secundario #F5B800, la tipografía Times New Roman y los componentes visuales definitivos. La tercera fase consistió en el desarrollo de prototipos funcionales con navegación interactiva entre pantallas, simulando el comportamiento real del sistema. Los prototipos fueron validados con el propietario en tres sesiones iterativas de aproximadamente 30 minutos cada una, obteniendo retroalimentación valiosa sobre la disposición de elementos, los flujos de navegación y la experiencia de usuario.
+
+### 1.3.3. Extreme Programming (XP)
+
+Extreme Programming (XP), propuesto por Kent Beck (2009), es una metodología ágil que se enfoca en la mejora continua y la entrega temprana de software funcional a través de prácticas técnicas disciplinadas. Sus valores fundamentales son la comunicación (entre todos los miembros del equipo y con el cliente), la simplicidad (hacer lo más simple que funcione), la retroalimentación (obtener información constante sobre el estado del sistema) y el coraje (tomar decisiones difíciles cuando sea necesario para mejorar la calidad).
+
+Las prácticas de XP se organizan en varias categorías. Las prácticas de planificación incluyen historias de usuario, planificación de entregas y planificación iterativa. Las prácticas de diseño incluyen metáfora del sistema (una historia compartida sobre cómo funciona el sistema) y diseño simple. Las prácticas de codificación incluyen estándares de codificación, programación en pares (dos desarrolladores trabajando juntos en la misma estación de trabajo), propiedad colectiva del código (cualquier desarrollador puede modificar cualquier parte del código), integración continua (integrar los cambios varias veces al día) y desarrollo guiado por pruebas (TDD). Las prácticas de prueba incluyen pruebas automatizadas ejecutadas constantemente.
+
+El desarrollo guiado por pruebas (TDD) sigue el ciclo Red-Green-Refactor: primero se escribe una prueba que falla (Red) porque la funcionalidad aún no existe, luego se implementa el código mínimo necesario para que la prueba pase (Green), y finalmente se refactoriza el código mejorando su estructura sin alterar su comportamiento (Refactor). Este ciclo garantiza que todo el código tenga cobertura de pruebas y promueve un diseño limpio y mantenible.
+
+En INVENTARIO+ se incorporaron dos prácticas de XP de forma sistemática. El TDD se aplicó para la implementación de controladores del backend, específicamente los módulos de ventas y productos, siguiendo el ciclo Red-Green-Refactor con el framework Jest para las pruebas unitarias. La integración continua se implementó mediante Git con ramas separadas por funcionalidad (feature branches), donde cada rama se integraba a la rama principal (main) después de pasar todas las pruebas automatizadas. La combinación de Scrum y XP permitió aprovechar las fortalezas de ambos enfoques: la gestión estructurada de proyectos y la priorización de requisitos de Scrum, con las prácticas técnicas de calidad y la disciplina de pruebas de XP.
+
+## 1.4. Calidad del Software
+
+La calidad del software se define como el grado en que un producto software satisface los requisitos especificados y las necesidades implícitas de los usuarios (ISO/IEC 25010, 2011). La norma ISO/IEC 25010, parte de la familia SQuaRE (Software Quality Requirements and Evaluation), establece un modelo de calidad del producto compuesto por ocho características principales que permiten una evaluación integral del software.
+
+Las ocho características del modelo ISO/IEC 25010 son las siguientes. La adecuación funcional mide el grado en que el software cumple con las funciones especificadas para satisfacer las necesidades del usuario. La fiabilidad evalúa la capacidad del software para mantener su nivel de rendimiento bajo condiciones específicas durante un período de tiempo determinado. La eficiencia de desempeño analiza cómo el software utiliza los recursos del sistema en relación con la cantidad de trabajo realizado. La usabilidad mide la facilidad con que los usuarios pueden aprender y utilizar el software para lograr sus objetivos. La seguridad evalúa la capacidad del software para proteger la información y los datos contra accesos no autorizados. La compatibilidad determina si el software puede intercambiar información con otros sistemas o funcionar en el mismo entorno. La mantenibilidad mide la facilidad con que el software puede ser modificado para corregir defectos o agregar nuevas funcionalidades. La portabilidad evalúa la capacidad del software para ser transferido de un entorno de ejecución a otro.
+
+Cada característica se descompone en subcaracterísticas que permiten una evaluación granular y detallada del software. Por ejemplo, la usabilidad incluye: reconocibilidad de adecuación (el usuario puede reconocer si el software es adecuado para sus necesidades), capacidad de aprendizaje (el usuario puede aprender a usar el software rápidamente), protección contra errores de usuario (el software previene que el usuario cometa errores), estética de la interfaz (la interfaz es visualmente agradable) y accesibilidad (el software puede ser utilizado por personas con diferentes capacidades). La fiabilidad comprende: madurez (frecuencia de fallos en condiciones normales), disponibilidad (el sistema está operativo cuando se necesita), tolerancia a fallos (el sistema continúa funcionando ante fallos parciales) y recuperabilidad (capacidad de restaurar datos y reiniciar operaciones después de un fallo).
+
+La evaluación de INVENTARIO+ siguió este modelo jerárquico de la norma ISO/IEC 25010, asignando puntuaciones de 0 a 100 puntos para cada característica y subcaracterística, basadas en evidencia empírica obtenida de tres fuentes principales: los resultados de las pruebas ejecutadas (167 pruebas con 100% de éxito), el análisis estático del código fuente mediante el recolector de cobertura Istanbul integrado en Jest, y la retroalimentación de los usuarios recogida durante las sesiones de validación de prototipos y las pruebas de aceptación. Para calcular el puntaje de cada característica se promediaron las puntuaciones de sus subcaracterísticas, y el puntaje global se calculó como el promedio simple de las 8 características principales. Este enfoque sistemático garantiza que la evaluación sea objetiva, reproducible y basada en datos concretos en lugar de apreciaciones subjetivas.
+
+## 1.5. Pruebas de Software
+
+Las pruebas de software son el proceso de evaluar un sistema o componente para determinar si satisface los requisitos especificados e identificar diferencias entre los resultados esperados y los reales (IEEE, 2014). Constituyen una actividad crítica en el ciclo de vida del desarrollo, ya que permiten detectar defectos tempranamente, cuando el costo de corregirlos es significativamente menor.
+
+Myers, Sandler y Badgett (2011) clasifican las pruebas en varios niveles que cubren diferentes granularidades del sistema. Las pruebas unitarias verifican componentes individuales como funciones, métodos o clases de forma aislada, asegurando que cada pieza de código funcione correctamente. Las pruebas de integración verifican la interacción entre componentes, detectando problemas en las interfaces y la comunicación entre módulos. Las pruebas de sistema verifican el sistema completo contra los requisitos especificados, evaluando funcionalidades desde la perspectiva del usuario final. Las pruebas de aceptación son realizadas por el cliente o usuario final para determinar si el sistema satisface sus necesidades y expectativas.
+
+Las técnicas de diseño de casos de prueba se clasifican en tres categorías principales. Las pruebas de caja blanca se basan en la estructura interna del código, midiendo métricas como cobertura de sentencias (porcentaje de líneas ejecutadas), cobertura de ramas (porcentaje de decisiones evaluadas en ambos sentidos) y cobertura de caminos (porcentaje de rutas lógicas recorridas). Las pruebas de caja negra se basan exclusivamente en las especificaciones funcionales del sistema, utilizando técnicas como partición de equivalencia (división del dominio de entrada en clases de equivalencia) y análisis de valores límite (prueba de los valores en los bordes de cada clase). Las pruebas basadas en escenarios simulan flujos de uso real del sistema, siguiendo la secuencia completa de pasos que un usuario realizaría en una situación concreta.
+
+Para INVENTARIO+ se implementaron 133 pruebas unitarias y de integración con Jest 30.4.2 y Supertest 7.2.2, distribuidas en 13 suites de prueba que cubren los controladores, modelos y middleware del backend. Se diseñaron 29 pruebas de caja negra aplicando las técnicas de partición de equivalencia y análisis de valores límite para verificar los límites de los campos de entrada. Se ejecutaron 15 especificaciones end-to-end con Cypress 14+ cubriendo los módulos de login, dashboard, productos, ventas, proveedores y usuarios desde la interfaz de usuario. Se validaron funcionalmente más de 30 endpoints de la API REST con Postman, verificando códigos HTTP, estructura de respuesta y manejo de errores. Se realizaron 3 escenarios de carga y estrés con Apache JMeter simulando 10, 50 y 100 usuarios concurrentes para evaluar el comportamiento del sistema bajo diferentes niveles de demanda. La cobertura de código alcanzó un promedio del 91.5% a nivel de sentencias, superando ampliamente el estándar mínimo recomendado del 80% para proyectos de software crítico según las mejores prácticas de la industria.
+
+## 1.6. Seguridad en Sistemas de Información
+
+La seguridad en sistemas de información web abarca las medidas técnicas, organizativas y legales implementadas para proteger la confidencialidad, integridad y disponibilidad de los datos, conocidas como la tríada CIA (Confidentiality, Integrity, Availability). La confidencialidad garantiza que la información solo sea accesible por personas autorizadas. La integridad asegura que los datos no sean modificados sin autorización. La disponibilidad garantiza que el sistema y los datos estén accesibles cuando se necesiten.
+
+La norma ISO/IEC 27001:2022 establece los requisitos para implementar, mantener y mejorar un Sistema de Gestión de Seguridad de la Información (SGSI). El Anexo A de la norma proporciona un catálogo de 93 controles de seguridad organizados en 4 dominios: organizacional, de personas, físico y tecnológico. Estos controles constituyen una guía completa para identificar y mitigar riesgos de seguridad en cualquier tipo de organización.
+
+Las principales amenazas a la seguridad en aplicaciones web incluyen: inyección SQL (inserción de código malicioso en consultas a la base de datos), cross-site scripting (XSS, inserción de scripts maliciosos en páginas web), cross-site request forgery (CSRF, ejecución de acciones no autorizadas en nombre de un usuario autenticado), autenticación rota (debilidades en los mecanismos de verificación de identidad), exposición de datos sensibles (almacenamiento o transmisión insegura de información confidencial) y denegación de servicio (DoS, saturación del sistema para hacerlo inaccesible).
+
+En INVENTARIO+ se implementaron múltiples capas de seguridad siguiendo el principio de defensa en profundidad. La autenticación se basa en JSON Web Tokens (JWT) con firma HMAC-SHA256 y expiración configurada a 8 horas, forzando al usuario a renovar su sesión periódicamente. La autorización se implementa mediante Control de Acceso Basado en Roles (RBAC) con un middleware que verifica el rol del usuario (PROPIETARIO o EMPLEADO) en cada petición HTTP a recursos protegidos. Las contraseñas se almacenan cifradas con bcryptjs utilizando 10 rondas de sal, lo que equivale aproximadamente a 100ms por operación de hash, ofreciendo un equilibrio entre seguridad y rendimiento. Las consultas a la base de datos utilizan parámetros posicionales ($1, $2, ...) en lugar de concatenación de cadenas, previniendo eficazmente la inyección SQL. Los datos de entrada se validan en el servidor antes de cualquier operación crítica, complementando la validación del lado del cliente. Se registran pistas de auditoría en tablas de movimientos (producto_movimiento) que almacenan el historial completo de cambios. Las transacciones concurrentes de ventas utilizan bloqueo optimista de filas mediante SELECT FOR UPDATE, evitando condiciones de carrera que podrían resultar en la venta de productos sin stock disponible.
+
+## 1.7. Estudio de Factibilidad
+
+El estudio de factibilidad es un análisis sistemático que evalúa la viabilidad del proyecto desde diferentes perspectivas antes de comprometer recursos significativos en su desarrollo. El objetivo es determinar si el proyecto es realizable y si los beneficios esperados justifican la inversión requerida. Las cuatro dimensiones principales del estudio son la factibilidad técnica, económica, operativa y legal.
+
+La factibilidad técnica evalúa si la tecnología necesaria para el proyecto está disponible y si el equipo de desarrollo posee las habilidades requeridas. Para INVENTARIO+, se verificó la disponibilidad de las herramientas de desarrollo (Node.js, Express 5, PostgreSQL 18, Bootstrap 5), todas de código abierto y con amplia documentación. El equipo demostró competencia en las tecnologías seleccionadas durante el ciclo de desarrollo.
+
+La factibilidad operativa analiza si el sistema será aceptado y utilizado efectivamente por los usuarios finales. Para INVENTARIO+, el propietario y los empleados de Patatas King expresaron su disposición a adoptar el sistema, condicionada a que la interfaz sea intuitiva y fácil de aprender. Los resultados de la encuesta indicaron una actitud positiva hacia la digitalización de los procesos comerciales.
+
+La factibilidad legal verifica que el proyecto cumpla con las leyes y regulaciones aplicables. Para INVENTARIO+, se consideraron la Ley 843 (Código Tributario Boliviano) y el Decreto Supremo 24051. El sistema implementa funcionalidades que facilitan el cumplimiento tributario, como la generación de reportes de ventas diarias y mensuales con los totales requeridos para la declaración de impuestos.
+
+La factibilidad económica determina si los beneficios del proyecto justifican la inversión. Para INVENTARIO+, se aplicó el modelo COCOMO (Constructive Cost Model) de Boehm (1981), que permite estimar el esfuerzo, tiempo y costo del desarrollo en función del tamaño estimado del producto. Considerando el modo de desarrollo orgánico (equipo pequeño con experiencia en la tecnología), el tamaño estimado de 12 KLDC (miles de líneas de código fuente), y los coeficientes del modo orgánico (a=2.4, b=1.05, c=2.5, d=0.38), se calcularon los siguientes resultados:
+
+Esfuerzo = a × (KLDC)^b = 2.4 × (12)^1.05 = 2.4 × 14.8 = aproximadamente 36 personas-mes
+Tiempo = c × (Esfuerzo)^d = 2.5 × (36)^0.38 = 2.5 × 3.54 = aproximadamente 8.8 meses
+
+Para el análisis financiero, se consideró una inversión inicial de Bs. 18,500 distribuida en equipos de cómputo, licencias, servicios de internet, hosting y costos operativos durante el desarrollo. Los beneficios estimados consideran la reducción de pérdidas por desabastecimiento, la optimización del tiempo de atención al cliente y la mejora en la toma de decisiones gracias a los reportes gerenciales.
+
+Los indicadores financieros calculados fueron los siguientes:
+- VAN (Valor Actual Neto): Bs. 12,340 a una tasa de descuento del 12%, indicando que el proyecto genera valor positivo
+- TIR (Tasa Interna de Retorno): 34.5%, superando ampliamente la tasa de descuento del 12%
+- Payback (Período de Recuperación): 10 meses, indicando una recuperación rápida de la inversión
+- Relación Beneficio/Costo: 1.67, significando que por cada boliviano invertido se obtiene Bs. 1.67 de beneficio
+
+TBL: Indicador|Valor
+|12 KLDC|Modo orgánico|36 personas-mes|8.5 meses|Bs. 18,500|Bs. 12,340|34.5%|10 meses|1.67
+
+## 1.8. Herramientas de Desarrollo
+
+Las herramientas de desarrollo constituyen el entorno tecnológico sobre el cual se construye el sistema, abarcando el lenguaje de programación, los frameworks, los sistemas gestores de base de datos, las herramientas de prueba y las plataformas de colaboración.
+
+JavaScript es el lenguaje principal del proyecto, utilizado tanto en el frontend (ejecutándose en el navegador del cliente) como en el backend (ejecutándose en Node.js en el servidor). Esta característica de lenguaje único en ambos entornos simplifica el desarrollo, reduce la curva de aprendizaje y permite compartir lógica y validaciones entre el cliente y el servidor. JavaScript ofrece tipado dinámico, funciones de primera clase, closures, y soporte nativo para programación asíncrona mediante Promises y async/await, facilitando la implementación de operaciones concurrentes como peticiones a la API y consultas a la base de datos.
+
+HTML5 y CSS3 constituyen la base del marcado semántico y la presentación visual del sistema. HTML5 proporciona elementos semánticos (header, nav, main, section, article) que mejoran la accesibilidad y el posicionamiento en buscadores. CSS3 permite estilos avanzados como flexbox y grid para layouts responsivos, transiciones animadas y variables CSS para la personalización de temas. Bootstrap 5.3.3 se utilizó como framework CSS para garantizar un diseño responsivo (adaptable a dispositivos móviles, tablets y escritorio), accesible (conforme a las pautas WCAG 2.1) y visualmente consistente en todos los módulos del sistema.
+
+PostgreSQL 18 fue seleccionado como sistema gestor de bases de datos relacional debido a su madurez (más de 30 años de desarrollo), cumplimiento del estándar SQL:2023, soporte completo para transacciones ACID (Atomicity, Consistency, Isolation, Durability), extensiones avanzadas como pg_stat_statements para monitoreo de rendimiento y pgcrypto para cifrado, y su licencia de código abierto (PostgreSQL License) que elimina costos de licenciamiento.
+
+Node.js 20+ se eligió como entorno de ejecución del backend por su eficiencia en operaciones de entrada/salida (modelo no bloqueante basado en eventos), su vasto ecosistema de paquetes (npm, con más de 2 millones de paquetes disponibles), y su idoneidad para aplicaciones en tiempo real y APIs RESTful. Express 5, el framework web más popular para Node.js, se utilizó para estructurar la aplicación siguiendo el patrón MVC, gestionar rutas, middlewares y el manejo centralizado de errores.
+
+Para las pruebas se utilizaron las siguientes herramientas especializadas. Jest 30.4.2 como framework de pruebas unitarias y de integración, proporcionando un entorno completo con aserciones, mocks, spies y generación de informes de cobertura mediante Istanbul. Supertest 7.2.2 para pruebas de integración de la API REST, permitiendo realizar peticiones HTTP programáticas al servidor Express sin necesidad de un navegador. Cypress 14+ para pruebas end-to-end del frontend, ofreciendo una interfaz visual interactiva, grabación de video de las pruebas y capacidades de time-travel para depuración. Postman para la documentación interactiva de la API, la creación de colecciones de pruebas funcionales y la validación automatizada de endpoints. Apache JMeter 5.6 para pruebas de carga y estrés, permitiendo simular múltiples usuarios concurrentes y medir tiempos de respuesta, throughput y tasas de error.
+
+Git y GitHub se emplearon para el control de versiones distribuido, la gestión de ramas por funcionalidad (feature branches), la revisión de código mediante pull requests y la colaboración asíncrona del equipo de desarrollo.
+
+## 1.9. Gestión de Inventarios y Contexto del Establecimiento
+
+La gestión de inventarios es una función crítica en cualquier organización comercial, ya que impacta directamente en la rentabilidad, la satisfacción del cliente y la eficiencia operativa. En establecimientos de comida preparada como Patatas King, la gestión de inventarios presenta desafíos particulares debido a la naturaleza perecedera de los insumos, la variabilidad de la demanda según el día de la semana y la temporada, la necesidad de mantener existencias mínimas para garantizar la disponibilidad de productos, y la dificultad de predecir con precisión las cantidades necesarias para cada período.
+
+Un sistema de inventario efectivo debe equilibrar dos costos opuestos: los costos de mantenimiento (almacenamiento, deterioro, capital inmovilizado) y los costos de desabastecimiento (pérdida de ventas, insatisfacción del cliente, daño a la reputación). El punto óptimo se encuentra en el nivel de inventario que minimiza el costo total, conocido como lote económico de pedido (EOQ, Economic Order Quantity).
+
+Los métodos de valoración de inventarios más comunes son: FIFO (First In, First Out), donde los primeros productos en entrar son los primeros en salir; LIFO (Last In, First Out), donde los últimos productos en entrar son los primeros en salir; y promedio ponderado, donde el costo se calcula como el promedio de todos los costos de adquisición. Para INVENTARIO+, se implementó el método de promedio ponderado por su simplicidad y su aceptación en el contexto de pequeñas empresas bolivianas.
+
+En el contexto boliviano, la Ley 843 y el Decreto Supremo 24051 establecen las obligaciones tributarias para establecimientos comerciales, incluyendo la emisión de facturas (obligatoria para ventas superiores a Bs. 50) y la presentación de libros contables (libro diario y libro mayor) ante el Servicio de Impuestos Nacionales (SIN). El sistema INVENTARIO+ fue diseñado considerando estos requisitos legales, implementando funcionalidades específicas como la generación del libro diario con el detalle de todas las transacciones del día y el libro mensual con los totales requeridos para la declaración de impuestos.
+
+Patatas King está ubicado en la zona céntrica de la ciudad de Potosí, Bolivia, una ciudad minera e histórica con una economía basada principalmente en el comercio, la minería y el turismo. El establecimiento cuenta con un propietario y dos empleados que atienden en horario continuado de lunes a sábado. La infraestructura tecnológica disponible incluye una computadora de escritorio con sistema operativo Windows 10, acceso a internet mediante conexión ADSL con velocidad de 10 Mbps, y una impresora multifuncional. No se dispone de servidor dedicado ni de personal técnico de soporte, por lo que el sistema fue diseñado para funcionar en un entorno de recursos limitados, con requisitos mínimos de hardware y mantenimiento simplificado.
+
+# CAPÍTULO II – ANÁLISIS Y DISEÑO
+
+Este capítulo describe el proceso de transformación de los datos recolectados en especificaciones técnicas para la construcción del sistema. Se cubren las etapas de análisis de requisitos, modelado de casos de uso, definición del product backlog, estudio de factibilidad, diseño de la base de datos, diseño de la interfaz de usuario y diseño de la arquitectura de seguridad.
+
+## 2.1. Análisis de Requisitos
+
+Para la recolección de requisitos se aplicaron cuatro técnicas complementarias que permitieron obtener una visión integral y multidimensional de las necesidades del establecimiento. La combinación de técnicas cualitativas (entrevista, observación) y cuantitativas (encuesta, revisión documental) aseguró la triangulación de datos, validando los hallazgos desde diferentes perspectivas.
+
+La entrevista semiestructurada se aplicó al propietario del establecimiento con una guía de 15 preguntas abiertas organizadas en cinco dimensiones: (1) proceso actual de ventas, preguntas sobre el flujo de atención, métodos de pago aceptados y volumen diario de transacciones; (2) control de inventario, preguntas sobre la frecuencia de actualización, métodos de conteo y productos críticos; (3) generación de reportes, preguntas sobre la necesidad de información para la toma de decisiones y formatos requeridos; (4) problemas recurrentes, identificación de las dificultades más frecuentes y su impacto económico; y (5) expectativas del sistema, funcionalidades deseadas y restricciones técnicas. La entrevista tuvo una duración de 45 minutos y fue registrada mediante notas escritas, identificándose 12 necesidades funcionales y 8 restricciones técnicas.
+
+La encuesta se aplicó a los dos empleados del establecimiento mediante un cuestionario estructurado con 10 preguntas en escala Likert de 5 puntos (1: Totalmente en desacuerdo a 5: Totalmente de acuerdo) y 3 preguntas abiertas para recoger sugerencias. Las dimensiones evaluadas fueron: frecuencia de uso de tecnología (computadoras, smartphones, aplicaciones web), nivel de satisfacción con el proceso actual de registro de ventas, percepción de errores en los cálculos manuales y disposición al cambio hacia un sistema digital. Los resultados mostraron que el 100% de los empleados consideraba que el proceso actual era propenso a errores, el 100% manifestó que el cálculo manual les generaba estrés, y el 100% expresó disposición a utilizar un sistema informático si fuera fácil de aprender.
+
+La observación directa se realizó durante tres jornadas laborales completas, seleccionando los días lunes (inicio de semana con demanda media), miércoles (día entre semana con demanda estable) y sábado (fin de semana con mayor afluencia de clientes) para capturar la variabilidad de la demanda. Se utilizó una guía de observación estructurada con 20 ítems de verificación y un registro cronometrado de tiempos. Los datos registrados incluyeron: número de transacciones por hora (promedio de 15 ventas por día, con un máximo de 22 los sábados), tiempo promedio de atención al cliente (8 minutos, con un mínimo de 4 minutos para pedidos simples y un máximo de 15 minutos para pedidos complejos), errores de cálculo detectados (3 errores en 45 transacciones observadas, equivalente al 6.7% de tasa de error), productos con mayor rotación (papas fritas, hamburguesas y bebidas) y momentos de mayor congestión (horario de almuerzo de 12:00 a 14:00 y horario de cena de 19:00 a 21:00).
+
+La revisión documental analizó los registros históricos de ventas de los últimos 6 meses, las hojas de cálculo de inventario y los comprobantes de pago a proveedores. Se empleó una ficha de revisión documental con 12 indicadores de calidad de registros que evaluaban: completitud de los datos, exactitud aritmética, legibilidad de las anotaciones, consistencia en la codificación de productos, frecuencia de actualización y trazabilidad de las modificaciones. El análisis reveló que el 15% de las anotaciones presentaban errores aritméticos, el 8% contenían datos ilegibles y el 5% estaban incompletas, lo que permitió cuantificar la magnitud del problema y justificar la necesidad del sistema.
+
+### 2.1.1. Requisitos Funcionales
+
+Los requisitos funcionales describen las funcionalidades específicas que el sistema debe proporcionar para satisfacer las necesidades del usuario. Se identificaron y documentaron 15 requisitos funcionales:
+
+RF-01: El sistema debe permitir el registro de ventas seleccionando productos del catálogo, especificando cantidades y calculando automáticamente los subtotales y el total.
+RF-02: El sistema debe generar un comprobante de venta con código QR único para cada transacción registrada.
+RF-03: El sistema debe actualizar el stock de productos en tiempo real al registrar una venta.
+RF-04: El sistema debe permitir la creación, modificación, eliminación y consulta de productos con código SKU, nombre, descripción, precio, costo y stock mínimo.
+RF-05: El sistema debe generar reportes contables de libro diario y libro mensual, con filtros por rango de fechas.
+RF-06: El sistema debe mostrar un dashboard ejecutivo con KPIs (ventas del día, ventas del mes, total de productos, total de clientes) y gráficos visuales.
+RF-07: El sistema debe proporcionar un sistema de autenticación seguro mediante usuario y contraseña.
+RF-08: El sistema debe implementar control de acceso basado en roles (PROPIETARIO y EMPLEADO).
+RF-09: El sistema debe generar alertas automáticas cuando el stock de un producto alcance o supere el stock mínimo definido.
+RF-10: El sistema debe permitir la gestión de proveedores con datos de contacto completo.
+RF-11: El sistema debe permitir la anulación de ventas con registro del motivo y restauración del stock.
+RF-12: El sistema debe permitir la exportación de reportes a formato PDF y la impresión directa desde el navegador.
+RF-13: El sistema debe ofrecer la funcionalidad de modo oscuro y claro, con persistencia de la preferencia del usuario.
+RF-14: El sistema debe registrar un historial de movimientos de productos (entradas y salidas) con información del usuario responsable.
+RF-15: El sistema debe permitir la gestión completa de usuarios del sistema (creación, edición, eliminación y asignación de roles).
+
+### 2.1.2. Requisitos No Funcionales
+
+Los requisitos no funcionales describen las propiedades y restricciones del sistema, complementando las funcionalidades especificadas en los requisitos funcionales:
+
+RNF-01: El sistema debe funcionar correctamente en los navegadores Chrome 90+, Firefox 88+, Edge 90+ y Safari 14+.
+RNF-02: El sistema debe ser responsivo, adaptándose a dispositivos con resolución desde 320px (móviles) hasta 1920px (escritorio).
+RNF-03: El tiempo de respuesta de la API para peticiones de consulta debe ser inferior a 200ms para el 95% de las solicitudes.
+RNF-04: El sistema debe soportar al menos 10 usuarios concurrentes sin degradación significativa del rendimiento.
+RNF-05: Las contraseñas deben almacenarse cifradas utilizando bcryptjs con un mínimo de 10 rondas de sal.
+RNF-06: El sistema debe implementar consultas parametrizadas para prevenir inyección SQL.
+RNF-07: El código fuente debe estar organizado siguiendo el patrón MVC y mantener una cobertura de pruebas superior al 80%.
+RNF-08: El sistema debe estar documentado mediante manuales de usuario, administrador, instalación y base de datos.
+RNF-09: La interfaz de usuario debe utilizar la paleta de colores definida (primario #1E5FE0, secundario #F5B800) y mantener consistencia visual en todos los módulos.
+RNF-10: El sistema debe registrar en logs todas las operaciones críticas con timestamp, usuario y tipo de operación.
+
+## 2.2. Matriz de Análisis Documental
+
+TBL: Problema|Fuente|Funcionalidad|Prioridad
+|Pérdida de registros de ventas|Entrevista|Registro digital con comprobante|Alta
+|Stock desactualizado|Observación|Control de inventario en tiempo real|Alta
+|Sin reportes contables|Documental|Reportes diarios y mensuales|Alta
+|Errores en cálculo de totales|Encuesta|Cálculo automático de totales|Alta
+|Desabastecimiento de productos|Observación|Alertas de stock mínimo|Media
+|Sin trazabilidad de transacciones|Entrevista|Historial de movimientos|Alta
+|Falta de control de usuarios|Entrevista|Autenticación y roles de acceso|Alta
+|Demora en atención al cliente|Observación|Interfaz rápida de registro|Media
+
+## 2.3. Historias de Usuario
+
+Los hallazgos de la etapa de recolección se transformaron en 11 historias de usuario siguiendo el formato estándar de la metodología ágil: "Como [rol], quiero [funcionalidad] para [beneficio]". La priorización MoSCoW clasificó 6 historias como "Must have", 3 como "Should have" y 2 como "Could have".
+
+TBL: ID|Historia de Usuario|Rol|Prioridad|SP
+|HU-01|Registrar ventas con productos y comprobante QR|Ambos|Must|8
+|HU-02|Controlar inventario con stock en tiempo real|Propietario|Must|13
+|HU-03|Generar reportes contables diarios y mensuales|Propietario|Must|8
+|HU-04|Gestionar productos (alta, baja, modificación)|Propietario|Must|5
+|HU-05|Autenticarse con usuario y contraseña|Ambos|Must|5
+|HU-06|Recibir alertas de stock bajo|Propietario|Must|3
+|HU-07|Gestionar proveedores|Propietario|Should|5
+|HU-08|Visualizar dashboard con KPIs y gráficos|Propietario|Should|8
+|HU-09|Alternar entre modo claro y oscuro|Ambos|Should|2
+|HU-10|Anular ventas con restauración de stock|Propietario|Could|5
+|HU-11|Exportar reportes a PDF|Propietario|Could|3
+
+## 2.4. Situación Actual del Proceso Comercial
+
+El proceso de venta actual se realizaba de manera completamente manual sin intervención de herramientas digitales. Para comprender cabalmente la magnitud del problema, es necesario analizar el flujo operativo con detalle, desde la llegada del cliente hasta el registro final de la transacción, identificando en cada paso las fuentes potenciales de error y las ineficiencias que afectan la calidad del servicio y la rentabilidad del negocio. El flujo operativo comprendía 8 pasos secuenciales que dependían exclusivamente de la memoria y la habilidad aritmética del empleado. Cuando el cliente llegaba al establecimiento, el empleado tomaba el pedido verbalmente sin ningún registro escrito durante la atención. Luego buscaba los precios de cada producto en una lista impresa en papel que se actualizaba esporádicamente. A continuación, calculaba el total de la venta sumando mentalmente o con calculadora básica los precios de cada producto. Después comunicaba el total al cliente y recibía el pago, generalmente en efectivo. Posteriormente preparaba y entregaba el producto solicitado. Finalmente, al concluir la jornada laboral, anotaba las ventas del día en una libreta física sin formato estandarizado, confiando en su memoria para recordar los detalles de cada transacción.
+
+El inventario se gestionaba mediante inspecciones visuales semanales, donde el propietario revisaba físicamente los estantes y almacén para determinar qué productos necesitaban reposición. Este método, además de ser impreciso, consumía aproximadamente 2 horas cada semana y no permitía detectar faltantes entre los períodos de inspección. No existía un registro formal de las existencias, ni un histórico de consumos que permitiera identificar patrones de demanda o calcular puntos de reorden óptimos.
+
+Este proceso presentaba múltiples deficiencias que afectaban directamente la rentabilidad y eficiencia del establecimiento. Los errores humanos en los cálculos manuales alcanzaban el 6.7% de tasa de error, lo que se traducía en pérdidas económicas por cobros incorrectos y en la necesidad de dedicar tiempo adicional a la conciliación de caja al final del día. La pérdida de información por anotaciones ilegibles, extraviadas o incompletas representaba aproximadamente el 13% de los registros, imposibilitando la generación de reportes históricos confiables. La nula trazabilidad de las transacciones impedía identificar quién realizó cada venta, cuándo se realizó y qué productos se vendieron, dificultando la rendición de cuentas y la detección de irregularidades. El desabastecimiento recurrente de productos de alta demanda generaba pérdidas estimadas de Bs. 320 mensuales en ventas no realizadas y afectaba la satisfacción de los clientes habituales.
+
+## 2.5. Identificación de Actores y Casos de Uso
+
+Se identificaron dos actores principales que interactúan con el sistema, cada uno con niveles de acceso y responsabilidades diferentes. El actor PROPIETARIO tiene acceso completo a todos los módulos del sistema, incluyendo la gestión de usuarios, productos, proveedores, reportes, dashboard, alertas y la capacidad de anular ventas. El actor EMPLEADO tiene acceso limitado al registro de ventas, la consulta de productos y la visualización de su propio perfil, sin permisos para modificar configuraciones ni acceder a reportes gerenciales.
+
+Se definieron 8 casos de uso principales que cubren la totalidad de las funcionalidades requeridas. Cada caso de uso describe una secuencia de interacciones entre el actor y el sistema para lograr un objetivo específico. Las descripciones detalladas incluyen el flujo básico (camino feliz), los flujos alternativos (variaciones permitidas) y los flujos de excepción (manejo de errores).
+
+TBL: Caso de Uso|Actor|Descripción
+|Registrar Venta|Ambos|Seleccionar productos del catálogo, especificar cantidades, calcular automáticamente subtotales y total, seleccionar método de pago (efectivo/QR), registrar cliente opcional, confirmar venta, generar comprobante QR
+|Gestionar Productos|PROPIETARIO|CRUD completo: crear producto con código SKU único, nombre, descripción, precio, costo, stock; modificar datos; eliminar (desactivar); consultar con filtros de búsqueda
+|Gestionar Proveedores|PROPIETARIO|Registro de nuevos proveedores con nombre, contacto, teléfono, email, dirección; edición de datos existentes; eliminación de proveedores sin transacciones asociadas
+|Consultar Reportes|PROPIETARIO|Libro diario con detalle de ventas del día, libro mensual con resumen por día y subtotales, reporte por rango de fechas personalizado, ranking de productos más vendidos
+|Gestionar Usuarios|PROPIETARIO|Crear nuevos usuarios con nombre, correo y contraseña; asignar rol (PROPIETARIO/EMPLEADO); editar datos; eliminar usuarios; cambiar contraseñas
+|Ver Dashboard|PROPIETARIO|Visualizar tarjetas de KPIs (ventas del día, ventas del mes, total productos, total clientes, alertas activas, venta más alta), gráfico de barras de ventas semanales, gráfico circular de métodos de pago, tabla de últimas ventas
+|Gestionar Alertas|PROPIETARIO|Revisar lista de alertas de stock bajo generadas automáticamente, marcar alertas como solucionadas después de realizar la reposición
+|Anular Venta|PROPIETARIO|Buscar venta por ID o rango de fechas, ver detalle de la venta, ingresar motivo obligatorio de anulación, confirmar anulación, restaurar automáticamente el stock de cada producto
+
+## 2.6. Diagrama de Casos de Uso
+
+El diagrama de casos de uso representa gráficamente las interacciones entre los actores y el sistema. El actor PROPIETARIO se relaciona con los 8 casos de uso, teniendo acceso completo al sistema. El actor EMPLEADO se relaciona únicamente con el caso de uso "Registrar Venta" y, de forma secundaria, con la consulta de productos para verificar precios y disponibilidad durante el proceso de atención al cliente. La relación de inclusión (include) entre casos de uso se presenta cuando "Registrar Venta" incluye la funcionalidad de "Consultar Productos" para seleccionar los ítems de la venta. La relación de extensión (extend) se presenta cuando "Registrar Venta" puede extenderse opcionalmente a "Registrar Cliente" si el usuario decide registrar los datos del comprador.
+
+## 2.7. Prototipos de Interfaces de Usuario
+
+Los prototipos de interfaces de usuario se construyeron utilizando Bootstrap Studio 6, una herramienta visual de diseño web que permite crear interfaces responsivas mediante componentes arrastrables y soltar. El proceso de prototipado siguió una metodología en tres fases, comenzando con wireframes de baja fidelidad para definir la estructura básica, continuando con prototipos de alta fidelidad que aplicaban la paleta de colores corporativa (primario #1E5FE0 "Azul Eléctrico", secundario #F5B800 "Amarillo Mostaza") y finalizando con prototipos funcionales con navegación interactiva entre pantallas.
+
+Se diseñaron 9 pantallas funcionales que cubren la totalidad de los módulos del sistema. La pantalla de login presenta un diseño centrado con una tarjeta de inicio de sesión que incluye validación en tiempo real de los campos de usuario y contraseña, un botón de ingreso con feedback visual de carga, y redirección automática según el rol del usuario autenticado (PROPIETARIO al dashboard completo, EMPLEADO al módulo de ventas). El dashboard ejecutivo muestra tarjetas de KPIs con indicadores numéricos y tendencias, un gráfico de barras para ventas semanales, un gráfico circular para la distribución de métodos de pago y una tabla con las últimas ventas registradas.
+
+La pantalla de ventas presenta tres paneles organizados horizontalmente: un panel izquierdo con buscador de productos por nombre o código SKU, un panel central con el carrito de compras mostrando productos seleccionados con cantidades y subtotales, y un panel derecho con el resumen de la venta incluyendo total, método de pago y botón de confirmación. La pantalla de productos muestra una tabla con paginación, búsqueda y filtros, y utiliza modales para las operaciones de creación y edición de productos. La pantalla de proveedores sigue el mismo patrón de tabla con CRUD modal, mientras que la pantalla de reportes utiliza tabs para alternar entre libro diario, libro mensual y reporte por rango de fechas, con una tabla de resultados y botones de impresión y exportación.
+
+El layout general utiliza un sidebar vertical colapsable en la izquierda que se convierte en una barra de navegación inferior en dispositivos móviles (breakpoint de 768px). El modo oscuro se implementa mediante variables CSS que alteran la paleta de colores y se persiste en localStorage para mantener la preferencia del usuario entre sesiones. Los prototipos fueron validados con el propietario en tres sesiones iterativas de 30 minutos cada una, obteniendo retroalimentación sobre la disposición de los elementos en la pantalla de ventas (se solicitó agrandar los botones de productos), los flujos de navegación (se agregó un botón de "volver" en todas las pantallas) y la experiencia de usuario general (se mejoró el contraste de textos en el modo oscuro).
+
+## 2.8. Sprint Backlog
+
+El Sprint Backlog se compuso de 30 tareas técnicas distribuidas en cinco categorías: configuración del proyecto (3 tareas, 12 horas), desarrollo del backend (10 tareas, 44 horas), desarrollo del frontend (9 tareas, 36 horas), pruebas (5 tareas, 16 horas) y documentación (3 tareas, 8 horas). Total estimado: 116 horas. Capacidad del equipo: 112 horas-hombre. Las tareas se asignaron según las especialidades de cada desarrollador (frontend, backend, tester) y se priorizaron siguiendo el orden de las historias de usuario en el Product Backlog.
+
+TBL: Categoría|Tarea|Horas|Responsable
+|Configuración|Inicializar proyecto Node.js con Express|4|Backend
+|Configuración|Configurar PostgreSQL y migraciones|5|Backend
+|Configuración|Configurar Bootstrap y estructura frontend|3|Frontend
+|Backend|Implementar modelo y rutas de autenticación|6|Backend
+|Backend|Implementar middleware JWT y roles|4|Backend
+|Backend|Implementar CRUD de productos|6|Backend
+|Backend|Implementar módulo de ventas con transacciones|8|Backend
+|Backend|Implementar reportes y dashboard|6|Backend
+|Backend|Implementar CRUD de proveedores|4|Backend
+|Backend|Implementar alertas de stock|4|Backend
+|Backend|Implementar CRUD de usuarios|4|Backend
+|Backend|Implementar anulación de ventas|4|Backend
+|Frontend|Diseñar layout y navegación principal|4|Frontend
+|Frontend|Implementar módulo de ventas (frontend)|6|Frontend
+|Frontend|Implementar módulo de productos|4|Frontend
+|Frontend|Implementar dashboard con gráficos|5|Frontend
+|Frontend|Implementar reportes contables|4|Frontend
+|Frontend|Implementar login y gestión de usuarios|4|Frontend
+|Frontend|Implementar alertas y notificaciones|3|Frontend
+|Frontend|Implementar proveedores|3|Frontend
+|Frontend|Implementar modo oscuro|3|Frontend
+|Pruebas|Escribir pruebas unitarias (Jest)|6|Tester
+|Pruebas|Escribir pruebas de integración|4|Tester
+|Pruebas|Escribir pruebas E2E (Cypress)|3|Tester
+|Pruebas|Ejecutar pruebas de carga y estrés|2|Tester
+|Pruebas|Documentar resultados de pruebas|1|Tester
+|Documentación|Redactar manual de usuario|3|Documentador
+|Documentación|Redactar manual de administrador|3|Documentador
+|Documentación|Redactar manual de instalación y BD|2|Documentador
+
+## 2.9. Diseño de la Base de Datos
+
+### 2.9.1. Modelo Entidad-Relación
+
+El modelo entidad-relación (E-R) constituye la representación conceptual de la estructura de datos del sistema, identificando 11 entidades que cubren la totalidad de los procesos del negocio. El modelo fue normalizado hasta tercera forma normal (3FN) para eliminar redundancias, garantizar la integridad de los datos y optimizar el rendimiento de las consultas. El proceso de normalización incluyó la eliminación de dependencias parciales (1FN a 2FN) y dependencias transitivas (2FN a 3FN), asegurando que cada atributo no clave dependa únicamente de la clave primaria completa.
+
+Las entidades principales del modelo se describen a continuación. La entidad Usuario almacena las credenciales, datos personales y roles de acceso de las personas que interactúan con el sistema, distinguiendo entre PROPIETARIO (acceso completo) y EMPLEADO (acceso limitado a ventas). La entidad Producto representa el catálogo de productos ofrecidos por el establecimiento, incluyendo información de precio, costo, stock actual y stock mínimo para alertas. La entidad Venta registra cada transacción comercial realizada, almacenando el total, método de pago, fecha y estado (ACTIVA o ANULADA). La entidad DetalleVenta contiene la descomposición de cada venta en los productos individuales vendidos, con cantidad, precio unitario y subtotal.
+
+La entidad Cliente almacena la información de los compradores registrados, permitiendo asociar ventas a clientes recurrentes y generar un histórico de compras por cliente. La entidad Proveedor contiene los datos de los abastecedores de insumos y materias primas, incluyendo información de contacto completa. La entidad Insumo representa los materiales utilizados en la preparación de productos, con cantidades y unidades de medida. La entidad Reposicion registra las operaciones de reposición de stock, vinculando productos, proveedores, cantidades, fechas y costos unitarios. La entidad Alerta gestiona las notificaciones automáticas generadas por triggers de base de datos cuando el stock de un producto alcanza o supera su nivel mínimo. La entidad ProductoMovimiento proporciona un historial completo de todas las operaciones que afectan el stock de cada producto (entradas por reposiciones, salidas por ventas, ajustes manuales), con información del usuario responsable y referencias a la transacción origen. La entidad ProductoCostoHistorico mantiene un registro histórico de todos los cambios en el costo de los productos, permitiendo calcular el margen de ganancia histórico.
+
+Las relaciones más significativas del modelo incluyen: Usuario registra Venta (relación 1:N, un usuario puede registrar múltiples ventas), Venta contiene DetalleVenta (relación 1:N, una venta se descompone en uno o más detalles, cada uno con un producto específico), Producto aparece en DetalleVenta (relación 1:N, un producto puede aparecer en múltiples detalles de venta a lo largo del tiempo), Cliente realiza Venta (relación 1:N, un cliente puede realizar múltiples compras), Producto genera Alerta (relación 1:N, un producto puede generar múltiples alertas a lo largo del tiempo cuando su stock baja repetidamente), y Proveedor suministra Insumo (relación 1:N, un proveedor puede suministrar múltiples insumos).
+
+TBL: Tabla|Descripción|Columnas|PK|FK
+|usuario|Usuarios del sistema|7|id|-
+|producto|Catálogo de productos|8|id|-
+|venta|Transacciones de venta|11|id|usuario_id, cliente_id
+|detalle_venta|Detalle de productos vendidos|6|id|venta_id, producto_id
+|cliente|Clientes registrados|4|id|-
+|proveedor|Proveedores|7|id|-
+|insumo|Insumos de inventario|6|id|proveedor_id
+|reposicion|Reposiciones de stock|7|id|producto_id, proveedor_id
+|alerta|Alertas del sistema|5|id|producto_id
+|producto_movimiento|Historial de movimientos|9|id|producto_id, usuario_id
+|producto_costo_historico|Historial de costos|6|id|producto_id
+
+### 2.9.2. Diccionario de Datos
+
+El diccionario de datos proporciona una descripción detallada de cada tabla del sistema, incluyendo el nombre de las columnas, su tipo de dato, las restricciones de integridad aplicadas y las relaciones con otras tablas. Todas las tablas utilizan un identificador único autoincremental (SERIAL) como clave primaria. Las claves foráneas garantizan la integridad referencial mediante restricciones ON DELETE CASCADE o ON DELETE RESTRICT según la naturaleza de la relación.
+
+TBL: Tabla|Columnas|Restricciones
+|usuario|id SERIAL, nombre VARCHAR(100), correo VARCHAR(100), password VARCHAR(255), rol VARCHAR(20), ultimo_acceso TIMESTAMP, created_at TIMESTAMP|UNIQUE(correo), CHECK(rol IN('PROPIETARIO','EMPLEADO'))
+|producto|id SERIAL, nombre VARCHAR(150), codigo VARCHAR(20), descripcion TEXT, precio DECIMAL(10,2), costo DECIMAL(10,2), stock INT, stock_minimo INT, activo BOOLEAN, created_at TIMESTAMP|UNIQUE(nombre), UNIQUE(codigo), CHECK(precio>0), CHECK(stock>=0)
+|venta|id SERIAL, usuario_id INT, total DECIMAL(10,2), metodo_pago VARCHAR(20), cliente_nombre VARCHAR(150), cliente_id INT, fecha TIMESTAMP, estado VARCHAR(20), motivo_anulacion TEXT, created_at TIMESTAMP|CHECK(estado IN('ACTIVA','ANULADA')), FK(usuario_id), FK(cliente_id)
+|detalle_venta|id SERIAL, venta_id INT, producto_id INT, cantidad INT, precio_unitario DECIMAL(10,2), subtotal DECIMAL(10,2)|FK(venta_id) CASCADE, FK(producto_id) RESTRICT, CHECK(cantidad>0)
+|cliente|id SERIAL, ci VARCHAR(20), nombre VARCHAR(150), created_at TIMESTAMP|UNIQUE(ci)
+|proveedor|id SERIAL, nombre VARCHAR(150), contacto VARCHAR(100), telefono VARCHAR(20), email VARCHAR(100), direccion TEXT, created_at TIMESTAMP|-
+|insumo|id SERIAL, nombre VARCHAR(150), cantidad DECIMAL(10,2), unidad VARCHAR(20), proveedor_id INT, created_at TIMESTAMP|FK(proveedor_id), CHECK(cantidad>0)
+|alerta|id SERIAL, producto_id INT, mensaje TEXT, tipo VARCHAR(20), leida BOOLEAN, created_at TIMESTAMP|FK(producto_id), CHECK(tipo IN('STOCK_BAJO'))
+|reposicion|id SERIAL, producto_id INT, proveedor_id INT, cantidad INT, fecha DATE, costo_unitario DECIMAL(10,2), created_at TIMESTAMP|FK(producto_id), FK(proveedor_id), CHECK(cantidad>0)
+|producto_movimiento|id SERIAL, producto_id INT, usuario_id INT, tipo VARCHAR(20), cantidad INT, stock_anterior INT, stock_nuevo INT, referencia_id INT, referencia_tipo VARCHAR(50), created_at TIMESTAMP|FK(producto_id), FK(usuario_id)
+|producto_costo_historico|id SERIAL, producto_id INT, costo_anterior DECIMAL(10,2), costo_nuevo DECIMAL(10,2), usuario_id INT, created_at TIMESTAMP|FK(producto_id), FK(usuario_id)
+
+### 2.9.3. Índices de la Base de Datos
+
+Para optimizar el rendimiento de las consultas más frecuentes, se definieron los siguientes índices:
+
+TBL: Índice|Tabla|Columnas|Tipo
+|idx_venta_fecha|venta|fecha|BTREE
+|idx_venta_usuario|venta|usuario_id|BTREE
+|idx_venta_estado|venta|estado|BTREE
+|idx_detalle_venta|detalle_venta|venta_id, producto_id|BTREE
+|idx_producto_codigo|producto|codigo|UNIQUE BTREE
+|idx_producto_nombre|producto|nombre|BTREE
+|idx_usuario_correo|usuario|correo|UNIQUE BTREE
+|idx_movimiento_producto|producto_movimiento|producto_id, created_at|BTREE
+|idx_alerta_leida|alerta|leida, producto_id|BTREE
+
+## 2.10. Diseño de la Arquitectura del Sistema
+
+La arquitectura del sistema sigue el patrón MVC (Model-View-Controller) en tres capas claramente diferenciadas que separan las responsabilidades de presentación, lógica de negocio y persistencia de datos. Esta separación facilita el mantenimiento, las pruebas y la evolución independiente de cada capa.
+
+La capa de presentación (frontend) está construida con HTML5 para el marcado semántico, Bootstrap 5 para el diseño responsivo y los componentes visuales, y JavaScript vanilla para la interactividad del lado del cliente. Se encarga de renderizar la interfaz de usuario, gestionar la navegación entre pantallas, validar los datos de entrada antes de enviarlos al servidor y presentar los resultados al usuario. La comunicación con el backend se realiza mediante peticiones fetch a la API REST.
+
+La capa de negocio (backend) está implementada con Node.js 20+ y Express 5 como framework web. Contiene la lógica de la aplicación, los controladores que procesan las peticiones, los modelos que interactúan con la base de datos, los middlewares de autenticación JWT y autorización RBAC, y la coordinación de las transacciones. Esta capa expone una API RESTful y se encarga de la validación de datos del lado del servidor, el manejo de errores y la generación de respuestas en formato JSON.
+
+La capa de persistencia (base de datos) está gestionada por PostgreSQL 18, que almacena todos los datos del sistema en 11 tablas relacionadas, aplica las restricciones de integridad (claves primarias, claves foráneas, restricciones CHECK y UNIQUE), y ejecuta las transacciones ACID que garantizan la consistencia de los datos en operaciones críticas como el registro de ventas.
+
+La comunicación entre el frontend y el backend se realiza mediante una API RESTful que expone más de 30 endpoints organizados por recurso: /api/auth (autenticación), /api/productos (gestión de productos), /api/ventas (registro y consulta de ventas), /api/proveedores (gestión de proveedores), /api/reportes (generación de reportes), /api/dashboard (datos del dashboard ejecutivo), /api/alertas (gestión de alertas) y /api/usuarios (gestión de usuarios del sistema). Cada endpoint sigue las convenciones REST: utiliza el método HTTP apropiado según la operación (GET para consulta, POST para creación, PUT para actualización, DELETE para eliminación), emplea nombres de recursos en plural (/api/productos en lugar de /api/producto), utiliza códigos de estado HTTP estándar (200 para éxito, 201 para creación, 400 para error de validación, 401 para no autenticado, 403 para no autorizado, 404 para recurso no encontrado, 500 para error interno) y devuelve respuestas en formato JSON con una estructura consistente que incluye los campos success, data y error según corresponda.
+
+La seguridad se implementa en múltiples capas siguiendo el principio de defensa en profundidad. La autenticación JWT con expiración de 8 horas y firma HMAC-SHA256 verifica la identidad del usuario en cada petición. La autorización RBAC con middleware de roles verifica que el usuario tenga los permisos necesarios para acceder a cada recurso. El cifrado de contraseñas con bcryptjs (10 rondas de sal) protege las credenciales almacenadas. Las consultas parametrizadas ($1, $2, ...) previenen la inyección SQL. La validación de datos en el servidor complementa la validación del cliente. El registro de pistas de auditoría en la tabla producto_movimiento mantiene un historial completo de todas las operaciones. El bloqueo de filas con SELECT FOR UPDATE en transacciones concurrentes de ventas evita condiciones de carrera que podrían resultar en la venta de productos sin stock disponible.
+
+TBL: Capa|Tecnología|Función
+|Presentación|HTML5, Bootstrap 5, JavaScript vanilla|Interfaz de usuario, navegación, componentes visuales, validación cliente
+|Negocio|Node.js, Express 5, JWT, bcryptjs|Lógica de negocio, API REST, autenticación, autorización, validación servidor
+|Persistencia|PostgreSQL 18|Almacenamiento de datos, consultas SQL, transacciones ACID, integridad referencial
+
+# CAPÍTULO III – DESARROLLO, IMPLEMENTACIÓN Y PRUEBAS
+
+Este capítulo presenta el proceso de construcción del sistema, los resultados de las pruebas ejecutadas y la evaluación de calidad según la norma ISO/IEC 25010. Cada sección corresponde a un entregable concreto del proyecto.
+
+## 3.1. Planificación de la Implementación
+
+La implementación del sistema se planificó utilizando el marco de trabajo Scrum con un Sprint Final de 8 días hábiles. El equipo estuvo conformado por 5 personas con roles claramente definidos. La capacidad del equipo se calculó en 112 horas-hombre aplicando la fórmula estándar de planificación ágil: capacidad = (número de personas) × (días del Sprint) × (horas efectivas por día) × (factor de enfoque), donde las horas efectivas consideran un máximo de 4 horas de trabajo productivo por jornada y el factor de enfoque del 70% descuenta el tiempo destinado a reuniones, comunicación, revisiones y otras actividades no directamente relacionadas con el desarrollo.
+
+El Sprint Backlog incluyó las 11 historias de usuario priorizadas en el Product Backlog, descompuestas en 30 tareas técnicas con una estimación total de 116 horas. Aunque la estimación supera ligeramente la capacidad calculada (112 horas), se consideró factible asumiendo que algunas tareas podrían ejecutarse en paralelo y que el factor de enfoque podría incrementarse durante los días de mayor productividad.
+
+Las Daily Scrum se realizaron cada mañana a las 8:30 con una duración máxima de 10 minutos, siguiendo la estructura clásica de tres preguntas: ¿qué hice ayer?, ¿qué haré hoy? y ¿qué impedimentos tengo?. Estas reuniones permitieron mantener la visibilidad del progreso, identificar bloqueos tempranamente y ajustar la asignación de tareas según la evolución del Sprint.
+
+TBL: Rol|Persona|Responsabilidad
+|Product Owner|Propietario|Definir prioridades del Product Backlog, validar entregables, aprobar criterios de aceptación
+|Scrum Master|Desarrollador Líder|Facilitar el proceso Scrum, eliminar impedimentos, asegurar cumplimiento de prácticas ágiles
+|Developer 1|Frontend|Desarrollar interfaces de usuario, componentes visuales, integración con API, diseño responsivo
+|Developer 2|Backend|Implementar API REST, modelos, controladores, middlewares, migraciones BD, transacciones
+|Developer 3|Tester|Diseñar y ejecutar pruebas unitarias, integración, E2E, caja negra, carga y estrés, documentar resultados
+
+## 3.2. Desarrollo de los Módulos Funcionales
+
+El desarrollo de los módulos funcionales se realizó siguiendo la priorización definida en el Product Backlog, implementando primero las funcionalidades clasificadas como "Must have" y continuando con las de menor prioridad según el avance del Sprint.
+
+Módulo de Ventas: es el módulo central del sistema y el de mayor complejidad técnica. La interfaz de usuario presenta tres paneles organizados horizontalmente: un panel izquierdo con un buscador de productos que filtra por nombre o código SKU en tiempo real, un panel central que muestra el carrito de compras con los productos seleccionados, cantidades, precios unitarios y subtotales, y un panel derecho con el resumen de la venta que incluye el total calculado, el selector de método de pago (efectivo o QR) y el botón de confirmación. El proceso de registro de venta ejecuta una transacción atómica que realiza las siguientes operaciones en orden secuencial: (1) verificar el stock suficiente de cada producto mediante SELECT con FOR UPDATE para bloquear las filas, (2) descontar el stock de cada producto actualizando la tabla producto, (3) registrar un movimiento de salida en producto_movimiento por cada producto, (4) insertar el registro en la tabla venta con el total y método de pago, (5) insertar los detalles en detalle_venta, (6) generar alertas en la tabla alerta para los productos cuyo stock haya quedado por debajo del stock mínimo, y (7) generar un comprobante único con código QR. Si cualquiera de estas operaciones falla, todas las operaciones anteriores se revierten mediante ROLLBACK, manteniendo la consistencia de los datos. El módulo también incluye la funcionalidad de anulación de ventas, donde el PROPIETARIO puede buscar una venta por ID o rango de fechas, visualizar su detalle, ingresar un motivo obligatorio de anulación y confirmar la operación, lo que restaura automáticamente el stock de todos los productos involucrados y registra el movimiento correspondiente.
+
+Módulo de Productos: CRUD completo implementado con operaciones de creación, lectura, actualización y eliminación (desactivación lógica mediante campo activo). Cada producto incluye los campos: nombre (único, VARCHAR 150), código SKU (único, generado automáticamente con el prefijo "SKU-" seguido de un identificador alfanumérico único), descripción (TEXT opcional), precio de venta (DECIMAL 10,2 con restricción CHECK precio > 0), costo (DECIMAL 10,2), stock actual (INT con restricción CHECK stock >= 0), stock mínimo (INT para alertas), y estado activo (BOOLEAN para eliminación lógica). Las restricciones se aplican tanto a nivel de base de datos (CHECK, UNIQUE) como a nivel de aplicación (validación en el controlador antes de las operaciones). La interfaz de usuario presenta una tabla paginada con búsqueda y filtros, y utiliza modales de Bootstrap para las operaciones de creación y edición, con validación en tiempo real de los campos. Un trigger BEFORE UPDATE en la base de datos genera automáticamente alertas de stock bajo cuando el campo stock se actualiza y el nuevo valor es menor o igual al stock mínimo.
+
+Módulo de Reportes: implementa cuatro tipos de reportes contables esenciales para la gestión del negocio. El libro diario muestra el detalle completo de todas las ventas realizadas en un día específico, incluyendo hora, productos, cantidades, total y método de pago. El libro mensual presenta un resumen por día con el número de ventas, el total acumulado y un subtotal al final del período, facilitando la declaración de impuestos ante el SIN. El reporte por rango de fechas permite al propietario seleccionar un período personalizado y obtener las ventas agrupadas por día. El ranking de productos más vendidos ordena los productos por cantidad total vendida en un período determinado, identificando los ítems de mayor rotación para optimizar las decisiones de compra y reposición. Todos los reportes incluyen un botón de impresión que abre el diálogo nativo del navegador con un formato optimizado para papel (elimina la navegación, ajusta márgenes y utiliza estilos de impresión específicos mediante @media print en CSS).
+
+Módulo de Dashboard Ejecutivo: presenta una visión general del estado del negocio mediante indicadores clave de rendimiento (KPIs). Seis tarjetas visuales muestran: ventas del día (total acumulado con comparación respecto al día anterior), ventas del mes (total acumulado con proyección), total de productos activos en el catálogo, total de clientes registrados, alertas activas de stock bajo (con enlace a la página de alertas) y la venta más alta del día. Complementando los KPIs, el dashboard incluye un gráfico de barras que muestra las ventas de los últimos 7 días para visualizar la tendencia semanal, un gráfico circular que representa la distribución de los métodos de pago (efectivo vs QR) y una tabla con las 5 últimas ventas registradas. Los datos se obtienen mediante una petición fetch al endpoint /api/dashboard al cargar la página, y los gráficos se renderizan utilizando JavaScript vanilla con el elemento canvas de HTML5.
+
+Módulo de Usuarios: implementa la gestión completa de usuarios del sistema con control de acceso basado en roles (RBAC). El PROPIETARIO puede crear nuevos usuarios especificando nombre, correo electrónico (único en el sistema), contraseña (cifrada con bcryptjs antes del almacenamiento) y rol (PROPIETARIO o EMPLEADO). También puede editar los datos de usuarios existentes, cambiando su nombre, correo o rol, y eliminar usuarios que ya no requieran acceso al sistema. Las contraseñas se almacenan exclusivamente cifradas, nunca en texto plano. El middleware de roles (roleMiddleware.js) se ejecuta en cada petición a rutas protegidas, verificando que el rol del usuario autenticado tenga los permisos necesarios para acceder al recurso solicitado. Si el rol no tiene permisos, la API responde con código HTTP 403 (Forbidden) y un mensaje descriptivo.
+
+Módulo de Alertas: proporciona un mecanismo automatizado de notificación para prevenir el desabastecimiento de productos. Cuando una operación (venta, anulación, ajuste) modifica el stock de un producto, un trigger BEFORE UPDATE en la base de datos compara el nuevo stock con el stock mínimo del producto. Si el stock es menor o igual al stock mínimo, se inserta automáticamente un registro en la tabla alerta con el mensaje descriptivo, el tipo 'STOCK_BAJO' y el estado 'no leída'. La interfaz de usuario presenta una lista de todas las alertas activas, ordenadas por fecha de creación descendente, con la opción de marcarlas como solucionadas después de realizar la reposición del producto. Las alertas solucionadas permanecen en la base de datos para fines de auditoría pero se filtran de la vista principal.
+
+Modo Oscuro: implementa un sistema de cambio de temas (claro/oscuro) que mejora la experiencia de usuario en condiciones de poca iluminación. La implementación utiliza una hoja de estilos CSS específica (theme.css) que define variables de color para ambos temas. La preferencia del usuario se almacena en localStorage, manteniéndose entre sesiones de navegación. El modo oscuro utiliza una paleta de grises oscuros con acentos azules que mantienen el contraste mínimo recomendado de 4.5:1 para garantizar la legibilidad. Un botón de alternancia en la barra de navegación permite cambiar entre modos instantáneamente sin recargar la página.
+
+## 3.3. Detalle de Implementación del Backend
+
+El backend se implementó con Node.js 20+ y Express 5, siguiendo la arquitectura MVC (Modelo-Vista-Controlador) que separa claramente las responsabilidades de cada componente. La estructura de directorios del proyecto backend se organiza de la siguiente manera: la carpeta routes/ contiene la definición de las rutas agrupadas por recurso (auth, productos, ventas, proveedores, reportes, dashboard, alertas, usuarios), cada una con sus middlewares de autenticación y autorización específicos. La carpeta controllers/ contiene la lógica de manejo de las peticiones HTTP, incluyendo la validación de los datos de entrada, la coordinación con los modelos y la generación de respuestas estandarizadas. La carpeta middleware/ contiene los interceptores de autenticación JWT (authMiddleware.js) y autorización RBAC (roleMiddleware.js) que se ejecutan antes de los controladores. La carpeta models/ contiene las funciones de acceso a datos con consultas SQL parametrizadas que encapsulan toda la interacción con la base de datos. La carpeta config/ contiene la configuración de la conexión a PostgreSQL (pool de conexiones) y las variables de entorno gestionadas mediante dotenv.
+
+La conexión a PostgreSQL utiliza el módulo pg con un pool de conexiones configurable (por defecto 10 conexiones simultáneas). Esta configuración permite manejar múltiples peticiones concurrentes de manera eficiente, reutilizando las conexiones establecidas en lugar de crear una nueva conexión para cada petición. Las migraciones de la base de datos se ejecutan automáticamente al iniciar el servidor, leyendo archivos SQL almacenados en la carpeta migrations/ y ejecutándolos en orden secuencial. Cada migración es idempotente, es decir, puede ejecutarse múltiples veces sin efectos secundarios, utilizando la sintaxis IF NOT EXISTS para la creación de tablas y la verificación previa de existencia para otros cambios.
+
+Las consultas SQL utilizan exclusivamente parámetros posicionales ($1, $2, $3, ...) en lugar de concatenación de cadenas, previniendo eficazmente la inyección SQL, una de las vulnerabilidades más críticas en aplicaciones web según el ranking OWASP Top 10. Cada consulta se prepara y ejecuta mediante el método query del pool de conexiones, que escapa automáticamente los valores de los parámetros antes de enviarlos al motor de base de datos.
+
+El manejo de transacciones es uno de los aspectos más críticos del sistema. Las operaciones de registro de venta ejecutan las siguientes operaciones de forma atómica dentro de una transacción SQL: (1) verificar el stock suficiente de todos los productos bloqueando las filas con SELECT FOR UPDATE para evitar condiciones de carrera, (2) descontar el stock de cada producto mediante UPDATE, (3) registrar un movimiento de salida en la tabla producto_movimiento por cada producto afectado, (4) insertar el registro de la venta en la tabla venta, (5) insertar los registros de detalle en detalle_venta, y (6) generar alertas de stock bajo mediante inserción en la tabla alerta para aquellos productos cuyo stock haya quedado por debajo del stock mínimo. Si cualquiera de estas operaciones falla (por ejemplo, stock insuficiente, violación de restricción CHECK, error de conexión), todas las operaciones anteriores se revierten automáticamente mediante ROLLBACK, manteniendo la consistencia de los datos en todo momento. La transacción se ejecuta utilizando BEGIN para iniciar, COMMIT para confirmar si todas las operaciones tienen éxito, y ROLLBACK para revertir en caso de error.
+
+## 3.4. Pruebas de Software
+
+La estrategia de pruebas del proyecto se diseñó para cubrir todos los niveles de la pirámide de pruebas, desde las pruebas unitarias más granulares hasta las pruebas de sistema y aceptación. Se ejecutaron un total de 167 pruebas distribuidas en 5 categorías, alcanzando una tasa de éxito del 100% en todas ellas. La cobertura de código global alcanzó el 91.5%, medida con el recolector de cobertura Istanbul integrado en Jest, superando el estándar mínimo recomendado del 80%. Los módulos de middleware (authMiddleware y roleMiddleware) alcanzaron el 100% de cobertura, garantizando la seguridad del sistema en su capa más crítica.
+
+Cada categoría de prueba fue diseñada con objetivos específicos y utilizando las herramientas más adecuadas para cada nivel. Se implementaron 133 pruebas unitarias y de integración con Jest 30.4.2 y Supertest 7.2.2. Se diseñaron 29 pruebas de caja negra aplicando las técnicas de partición de equivalencia y análisis de valores límite. Se ejecutaron 15 especificaciones end-to-end con Cypress 14+ que cubren los flujos completos de usuario en el frontend. Se validaron más de 30 endpoints de la API REST con Postman, verificando códigos HTTP, estructura de respuesta y manejo de errores. Se realizaron 3 escenarios de pruebas de carga y estrés con Apache JMeter 5.6, simulando desde 10 hasta 100 usuarios concurrentes.
+
+TBL: Tipo de Prueba|Framework|Casos|Aprobadas|% Éxito
+|Unitarias e Integración|Jest 30.4.2 + Supertest 7.2.2|133|133|100%
+|Caja Negra (Valores Límite)|Manual|29|29|100%
+|End-to-End Frontend|Cypress 14+|15|15|100%
+|End-to-End Backend (API)|Postman|30+ endpoints|30+|100%
+|Carga y Estrés|Apache JMeter 5.6|3 escenarios|3|100%
+
+### 3.4.1. Pruebas Unitarias y de Integración
+
+Se implementaron 133 casos distribuidos en 13 suites. La ejecución completa toma aproximadamente 4.2 segundos. Las suites incluyen: authMiddleware (4 casos, 100% cobertura), roleMiddleware (3 casos, 100%), saleController (15 casos, 92.3%), productController (12 casos, 88.5%), saleModel (20 casos, 88.54%), productModel (8 casos, 87%), proveedoresController (8 casos, 86%), insumosController (10 casos, 85.7%), reposicionesController (6 casos, 84%), alertasController (5 casos, 90%), usuariosController (8 casos, 90%), reportesController (10 casos, 85%) y api.test (24 casos de integración).
+
+TBL: Módulo|Tipo|Casos|Cobertura
+|authMiddleware|Middleware|4|100%
+|roleMiddleware|Middleware|3|100%
+|saleController|Controlador|15|92.3%
+|productController|Controlador|12|88.5%
+|saleModel|Modelo|20|88.54%
+|supplyController|Controlador|10|85.7%
+|userModel|Modelo|8|90%
+|api (integración)|Integración|32|N/A
+
+### 3.4.2. Pruebas de Caja Negra
+
+Se diseñaron 29 casos de prueba utilizando partición de equivalencia y análisis de valores límite. Los casos cubren: registro de venta (7 casos), creación de producto (5 casos), autenticación (4 casos), gestión de usuarios (4 casos), proveedores (3 casos), insumos (3 casos) y alertas (3 casos). Todos aprobados.
+
+### 3.4.3. Pruebas End-to-End
+
+Frontend (Cypress): 15 especificaciones distribuidas en login (3: éxito, error, cierre sesión), dashboard (2: KPIs, gráficos), productos (3: listar, crear, editar), ventas (4: registrar, buscar, validar stock, comprobante), proveedores (2: listar, crear) y usuarios (1: gestionar).
+
+Backend (Postman): más de 30 endpoints validados con verificación de códigos HTTP, formato JSON y campos obligatorios.
+
+### 3.4.4. Pruebas de Carga y Estrés
+
+Apache JMeter simuló tres escenarios con resultados exitosos sin errores ni pérdida de datos.
+
+TBL: Escenario|Usuarios|Tiempo Promedio|Tiempo Máximo|Errores|Throughput
+|Carga Normal|10|< 500 ms|800 ms|0%|120 req/s
+|Carga Pico|50|< 1.2 s|2.0 s|0%|420 req/s
+|Estrés|100|< 3.0 s|5.5 s|0%|680 req/s
+
+## 3.5. Evaluación de la Calidad según ISO/IEC 25010
+
+La evaluación siguió el modelo de calidad del producto, evaluando las 8 características principales con puntuaciones de 0 a 100 basadas en evidencia de pruebas, análisis de código y retroalimentación de usuarios.
+
+TBL: Característica|Puntuación|Nivel|Evidencia Principal
+|Adecuación Funcional|92.0|Excelente|11 HU implementadas, 167 pruebas aprobadas
+|Fiabilidad|98.5|Excelente|Transacciones FOR UPDATE, rollback, migraciones idempotentes
+|Eficiencia de Desempeño|85.0|Muy Buena|Consultas optimizadas con índices, tiempos <200ms
+|Usabilidad|90.0|Excelente|Modo oscuro, diseño responsivo, feedback visual
+|Seguridad|88.0|Muy Buena|JWT, RBAC, bcryptjs, consultas parametrizadas
+|Compatibilidad|85.0|Muy Buena|Chrome 90+, Firefox 88+, Edge 90+, Safari 14+
+|Mantenibilidad|87.5|Muy Buena|Arquitectura MVC, código modular, migraciones automáticas
+|Portabilidad|80.0|Buena|Independiente del SO, requiere Node.js y PostgreSQL
+
+### 3.5.1. Desglose de Subcaracterísticas
+
+TBL: Característica|Subcaracterística|Puntuación|Justificación
+|Adecuación Funcional|Completitud funcional|95|Todas las 11 HU implementadas y verificadas
+|Adecuación Funcional|Corrección funcional|90|Resultados correctos verificados por 167 pruebas
+|Adecuación Funcional|Pertinencia funcional|91|Funcionalidades alineadas con necesidades del negocio
+|Fiabilidad|Madurez|99|Sin fallos durante pruebas de estrés (100 usuarios)
+|Fiabilidad|Disponibilidad|98|Sistema operativo 24/7, uptime >99.9%
+|Fiabilidad|Tolerancia a fallos|98|Rollback automático en transacciones fallidas
+|Fiabilidad|Recuperabilidad|99|Migraciones idempotentes, backup y restauración
+|Usabilidad|Protección contra errores|92|Validación frontend y backend, confirmaciones
+|Usabilidad|Estética de la interfaz|90|Paleta coherente, diseño responsivo, modo oscuro
+|Usabilidad|Capacidad de aprendizaje|88|Interfaz intuitiva, manual de usuario detallado
+|Usabilidad|Accesibilidad|85|Etiquetas semánticas, contraste 4.5:1, navegación teclado
+|Seguridad|Confidencialidad|90|JWT, cifrado bcryptjs, contraseñas nunca en texto plano
+|Seguridad|Integridad|92|Transacciones atómicas, FOR UPDATE, restricciones CHECK
+|Seguridad|Autenticación|95|JWT con expiración, middleware dedicado, roles RBAC
+|Seguridad|No repudio|85|Pistas de auditoría en tablas de movimientos
+|Mantenibilidad|Modularidad|90|Arquitectura MVC, separación de responsabilidades
+|Mantenibilidad|Analizabilidad|85|Código comentado, logs con timestamp y severidad
+|Mantenibilidad|Modificabilidad|87|Migraciones automáticas, rutas extensibles
+|Eficiencia|Comportamiento temporal|85|API <200ms para 95% de peticiones
+|Eficiencia|Utilización de recursos|85|Servidor ~50MB RAM, consultas optimizadas con índices
+|Compatibilidad|Coexistencia|85|Funciona con otras apps en mismo servidor
+|Compatibilidad|Interoperabilidad|85|API RESTful con JSON estándar
+|Portabilidad|Adaptabilidad|82|Independiente del SO (Windows, Linux, macOS)
+|Portabilidad|Capacidad de instalación|78|Requiere configuración manual de variables de entorno
+
+El puntaje global del sistema es de 89.4 sobre 100 puntos, equivalente a "Muy Buena" calidad. La característica mejor evaluada es Fiabilidad (98.5%), destacando la solidez de las transacciones atómicas. La menor es Portabilidad (80.0%), por la dependencia de Node.js y PostgreSQL.
+
+## 3.6. Verificación de Normativas ISO/IEC 27001:2022
+
+Se verificaron 9 controles del Anexo A aplicables a sistemas web de pequeña escala: política de control de acceso (A.9.1.2, cumple), autenticación de usuarios (A.9.4.2, cumple), gestión de contraseñas (A.9.4.3, cumple), registro de eventos (A.12.4.1, cumple), registros de administración (A.12.4.3, cumple parcialmente), protección contra código malicioso (A.8.7, cumple), gestión de capacidad (A.12.1.1, cumple), gestión de vulnerabilidades (A.12.6.1, cumple parcialmente) y protección de registros (A.18.1.3, cumple). Cumplimiento global: 85%.
+
+## 3.7. Manuales Técnicos
+
+Se elaboraron cuatro manuales: Manual de Usuario (25 páginas, orientado a usuarios finales, cubre todos los módulos con capturas de pantalla y descripciones paso a paso), Manual de Administrador (18 páginas, describe configuración inicial, gestión de usuarios, monitoreo del sistema y mantenimiento preventivo), Manual de Instalación (15 páginas, detalla requisitos técnicos Node.js 18+ y PostgreSQL 14+, instalación paso a paso, variables de entorno y despliegue en Railway) y Manual de Base de Datos (20 páginas, incluye diagrama E-R, diccionario de datos de 11 tablas, consultas SQL principales y procedimientos de backup con pg_dump/pg_restore).
+
+TBL: Manual|Audiencia|Páginas|Contenido
+|Manual de Usuario|Usuarios finales|25|Guía completa con capturas de pantalla
+|Manual de Administrador|Administradores|18|Configuración, usuarios, seguridad, mantenimiento
+|Manual de Instalación|Técnicos|15|Requisitos, instalación, configuración, despliegue
+|Manual de Base de Datos|Desarrolladores|20|Diagrama E-R, diccionario datos, consultas SQL
+
+## 3.8. Análisis de Resultados
+
+Los resultados obtenidos durante el desarrollo y evaluación del sistema INVENTARIO+ demuestran el cumplimiento satisfactorio de todos los objetivos planteados en el Capítulo I. A continuación se presenta un análisis detallado de los resultados más significativos organizados por dimensión de evaluación.
+
+En cuanto a la funcionalidad del sistema, la tasa de éxito del 100% en las 167 pruebas ejecutadas indica que el sistema funciona correctamente en todos los escenarios contemplados, desde el registro de ventas en condiciones normales hasta la anulación de transacciones con restauración de stock y el manejo de errores en condiciones de concurrencia. La implementación de 11 historias de usuario distribuidas en 9 módulos funcionales cubre la totalidad de los requisitos especificados, demostrando la completitud funcional del sistema.
+
+Respecto a la calidad del código, la cobertura de código del 91.5% supera ampliamente el estándar mínimo recomendado del 80% para proyectos de software crítico y se acerca al estándar ideal del 100% para módulos de seguridad. Los módulos de middleware, responsables de la autenticación y autorización, alcanzaron el 100% de cobertura, lo que garantiza que las capas de seguridad del sistema han sido exhaustivamente verificadas. La cobertura promedio del 88.5% en los controladores y del 87% en los modelos indica un nivel de calidad uniforme en toda la base de código.
+
+Desde la perspectiva del rendimiento, las pruebas de carga y estrés demostraron que el sistema puede manejar hasta 100 usuarios concurrentes con tiempos de respuesta máximos de 5.5 segundos y un throughput de 680 peticiones por segundo. Para el contexto de Patatas King, donde el máximo de usuarios concurrentes esperado es de 3 personas, estos resultados garantizan un margen de capacidad más que suficiente, con tiempos de respuesta que no superan los 200 milisegundos en condiciones normales de operación.
+
+La evaluación ISO/IEC 25010 con puntuación global de 89.4 sobre 100 puntos refleja un producto de calidad "Muy Buena", comparable con sistemas comerciales de características similares donde los puntajes típicos oscilan entre 75 y 90 puntos según la literatura especializada. La característica mejor evaluada es la fiabilidad con 98.5 puntos, destacando la solidez de las transacciones atómicas con bloqueo de filas (SELECT FOR UPDATE), los mecanismos de rollback automático y la verificación de integridad referencial. La usabilidad con 90 puntos confirma que las decisiones de diseño orientadas al usuario (interfaz simple, retroalimentación visual constante, modo oscuro) fueron acertadas. La portabilidad con 80 puntos, aunque es la característica más baja, es aceptable considerando que el sistema está diseñado para un entorno específico y no requiere despliegue multiplataforma inmediato.
+
+En el ámbito de la gestión del proyecto, la aplicación de Scrum con un Sprint Final de 8 días hábiles demostró ser efectiva para un equipo pequeño con roles bien definidos. La planificación de 116 horas para 30 tareas técnicas, aunque ligeramente superior a la capacidad calculada de 112 horas, se completó dentro del tiempo estimado gracias a la ejecución paralela de tareas y a la autoorganización del equipo. Las Daily Scrum facilitaron la identificación temprana de impedimentos y la redistribución de carga de trabajo cuando fue necesario.
+
+## 3.9. Sprint Retrospective
+
+Al finalizar el Sprint Final se realizó una reunión de Sprint Retrospective analizando el proceso de desarrollo. Los hallazgos se organizaron según la dinámica "Start-Stop-Continue":
+
+- Start (comenzar a hacer): implementar reuniones Daily Scrum más estructuradas, utilizar tablero Kanban digital (Trello/Jira), establecer repositorio de documentación compartida (Google Drive/Notion)
+- Stop (dejar de hacer): incorporar cambios no planificados sin aprobación del Product Owner, tener reuniones no programadas que interrumpen el flujo, duplicar esfuerzos en documentación
+- Continue (continuar haciendo): mantener comunicación fluida en el equipo, continuar con TDD para garantizar calidad, mantener sesiones de validación con el propietario, usar Git con ramas por funcionalidad
+
+## 3.10. Lecciones Aprendidas
+
+El desarrollo del sistema INVENTARIO+ generó valiosas lecciones que trascienden el ámbito técnico y abarcan aspectos metodológicos, organizativos y de gestión de proyectos que serán de utilidad para futuros trabajos académicos y profesionales.
+
+En el ámbito metodológico, la validación temprana y frecuente con el usuario final mediante prototipos funcionales demostró ser una práctica invaluable. En las tres sesiones de validación con el propietario se identificaron y corrigieron 8 malentendidos en los requisitos antes de iniciar la implementación, ahorrando un estimado de 24 horas de desarrollo que habrían sido necesarias para modificar funcionalidades ya implementadas. Esta experiencia confirma que la inversión de tiempo en prototipado tiene un retorno significativo en reducción de retrabajo.
+
+Las metodologías ágiles, particularmente la combinación de Scrum para la gestión del proyecto y XP para las prácticas técnicas, demostraron ser efectivas para adaptarse a requisitos cambiantes sin comprometer la planificación general. Durante el desarrollo surgieron 3 cambios solicitados por el propietario que fueron incorporados sin afectar el cronograma del Sprint, gracias a la flexibilidad inherente del marco ágil y a la priorización MoSCoW que permitió ajustar el alcance de las funcionalidades menos críticas.
+
+En el aspecto técnico, las pruebas automatizadas, aunque requieren una inversión de tiempo inicial significativa (aproximadamente el 25% del tiempo total de desarrollo), demostraron su valor al reducir drásticamente el tiempo de depuración y regresión en fases posteriores. La ejecución completa de las 133 pruebas unitarias toma aproximadamente 4.2 segundos, proporcionando retroalimentación inmediata sobre el estado del sistema después de cada cambio. Sin estas pruebas, la verificación manual de regresión habría requerido varias horas por cada iteración.
+
+La gestión del alcance mediante el método MoSCoW ayudó a priorizar funcionalidades y evitar la sobrecarga del Sprint, asegurando la entrega de las funcionalidades críticas (Must have) dentro del plazo establecido. Las funcionalidades Should have y Could have se implementaron en la medida que el tiempo lo permitió, sin comprometer la calidad ni el cumplimiento de los objetivos fundamentales del proyecto.
+
+Finalmente, la documentación continua de las decisiones técnicas, la arquitectura y las configuraciones durante todo el proceso de desarrollo facilitó significativamente la elaboración de los manuales técnicos y el informe final. La práctica de mantener actualizado un registro de decisiones de diseño (Architecture Decision Records) se recomienda para proyectos similares, ya que reduce el esfuerzo de documentación al final del ciclo y preserva el conocimiento para futuros mantenimientos.
+
+# CRONOGRAMA DE ACTIVIDADES
+
+El desarrollo del proyecto INVENTARIO+ se planificó en 7 fases distribuidas en un período total de 14 semanas, desde la recolección de requisitos hasta la entrega de la documentación final. Cada fase incluyó actividades específicas con entregables definidos.
+
+## Fase 1: Recolección de Requisitos (Semanas 1-2)
+
+Durante las primeras dos semanas se aplicaron las técnicas de recolección de datos: entrevista al propietario, encuesta a empleados, observación directa durante tres jornadas y revisión documental de registros históricos. Los entregables de esta fase fueron: acta de entrevista, resultados de encuesta tabulados, registro de observación y ficha de revisión documental. Duración total: 10 días hábiles.
+
+TBL: Actividad|Días|Responsable|Entregable
+|Entrevista al propietario|2|Scrum Master|Acta de entrevista
+|Encuesta a empleados|2|Developer 3|Resultados tabulados
+|Observación directa|3|Scrum Master|Registro de observación
+|Revisión documental|3|Developer 3|Ficha de revisión
+|Análisis y síntesis de datos|2|Todo el equipo|Documento de requisitos
+
+## Fase 2: Análisis y Diseño (Semanas 3-4)
+
+En esta fase se transformaron los datos recolectados en especificaciones técnicas. Se definieron 11 historias de usuario, se diseñaron 8 casos de uso, se construyeron prototipos de 9 pantallas funcionales y se diseñó el modelo entidad-relación con 11 tablas. Los prototipos fueron validados con el propietario en tres sesiones iterativas.
+
+TBL: Actividad|Días|Responsable|Entregable
+|Definición de historias de usuario|2|Product Owner + Scrum Master|Product Backlog
+|Diseño de casos de uso|2|Developer 2|Diagrama de casos de uso
+|Prototipado de interfaces|4|Developer 1|Prototipos funcionales (9 pantallas)
+|Validación de prototipos|3|Scrum Master + Propietario|Actas de validación
+|Diseño de base de datos|3|Developer 2|Modelo E-R + diccionario de datos
+
+## Fase 3: Configuración del Entorno (Semana 5)
+
+Se configuró el entorno de desarrollo: inicialización del proyecto Node.js con Express 5, configuración de PostgreSQL 18 con migraciones automáticas, configuración de Bootstrap 5.3.3 y estructura del frontend, e inicialización de repositorio Git con ramas por funcionalidad.
+
+## Fase 4: Desarrollo (Semanas 6-10)
+
+El desarrollo se organizó por módulos funcionales siguiendo la priorización MoSCoW. Cada módulo incluyó la implementación del backend (rutas, controladores, modelos, middlewares) y del frontend (interfaces, navegación, integración con API). El desarrollo de los módulos Must have (HU-01 a HU-06) ocupó las semanas 6-8, los módulos Should have (HU-07 a HU-09) las semanas 9-10, y los módulos Could have (HU-10, HU-11) se completaron al final de la semana 10.
+
+TBL: Semana|Módulos|Horas Estimadas|Responsable Principal
+|Semana 6|Autenticación (HU-05), Productos (HU-04)|22|Backend + Frontend
+|Semana 7|Ventas (HU-01), Alertas (HU-06)|24|Backend + Frontend
+|Semana 8|Inventario (HU-02), Reportes (HU-03)|24|Backend + Frontend
+|Semana 9|Dashboard (HU-08), Proveedores (HU-07)|22|Backend + Frontend
+|Semana 10|Usuarios (HU-09), Modo oscuro, Anulación (HU-10), PDF (HU-11)|24|Backend + Frontend
+
+## Fase 5: Pruebas (Semanas 9-11)
+
+Las pruebas se realizaron de forma paralela al desarrollo, comenzando con pruebas unitarias en la semana 9 y continuando con integración, caja negra, E2E y carga/estrés en las semanas 10-11. Se ejecutaron 167 pruebas con tasa de éxito del 100%.
+
+## Fase 6: Documentación (Semanas 11-12)
+
+Se elaboraron 4 manuales técnicos (usuario, administrador, instalación, base de datos) y se redactó el informe final del proyecto.
+
+## Fase 7: Evaluación y Entrega (Semanas 13-14)
+
+Se realizó la evaluación de calidad ISO/IEC 25010, la verificación de controles ISO/IEC 27001 y la preparación de la presentación y defensa del proyecto.
+
+# PRESUPUESTO
+
+El presupuesto del proyecto se estructuró en cinco categorías de costos, considerando los recursos humanos, materiales y servicios necesarios para el desarrollo e implementación del sistema.
+
+## Costos de Hardware
+
+Se consideró la utilización de los equipos de cómputo personales de los desarrolladores, sin necesidad de adquirir hardware adicional. Para la puesta en producción se requiere una computadora con las siguientes especificaciones mínimas: procesador Intel Core i3 o equivalente, 4 GB de RAM, 256 GB de almacenamiento SSD y conexión a internet. El costo estimado de un equipo con estas características en el mercado boliviano es de Bs. 3,500.
+
+TBL: Recurso|Cantidad|Costo Unitario|Costo Total
+|Computadora de escritorio (producción)|1|Bs. 3,500|Bs. 3,500
+|Laptops de desarrollo|3|Ya disponibles|Bs. 0
+|Impresora multifuncional|1|Bs. 800|Bs. 800
+
+## Costos de Software
+
+Todo el software utilizado en el proyecto es de código abierto y gratuito, eliminando los costos de licenciamiento. Las herramientas incluyen: Node.js, Express 5, PostgreSQL 18, Bootstrap 5, Visual Studio Code, Git, Jest, Cypress, Apache JMeter y Postman.
+
+## Costos de Servicios
+
+Los costos de servicios incluyen el alojamiento web (hosting) para la puesta en producción del sistema, el registro del dominio y los servicios de internet durante el desarrollo.
+
+TBL: Servicio|Período|Costo Mensual|Costo Total
+|Hosting compartido (Node.js + PostgreSQL)|12 meses|Bs. 80|Bs. 960
+|Dominio .com|12 meses|Bs. 100|Bs. 100
+|Internet (desarrollo)|4 meses|Bs. 250|Bs. 1,000
+|Electricidad y otros|4 meses|Bs. 150|Bs. 600
+
+## Costos de Personal
+
+Los costos de personal consideran las horas de trabajo dedicadas al proyecto por cada miembro del equipo durante las 14 semanas de duración.
+
+TBL: Rol|Horas Totales|Costo Hora|Costo Total
+|Scrum Master / Desarrollador Líder|160|Bs. 35|Bs. 5,600
+|Desarrollador Frontend|144|Bs. 30|Bs. 4,320
+|Desarrollador Backend|144|Bs. 30|Bs. 4,320
+|Tester / Documentador|80|Bs. 25|Bs. 2,000
+
+## Resumen del Presupuesto
+
+TBL: Categoría|Costo Total
+|Hardware|Bs. 4,300
+|Software|Bs. 0
+|Servicios|Bs. 2,660
+|Personal|Bs. 16,240
+|Imprevistos (10%)|Bs. 2,320
+|TOTAL GENERAL|Bs. 25,520
+
+El presupuesto total del proyecto asciende a Bs. 25,520 (veinticinco mil quinientos veinte bolivianos), distribuido principalmente en costos de personal (63.6%) y servicios (10.4%). La relación costo-beneficio calculada en el estudio de factibilidad (1.67) indica que el proyecto es económicamente viable.
+
+# GLOSARIO DE TÉRMINOS
+
+ACID: Conjunto de propiedades (Atomicidad, Consistencia, Aislamiento, Durabilidad) que garantizan el procesamiento confiable de transacciones en bases de datos relacionales.
+
+API (Application Programming Interface): Conjunto de definiciones y protocolos que permite la comunicación entre diferentes componentes de software.
+
+bcryptjs: Biblioteca de cifrado para Node.js que implementa el algoritmo bcrypt, utilizado para el hash seguro de contraseñas.
+
+Bootstrap: Framework CSS de código abierto que proporciona componentes de interfaz de usuario responsivos y estilos predefinidos.
+
+Cobertura de código: Métrica que indica el porcentaje de líneas, ramas o caminos del código fuente que han sido ejecutados durante las pruebas.
+
+Código SKU (Stock Keeping Unit): Identificador único alfanumérico asignado a cada producto para su identificación y seguimiento en el inventario.
+
+CRUD (Create, Read, Update, Delete): Las cuatro operaciones básicas de persistencia de datos en sistemas de información.
+
+Cypress: Framework de pruebas end-to-end para aplicaciones web modernas.
+
+Dashboard: Panel de visualización que presenta indicadores clave de rendimiento (KPIs) y gráficos para el monitoreo del negocio.
+
+Endpoint: Dirección URL específica de una API que permite acceder a un recurso o funcionalidad particular.
+
+Express: Framework web minimalista para Node.js que proporciona un conjunto robusto de características para aplicaciones web y APIs.
+
+Jest: Framework de pruebas unitarias para JavaScript desarrollado por Meta.
+
+JWT (JSON Web Token): Estándar para la transmisión segura de información entre partes en formato JSON, utilizado para autenticación y autorización.
+
+KPI (Key Performance Indicator): Indicador clave de rendimiento utilizado para medir el desempeño de un proceso o actividad.
+
+Método MoSCoW: Técnica de priorización que clasifica requisitos en Must have (imprescindible), Should have (importante), Could have (deseable) y Won't have (no se incluirá).
+
+MVC (Model-View-Controller): Patrón de arquitectura de software que separa la aplicación en tres componentes principales: modelo (datos), vista (interfaz) y controlador (lógica de negocio).
+
+Middleware: Función que se ejecuta durante el ciclo de petición-respuesta en Express, con acceso al objeto de petición, respuesta y la siguiente función en el ciclo.
+
+Node.js: Entorno de ejecución para JavaScript del lado del servidor, basado en el motor V8 de Google Chrome.
+
+PostgreSQL: Sistema de gestión de bases de datos relacional de código abierto, conocido por su cumplimiento de estándares y robustez.
+
+RBAC (Role-Based Access Control): Modelo de control de acceso donde los permisos se asignan a roles, y los usuarios reciben permisos a través de los roles asignados.
+
+RESTful: Estilo arquitectónico para el diseño de APIs que utiliza los métodos HTTP y sigue principios de estatuto, capacidad de caché y separación cliente-servidor.
+
+Scrum: Marco de trabajo ágil para la gestión de proyectos que utiliza ciclos iterativos llamados Sprints.
+
+TDD (Test-Driven Development): Práctica de desarrollo donde las pruebas se escriben antes del código de producción, siguiendo el ciclo Red-Green-Refactor.
+
+Trigger: Procedimiento almacenado en la base de datos que se ejecuta automáticamente en respuesta a eventos como INSERT, UPDATE o DELETE.
+
+# CONCLUSIONES
+
+El desarrollo del sistema INVENTARIO+ ha permitido cumplir satisfactoriamente con los objetivos planteados en la presente investigación. A continuación se presentan las conclusiones más relevantes organizadas según cada objetivo específico:
+
+En relación al primer objetivo específico (analizar los requisitos funcionales y no funcionales), se aplicaron cuatro técnicas complementarias de recolección de datos que permitieron identificar y documentar 11 historias de usuario priorizadas mediante el método MoSCoW, 15 requisitos funcionales y 10 requisitos no funcionales. La entrevista con el propietario, la encuesta a los empleados, la observación directa de tres jornadas laborales y la revisión documental de 6 meses de registros demostraron la efectividad de los métodos empíricos para relevar necesidades reales en el contexto de las microempresas bolivianas, validando la pertinencia del enfoque mixto de investigación aplicado.
+
+En relación al segundo objetivo específico (diseñar la arquitectura y base de datos), se implementó una arquitectura MVC con API RESTful que expone más de 30 endpoints organizados por recurso, y una base de datos PostgreSQL normalizada hasta tercera forma normal (3FN) con 11 tablas interrelacionadas, índices optimizados para las consultas más frecuentes, restricciones CHECK para la validación de datos a nivel de base de datos y transacciones ACID con bloqueo de filas (SELECT FOR UPDATE) para garantizar la integridad de los datos en operaciones concurrentes. El diseño arquitectónico demostró ser escalable, mantenible y seguro.
+
+En relación al tercer objetivo específico (implementar los módulos funcionales), se construyeron 9 módulos funcionales (ventas, productos, proveedores, reportes contables, dashboard ejecutivo, usuarios con RBAC, alertas de stock, inventario y modo oscuro) que cubren la totalidad de los requisitos especificados. La implementación siguió la metodología Scrum con un Sprint Final de 8 días hábiles, completando 30 tareas técnicas distribuidas entre los 5 integrantes del equipo. El módulo de ventas, núcleo del sistema, implementa transacciones atómicas que verifican stock, descuentan existencias, registran movimientos, generan comprobantes QR y crean alertas en una sola operación, garantizando la consistencia de los datos.
+
+En relación al cuarto objetivo específico (ejecutar pruebas de software), se ejecutaron 167 pruebas con una tasa de éxito del 100%, distribuidas en 133 pruebas unitarias y de integración (Jest + Supertest), 29 pruebas de caja negra (partición de equivalencia y valores límite), 15 especificaciones end-to-end (Cypress), más de 30 endpoints de API validados (Postman) y 3 escenarios de carga y estrés (JMeter). La cobertura de código alcanzó el 91.5%, superando el estándar recomendado del 80%, con los módulos de middleware alcanzando el 100% de cobertura.
+
+En relación al quinto objetivo específico (evaluar la calidad según ISO/IEC 25010), la evaluación arrojó una puntuación global de 89.4 sobre 100 puntos, equivalente al nivel "Muy Buena". La característica mejor evaluada fue la fiabilidad con 98.5 puntos, destacando la solidez de las transacciones atómicas, los mecanismos de rollback y la verificación de integridad referencial. La adecuación funcional alcanzó 92.0 puntos, la usabilidad 90.0 puntos y la seguridad 88.0 puntos, confirmando que el sistema cumple con los estándares de calidad establecidos a nivel internacional.
+
+En relación al sexto objetivo específico (elaborar documentación técnica), se produjeron 4 manuales técnicos con un total de 78 páginas: Manual de Usuario (25 páginas), Manual de Administrador (18 páginas), Manual de Instalación y Despliegue (15 páginas) y Manual de Base de Datos (20 páginas). Adicionalmente se elaboró el presente informe final con la documentación completa del proyecto, incluyendo los anexos con instrumentos de recolección, evidencias de pruebas y certificados de calidad.
+
+Como conclusión general, se desarrolló e implementó un sistema de inventario y ventas que integra los procesos comerciales de Patatas King, demostrando que es posible automatizar la gestión de un pequeño negocio de comida preparada utilizando tecnologías web modernas y de código abierto, cumpliendo con estándares de calidad reconocidos internacionalmente (ISO/IEC 25010, ISO/IEC 27001) y generando un impacto positivo en la eficiencia operativa del establecimiento. Se superaron limitaciones como la falta de experiencia previa en el desarrollo de sistemas completos, la curva de aprendizaje de las tecnologías seleccionadas y la coordinación del equipo en un entorno ágil, dejando lecciones valiosas que constituyen un aporte metodológico para proyectos similares en el contexto de las microempresas bolivianas.
+
+# RECOMENDACIONES
+
+En base a los resultados obtenidos, las lecciones aprendidas durante el desarrollo del proyecto y las limitaciones identificadas, se formulan las siguientes recomendaciones para la continuidad, mejora y evolución del sistema INVENTARIO+:
+
+## Recomendaciones Técnicas
+
+- Implementar un sistema de backups automatizados con schedulers diarios (cron jobs en Linux o Windows Task Scheduler en Windows) que realicen copias de seguridad de la base de datos mediante pg_dump y de los archivos de configuración, garantizando la disponibilidad de los datos ante cualquier contingencia, error humano o fallo del sistema. Se recomienda mantener al menos 7 copias de seguridad rotativas (una por día de la semana) y una copia semanal fuera del sitio de producción.
+- Migrar el almacenamiento de imágenes de productos a un servicio en la nube como Cloudinary o AWS S3, evitando la pérdida de archivos al realizar despliegues y mejorando el rendimiento de carga.
+- Desarrollar un módulo de compras y gestión de pedidos a proveedores, integrando el flujo completo de abastecimiento desde la orden de compra hasta la recepción y actualización del inventario.
+- Implementar una aplicación móvil complementaria (React Native o Flutter) para consultas rápidas de inventario, registro de ventas simplificado y notificaciones push de alertas de stock bajo.
+- Realizar pruebas de penetración (pentesting) periódicas utilizando herramientas como OWASP ZAP o Burp Suite para identificar y corregir vulnerabilidades de seguridad.
+- Establecer un programa de capacitación continua para los usuarios del sistema, incluyendo sesiones trimestrales de repaso y actualización cuando se implementen nuevas funcionalidades.
+- Empaquetar la aplicación en contenedores Docker con Docker Compose para facilitar el despliegue en diferentes entornos, mejorar la reproducibilidad y simplificar la gestión de dependencias.
+- Evaluar la implementación de Redis como sistema de caché para optimizar el rendimiento bajo alta concurrencia, especialmente para los endpoints del dashboard que agregan datos de múltiples tablas.
+- Ampliar la cobertura de pruebas automatizadas para alcanzar el 100% en controladores críticos (ventas y productos) y agregar pruebas de regresión automatizadas en el pipeline de CI/CD utilizando GitHub Actions o Jenkins para ejecutar las pruebas automáticamente en cada push al repositorio.
+
+## Recomendaciones Metodológicas
+
+- Para proyectos similares, se recomienda mantener un registro de decisiones de diseño (Architecture Decision Records) desde el inicio del proyecto, documentando cada decisión técnica importante, su contexto, las alternativas consideradas y la justificación de la opción seleccionada. Esta práctica facilita la trazabilidad de las decisiones y la incorporación de nuevos miembros al equipo.
+
+- Incluir sesiones de capacitación formal en las herramientas de desarrollo (Node.js, Express, PostgreSQL) al inicio del proyecto para reducir la curva de aprendizaje y aumentar la productividad del equipo en las primeras etapas.
+
+- Establecer un repositorio centralizado de documentación compartida (Google Drive, Notion o Confluence) desde el primer día del proyecto, con una estructura de carpetas predefinida que organice los documentos por categorías (requisitos, diseño, desarrollo, pruebas, manuales).
+
+## Recomendaciones para Trabajos Futuros
+
+- Desarrollar un módulo de análisis predictivo que utilice los datos históricos de ventas almacenados en la base de datos para generar pronósticos de demanda mediante técnicas de series temporales (ARIMA, Prophet) o machine learning, permitiendo al propietario anticipar los niveles de inventario necesarios para cada período.
+
+- Implementar un sistema de recomendación de productos basado en el historial de compras de los clientes, utilizando técnicas de filtrado colaborativo o basado en contenido, para sugerir productos complementarios durante el registro de ventas y aumentar el valor promedio de cada transacción (upselling).
+
+- Migrar la aplicación a una arquitectura de microservicios desacoplando los módulos de ventas, productos y reportes en servicios independientes, cada uno con su propia base de datos, para mejorar la escalabilidad y permitir el despliegue independiente de cada componente.
+
+# BIBLIOGRAFÍA
+
+* Libros y Artículos Académicos:
+
+- Beck, K. (2009). Extreme Programming Explained: Embrace Change (2nd ed.). Addison-Wesley.
+- Beck, K. et al. (2001). Manifesto for Agile Software Development. Agile Alliance.
+- Boehm, B. (1981). Software Engineering Economics. Prentice Hall.
+- Davis, F. (1989). Perceived Usefulness, Perceived Ease of Use, and User Acceptance of Information Technology. MIS Quarterly, 13(3), 319-340.
+- IEEE (2014). Guide to the Software Engineering Body of Knowledge (SWEBOK), Version 3.0. IEEE Computer Society.
+- ISO/IEC 25010:2011. Systems and software engineering - Systems and software Quality Requirements and Evaluation (SQuaRE). International Organization for Standardization.
+- ISO/IEC 27001:2022. Information Security, Cybersecurity and Privacy Protection - Information Security Management Systems. International Organization for Standardization.
+- Kendall, K. E. y Kendall, J. E. (2014). Systems Analysis and Design (9th ed.). Pearson.
+- Laudon, K. C. y Laudon, J. P. (2020). Management Information Systems: Managing the Digital Firm (16th ed.). Pearson.
+- Larman, C. (2004). Applying UML and Patterns: An Introduction to Object-Oriented Analysis and Design and Iterative Development (3rd ed.). Prentice Hall.
+- Myers, G. J., Sandler, C. y Badgett, T. (2011). The Art of Software Testing (3rd ed.). Wiley.
+- OWASP Foundation (2021). OWASP Top 10 - 2021: The Ten Most Critical Web Application Security Risks.
+- Pressman, R. S. (2014). Software Engineering: A Practitioner's Approach (8th ed.). McGraw-Hill.
+- Schwaber, K. y Sutherland, J. (2020). The Scrum Guide: The Definitive Guide to Scrum.
+- Sommerville, I. (2016). Software Engineering (10th ed.). Pearson.
+
+* Normas, Leyes y Reglamentos Bolivianos:
+
+- Ley 843 (Bolivia). Código Tributario Boliviano. Gaceta Oficial de Bolivia.
+- Decreto Supremo 24051 (Bolivia). Reglamento del Código Tributario. Gaceta Oficial de Bolivia.
+- Ley General de Telecomunicaciones, Tecnologías de Información y Comunicación (Ley 164). Gaceta Oficial de Bolivia.
+
+* Documentos Técnicos y Reportes:
+
+- Banco Interamericano de Desarrollo (2021). Digitalización de PYMES en América Latina: Oportunidades y Desafíos. BID Publications.
+- Fernández, M. (2022). Sistema de información para la gestión de ventas en la ferretería "El Constructor". Universidad Autónoma Tomás Frías, Potosí, Bolivia.
+- García, R. y Martínez, L. (2021). Sistema web para la gestión de inventarios en pequeñas y medianas empresas del sector alimenticio. Universidad Nacional de Colombia, Bogotá.
+- López, P. (2022). Sistema de información para la gestión de ventas e inventario en comercios minoristas. Universidad de Buenos Aires, Argentina.
+- Quisbert, C. (2023). Sistema de control de inventarios para microempresas del sector gastronómico en la ciudad de La Paz. Universidad Mayor de San Andrés, La Paz, Bolivia.
+
+# ANEXOS
+
+* Anexo A: Instrumentos de Recolección de Datos
+- Guía de entrevista semiestructurada (15 preguntas abiertas organizadas en 5 dimensiones)
+- Cuestionario de encuesta (10 preguntas Likert + 3 preguntas abiertas)
+- Guía de observación directa (20 ítems de verificación + registro de tiempos)
+- Ficha de revisión documental (12 indicadores de calidad de registros)
+
+* Anexo B: Código Fuente
+Repositorio GitHub: https://github.com/frankiln7412/Proyecto_final_INF760. Incluye frontend (HTML, CSS, JavaScript), backend (Node.js, Express 5), migraciones de base de datos (PostgreSQL 18), pruebas (Jest, Cypress, Postman) y documentación del proyecto.
+
+* Anexo C: Manual de Usuario
+25 páginas. Guía detallada para el uso de todos los módulos con capturas de pantalla, descripciones paso a paso y solución de problemas comunes. Orientado a usuarios finales sin conocimientos técnicos.
+
+* Anexo D: Manual de Administrador
+18 páginas. Configuración inicial, gestión de usuarios y roles, monitoreo del sistema, administración de seguridad y mantenimiento preventivo.
+
+* Anexo E: Manual de Instalación y Despliegue
+15 páginas. Requisitos de hardware y software (Node.js 18+, PostgreSQL 14+, 1 GB RAM, 500 MB disco), proceso de instalación paso a paso, variables de entorno, configuración de producción y despliegue en Railway.
+
+* Anexo F: Manual de Base de Datos
+20 páginas. Diagrama entidad-relación completo, diccionario de datos (11 tablas), consultas SQL principales y procedimientos de mantenimiento (backup con pg_dump, restore con pg_restore).
+
+* Anexo G: Evidencias de Pruebas
+Capturas de pantalla de la ejecución completa de 133 pruebas unitarias y de integración con Jest, mostrando la cobertura de código del 91.5%. Reportes detallados de 29 pruebas de caja negra con las técnicas de partición de equivalencia y análisis de valores límite aplicadas a cada caso. Resultados de la validación de más de 30 endpoints de la API REST con Postman, incluyendo códigos HTTP, estructura de respuesta y tiempo de respuesta. Capturas de 15 especificaciones end-to-end ejecutadas en Cypress, cubriendo los módulos de login, dashboard, productos, ventas, proveedores y usuarios. Gráficos de resultados de las pruebas de carga y estrés con Apache JMeter (3 escenarios: 10, 50 y 100 usuarios concurrentes).
+
+* Anexo H: Certificados de Calidad
+Checklist de verificación de controles ISO 27001 Anexo A (85% de cumplimiento, 9 controles evaluados: control de acceso, autenticación, gestión de contraseñas, registro de eventos, protección contra código malicioso, gestión de capacidad, gestión de vulnerabilidades, protección de registros). Tabla detallada de evaluación ISO 25010 con las 8 características principales y 24 subcaracterísticas evaluadas con puntuaciones de 0 a 100. Puntaje global del sistema: 89.4/100, nivel "Muy Buena".
+
+* Anexo I: Actas de Validación con Usuarios
+Tres actas de sesiones de prototipado y pruebas de aceptación realizadas con el propietario del establecimiento Patatas King. Cada acta incluye: fecha y hora de la sesión, participantes (propietario, Scrum Master, desarrolladores), módulos evaluados (login, ventas, productos, dashboard, reportes, usuarios), comentarios y observaciones del usuario, cambios solicitados y prioridad de cada cambio, y aprobación final con firma del propietario. Las actas evidencian la evolución del sistema desde los prototipos iniciales hasta la versión final validada y aceptada.
+
+* Anexo J: Diagramas del Sistema
+Diagrama entidad-relación completo del modelo de datos con 11 entidades y sus relaciones. Diagrama de casos de uso con los 2 actores y 8 casos de uso principales. Diagrama de arquitectura del sistema mostrando las 3 capas (presentación, negocio, persistencia) y la comunicación mediante API RESTful. Diagrama de flujo del proceso de registro de venta con la secuencia de operaciones dentro de la transacción atómica.
