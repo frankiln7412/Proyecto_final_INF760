@@ -8,7 +8,7 @@ function normalizeDateParam(dateStr, endOfDay = false) {
 
 async function createSale(req, res) {
   try {
-    const { total, items, fecha, metodo_pago } = req.body;
+    const { total, items, fecha, metodo_pago, cliente_nombre, cliente_ci } = req.body;
 
     if (total === undefined || total === null) {
       return res.status(400).json({ message: 'total es obligatorio' });
@@ -41,6 +41,8 @@ async function createSale(req, res) {
       items,
       fecha: fecha || undefined,
       metodo_pago: metodo_pago || 'EFECTIVO',
+      cliente_nombre: cliente_nombre || undefined,
+      cliente_ci: cliente_ci || undefined,
     });
 
     res.status(201).json({ message: 'Venta registrada correctamente', sale });
@@ -124,6 +126,20 @@ async function getLibroMensual(req, res) {
   }
 }
 
+async function getSalesByClient(req, res) {
+  try {
+    const { nombre } = req.query;
+    if (!nombre || nombre.trim() === '') {
+      return res.json([]);
+    }
+    const ventas = await saleModel.getSalesByClient(nombre.trim());
+    res.json(ventas);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al buscar ventas por cliente' });
+  }
+}
+
 async function getDashboard(req, res) {
   try {
     const dashboard = await saleModel.getDashboard();
@@ -134,10 +150,44 @@ async function getDashboard(req, res) {
   }
 }
 
+async function getSaleDetail(req, res) {
+  try {
+    const { id } = req.params;
+    const detail = await saleModel.getSaleDetail(id);
+    if (!detail) {
+      return res.status(404).json({ message: 'Venta no encontrada' });
+    }
+    res.json(detail);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al obtener detalle de venta' });
+  }
+}
+
+async function anularSale(req, res) {
+  try {
+    const { id } = req.params;
+    const { motivo } = req.body;
+
+    if (!motivo || motivo.trim() === '') {
+      return res.status(400).json({ message: 'El motivo de anulación es obligatorio' });
+    }
+
+    const result = await saleModel.anularSale(id, req.user.id, motivo.trim());
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: error.message || 'Error al anular venta' });
+  }
+}
+
 module.exports = {
   createSale,
   getSalesReport,
+  getSalesByClient,
   getLibroDiario,
   getLibroMensual,
   getDashboard,
+  getSaleDetail,
+  anularSale,
 };

@@ -1,0 +1,171 @@
+{
+  "info": {
+    "name": "INVENTARIO+ - Patatas King API",
+    "description": "Colección de pruebas E2E para el backend del sistema INVENTARIO+ (Patatas King)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "url", "value": "http://localhost:5000" },
+    { "key": "token_admin", "value": "" },
+    { "key": "token_empleado", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Health Check",
+      "item": [
+        {
+          "name": "GET /api/health",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["pm.test('Status is 200', function() { pm.response.to.have.status(200); });"], "type": "text/javascript" }
+            }
+          ],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{url}}/api/health", "host": ["{{url}}"], "path": ["api", "health"] } }
+        }
+      ]
+    },
+    {
+      "name": "2. Auth",
+      "item": [
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login exitoso', function() { pm.response.to.have.status(200); var json = pm.response.json(); pm.collectionVariables.set('token_admin', json.token); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": { "mode": "raw", "raw": "{\"correo\": \"admin@patatas.com\", \"password\": \"admin123\"}" },
+            "url": { "raw": "{{url}}/api/auth/login", "host": ["{{url}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Login EMPLEADO (debe funcionar)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login empleado exitoso', function() { pm.response.to.have.status(200); var json = pm.response.json(); pm.collectionVariables.set('token_empleado', json.token); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": { "mode": "raw", "raw": "{\"correo\": \"empleado@patatas.com\", \"password\": \"empleado123\"}" },
+            "url": { "raw": "{{url}}/api/auth/login", "host": ["{{url}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Login con credenciales inválidas (debe dar 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["pm.test('Status 401', function() { pm.response.to.have.status(401); });"], "type": "text/javascript" }
+            }
+          ],
+          "request": {
+            "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": { "mode": "raw", "raw": "{\"correo\": \"fake@test.com\", \"password\": \"wrong\"}" },
+            "url": { "raw": "{{url}}/api/auth/login", "host": ["{{url}}"], "path": ["api", "auth", "login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Security - RBAC",
+      "item": [
+        {
+          "name": "EMPLEADO accede a /dashboard (debe dar 403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["pm.test('Status 403 Forbidden', function() { pm.response.to.have.status(403); });"], "type": "text/javascript" }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token_empleado}}"}],
+            "url": { "raw": "{{url}}/api/sales/dashboard", "host": ["{{url}}"], "path": ["api", "sales", "dashboard"] }
+          }
+        },
+        {
+          "name": "Sin token (debe dar 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["pm.test('Status 401', function() { pm.response.to.have.status(401); });"], "type": "text/javascript" }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{url}}/api/users", "host": ["{{url}}"], "path": ["api", "users"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Products CRUD",
+      "item": [
+        { "name": "GET /api/products", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token_admin}}"}], "url": { "raw": "{{url}}/api/products", "host": ["{{url}}"], "path": ["api", "products"] } } },
+        { "name": "POST /api/products (válido)", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{token_admin}}"}], "body": { "mode": "raw", "raw": "{\"nombre\": \"Papas Fritas Postman\", \"codigo\": \"PAP-001\", \"descripcion\": \"Papas fritas de prueba\", \"precio\": 15.50, \"stock\": 100, \"stock_minimo\": 10}" }, "url": { "raw": "{{url}}/api/products", "host": ["{{url}}"], "path": ["api", "products"] } } },
+        { "name": "POST /api/products (inválido - sin nombre)", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{token_admin}}"}], "body": { "mode": "raw", "raw": "{\"precio\": 10, \"stock\": 5}" }, "url": { "raw": "{{url}}/api/products", "host": ["{{url}}"], "path": ["api", "products"] } } }
+      ]
+    },
+    {
+      "name": "5. Sales",
+      "item": [
+        { "name": "GET /api/sales/reportes", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token_admin}}"}], "url": { "raw": "{{url}}/api/sales/reportes", "host": ["{{url}}"], "path": ["api", "sales", "reportes"] } } },
+        { "name": "GET /api/sales/libro-diario", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token_admin}}"}], "url": { "raw": "{{url}}/api/sales/libro-diario?fecha=2026-07-06", "host": ["{{url}}"], "path": ["api", "sales", "libro-diario"] } } },
+        { "name": "GET /api/sales/libro-mensual", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token_admin}}"}], "url": { "raw": "{{url}}/api/sales/libro-mensual?mes=7&anio=2026", "host": ["{{url}}"], "path": ["api", "sales", "libro-mensual"] } } },
+        { "name": "GET /api/sales/por-cliente", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token_admin}}"}], "url": { "raw": "{{url}}/api/sales/por-cliente?nombre=Juan", "host": ["{{url}}"], "path": ["api", "sales", "por-cliente"] } } },
+        { "name": "POST /api/sales (válido)", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{token_admin}}"}], "body": { "mode": "raw", "raw": "{\"total\": 31, \"items\": [{\"producto_id\": 1, \"cantidad\": 2, \"precio_unitario\": 15.50, \"subtotal\": 31}], \"metodo_pago\": \"EFECTIVO\", \"cliente_nombre\": \"Juan Postman\"}" }, "url": { "raw": "{{url}}/api/sales", "host": ["{{url}}"], "path": ["api", "sales"] } } }
+      ]
+    },
+    {
+      "name": "6. Repositions",
+      "item": [
+        { "name": "GET /api/repositions", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token_admin}}"}], "url": { "raw": "{{url}}/api/repositions", "host": ["{{url}}"], "path": ["api", "repositions"] } } },
+        { "name": "POST /api/repositions (válido)", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{token_admin}}"}], "body": { "mode": "raw", "raw": "{\"producto_id\": 1, \"cantidad\": 50, \"proveedor_id\": 1}" }, "url": { "raw": "{{url}}/api/repositions", "host": ["{{url}}"], "path": ["api", "repositions"] } } }
+      ]
+    },
+    {
+      "name": "7. Proveedores CRUD",
+      "item": [
+        { "name": "GET /api/proveedores", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token_admin}}"}], "url": { "raw": "{{url}}/api/proveedores", "host": ["{{url}}"], "path": ["api", "proveedores"] } } },
+        { "name": "POST /api/proveedores (válido)", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{token_admin}}"}], "body": { "mode": "raw", "raw": "{\"nombre\": \"Distribuidora Postman\", \"contacto\": \"Carlos\", \"telefono\": \"777-1234\"}" }, "url": { "raw": "{{url}}/api/proveedores", "host": ["{{url}}"], "path": ["api", "proveedores"] } } }
+      ]
+    },
+    {
+      "name": "8. Alerts",
+      "item": [
+        { "name": "GET /api/alerts", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token_admin}}"}], "url": { "raw": "{{url}}/api/alerts", "host": ["{{url}}"], "path": ["api", "alerts"] } } }
+      ]
+    },
+    {
+      "name": "9. Inventory Movements",
+      "item": [
+        { "name": "GET /api/inventory-movements", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token_admin}}"}], "url": { "raw": "{{url}}/api/inventory-movements", "host": ["{{url}}"], "path": ["api", "inventory-movements"] } } },
+        { "name": "GET /api/product-movements", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token_admin}}"}], "url": { "raw": "{{url}}/api/product-movements", "host": ["{{url}}"], "path": ["api", "product-movements"] } } }
+      ]
+    },
+    {
+      "name": "10. Supplies (Insumos)",
+      "item": [
+        { "name": "GET /api/supplies", "request": { "method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token_admin}}"}], "url": { "raw": "{{url}}/api/supplies", "host": ["{{url}}"], "path": ["api", "supplies"] } } },
+        { "name": "POST /api/supplies (válido)", "request": { "method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{token_admin}}"}], "body": { "mode": "raw", "raw": "{\"nombre\": \"Aceite Postman\", \"cantidad\": 50, \"unidad_medida\": \"L\", \"precio\": 12.00}" }, "url": { "raw": "{{url}}/api/supplies", "host": ["{{url}}"], "path": ["api", "supplies"] } } }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Copias de Seguridad</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+    <script>
+      (function() {
+        var theme = localStorage.getItem('inventario_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+      window.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'theme-change') {
+          document.documentElement.setAttribute('data-theme', e.data.theme);
+        }
+      });
+    </script>
+  </head>
+  <body class="p-4">
+    <div class="page-shell">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="fw-bold mb-1"><i class="bi bi-shield-check"></i> Copias de Seguridad</h2>
+          <p class="text-muted mb-0">Administra las copias de seguridad de la base de datos</p>
+        </div>
+        <button class="btn btn-primary" onclick="createBackup()" id="createBackupBtn"><i class="bi bi-cloud-plus"></i> Crear copia</button>
+      </div>
+
+      <div class="card table-card p-3">
+        <div class="table-responsive">
+          <table class="table align-middle table-hover">
+            <thead>
+              <tr>
+                <th>Archivo</th>
+                <th>Tama&ntilde;o</th>
+                <th>Fecha de creaci&oacute;n</th>
+                <th class="text-center">Acci&oacute;n</th>
+              </tr>
+            </thead>
+            <tbody id="backupsTable">
+              <tr>
+                <td colspan="4" class="text-center text-muted py-3">
+                  <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                  Cargando...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mt-3 p-3">
+        <h6 class="fw-semibold mb-2"><i class="bi bi-terminal"></i> Comandos CLI</h6>
+        <p class="text-muted small mb-2">Tambi&eacute;n puedes crear y restaurar copias desde la terminal:</p>
+        <div class="bg-dark text-light p-3 rounded" style="font-family:monospace;font-size:0.875rem;">
+          npm run backup<br>
+          npm run restore &lt;ruta-del-archivo&gt;<br>
+          npm run restore &nbsp;&nbsp;<span class="text-muted"># &uacute;ltima copia</span>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script>
+      function formatSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1024 / 1024).toFixed(2) + ' MB';
+      }
+
+      function formatDate(dateStr) {
+        var d = new Date(dateStr);
+        return d.toLocaleDateString('es-BO', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      }
+
+      async function loadBackups() {
+        var tbody = document.getElementById('backupsTable');
+        try {
+          var files = await apiRequest('/api/backups');
+          tbody.innerHTML = '';
+          if (!files || !files.length) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No hay copias de seguridad</td></tr>';
+            return;
+          }
+          files.forEach(function(f) {
+            tbody.innerHTML += '<tr>' +
+              '<td class="fw-medium"><i class="bi bi-file-earmark-zip me-2 text-primary"></i>' + f.name + '</td>' +
+              '<td class="text-muted">' + formatSize(f.size) + '</td>' +
+              '<td class="text-muted">' + formatDate(f.created) + '</td>' +
+              '<td class="text-center">' +
+                '<button class="btn btn-sm btn-outline-primary me-1" onclick="downloadBackup(\'' + f.name + '\')" title="Descargar"><i class="bi bi-download"></i></button>' +
+                '<button class="btn btn-sm btn-outline-danger" onclick="deleteBackup(\'' + f.name + '\')" title="Eliminar"><i class="bi bi-trash"></i></button>' +
+              '</td></tr>';
+          });
+        } catch (error) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger py-3">Error al cargar: ' + error.message + '</td></tr>';
+        }
+      }
+
+      async function createBackup() {
+        var btn = document.getElementById('createBackupBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Creando...';
+        try {
+          var result = await apiRequest('/api/backups/create', { method: 'POST' });
+          showToast('Copia creada: ' + result.name, 'success');
+          loadBackups();
+        } catch (error) {
+          showToast(error.message, 'danger');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-cloud-plus"></i> Crear copia';
+        }
+      }
+
+      async function downloadBackup(name) {
+        try {
+          var blob = await apiBlobRequest('/api/backups/download/' + encodeURIComponent(name));
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = url;
+          a.download = name;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } catch (error) {
+          showToast('Error al descargar: ' + error.message, 'danger');
+        }
+      }
+
+      async function deleteBackup(name) {
+        if (!confirm('Eliminar la copia "' + name + '"?')) return;
+        try {
+          await apiRequest('/api/backups/' + encodeURIComponent(name), { method: 'DELETE' });
+          showToast('Copia eliminada', 'success');
+          loadBackups();
+        } catch (error) {
+          showToast(error.message, 'danger');
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', async function() {
+        if (!protectPage()) return;
+        loadBackups();
+      });
+    </script>
+  </body>
+</html>

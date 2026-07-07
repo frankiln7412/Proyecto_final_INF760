@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000';
+const API_URL = window.location.origin;
 
 function showToast(message, type = 'success') {
   const container = document.getElementById('toastContainer');
@@ -68,6 +68,51 @@ async function apiRequest(path, options = {}) {
   return data;
 }
 
+async function apiBlobRequest(path) {
+  const token = getToken();
+  const response = await fetch(`${API_URL}${path}`, {
+    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+  });
+  if (response.status === 401) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    const loginPath = window.location.pathname.includes('/pages/') ? '../login.html' : 'login.html';
+    setTimeout(() => { window.location.href = loginPath; }, 200);
+    throw new Error('Token inválido o expirado');
+  }
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.message || 'Error en la descarga');
+  }
+  return response.blob();
+}
+
+async function apiUpload(path, formData) {
+  const token = getToken();
+
+  const response = await fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    body: formData,
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (response.status === 401) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    const loginPath = window.location.pathname.includes('/pages/') ? '../login.html' : 'login.html';
+    setTimeout(() => { window.location.href = loginPath; }, 200);
+    throw new Error(data.message || 'Token inválido o expirado');
+  }
+
+  if (!response.ok) {
+    throw new Error(data.message || 'Error al subir archivo');
+  }
+
+  return data;
+}
+
 async function loginUser(correo, password) {
   return apiRequest('/api/auth/login', {
     method: 'POST',
@@ -86,8 +131,10 @@ function protectPage() {
 function hydrateUserLabel() {
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   const label = document.getElementById('userLabel');
-  if (label && user) {
-    label.textContent = `${user.nombre} • ${user.rol}`;
+  const avatar = document.getElementById('userAvatar');
+  if (user) {
+    if (label) label.textContent = `${user.nombre} • ${user.rol}`;
+    if (avatar) avatar.textContent = (user.nombre || 'U').charAt(0).toUpperCase();
   }
 }
 

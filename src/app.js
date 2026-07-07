@@ -12,10 +12,17 @@ const inventoryMovementRoutes = require('./routes/inventoryMovementRoutes');
 const productMovementRoutes = require('./routes/productMovementRoutes');
 const productCostHistoryRoutes = require('./routes/productCostHistoryRoutes');
 const proveedorRoutes = require('./routes/proveedorRoutes');
+const clienteRoutes = require('./routes/clienteRoutes');
+const backupRoutes = require('./routes/backupRoutes');
 
 const app = express();
 
-app.use(cors());
+const corsOrigin = process.env.CORS_ORIGIN || '*';
+app.use(cors({
+  origin: corsOrigin === '*' ? '*' : corsOrigin.split(',').map(function(s) { return s.trim(); }),
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -48,12 +55,21 @@ app.use('/api/inventory-movements', inventoryMovementRoutes);
 app.use('/api/product-movements', productMovementRoutes);
 app.use('/api/product-cost-history', productCostHistoryRoutes);
 app.use('/api/proveedores', proveedorRoutes);
+app.use('/api/clientes', clienteRoutes);
+app.use('/api/backups', backupRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Ruta no encontrada' });
 });
 
 app.use((err, req, res, next) => {
+  // Multer errors (file too large, wrong format)
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({ message: 'La imagen no puede superar los 5 MB' });
+  }
+  if (err.message && (err.message.includes('Formato no permitido') || err.message.includes('formato'))) {
+    return res.status(400).json({ message: err.message });
+  }
   console.error(err.stack);
   res.status(500).json({ message: 'Error interno del servidor' });
 });

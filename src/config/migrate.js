@@ -123,6 +123,60 @@ async function runMigrations() {
     ADD COLUMN IF NOT EXISTS proveedor_id INTEGER REFERENCES proveedor(id) ON DELETE SET NULL
   `);
 
+  await db.query(`
+    ALTER TABLE venta
+    ADD COLUMN IF NOT EXISTS cliente_nombre VARCHAR(255)
+  `);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS cliente (
+      id SERIAL PRIMARY KEY,
+      ci VARCHAR(20) UNIQUE NOT NULL,
+      nombre VARCHAR(255) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await db.query(`
+    ALTER TABLE venta
+    ADD COLUMN IF NOT EXISTS cliente_id INTEGER REFERENCES cliente(id) ON DELETE SET NULL
+  `);
+
+  await db.query(`
+    ALTER TABLE venta
+    ADD COLUMN IF NOT EXISTS estado VARCHAR(20) NOT NULL DEFAULT 'ACTIVA'
+  `);
+
+  await addConstraintSafe('venta', 'venta_estado_check', "estado IN ('ACTIVA','ANULADA')");
+
+  await db.query(`
+    UPDATE venta SET estado = 'ACTIVA' WHERE estado IS NULL OR estado NOT IN ('ACTIVA','ANULADA')
+  `);
+
+  try {
+    await db.query('ALTER TABLE ONLY venta VALIDATE CONSTRAINT venta_estado_check');
+  } catch (e) { /* ignore */ }
+
+  await db.query(`
+    ALTER TABLE venta
+    ADD COLUMN IF NOT EXISTS fecha_anulacion TIMESTAMP
+  `);
+
+  await db.query(`
+    ALTER TABLE venta
+    ADD COLUMN IF NOT EXISTS usuario_anulacion_id INTEGER REFERENCES usuario(id) ON DELETE SET NULL
+  `);
+
+  await db.query(`
+    ALTER TABLE venta
+    ADD COLUMN IF NOT EXISTS motivo_anulacion TEXT
+  `);
+
+  await db.query(`
+    ALTER TABLE producto
+    ADD COLUMN IF NOT EXISTS imagen VARCHAR(255)
+  `);
+
   console.log('Migraciones completadas.');
 }
 

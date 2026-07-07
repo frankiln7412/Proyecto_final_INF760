@@ -7,6 +7,18 @@ function getStoredTheme() {
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem(THEME_KEY, theme);
+  /* Propagar al iframe en tiempo real */
+  var frame = document.getElementById('contentFrame');
+  if (frame) {
+    try {
+      if (frame.contentDocument) {
+        frame.contentDocument.documentElement.setAttribute('data-theme', theme);
+      }
+    } catch (_) {}
+    try {
+      frame.contentWindow.postMessage({ type: 'theme-change', theme: theme }, '*');
+    } catch (_) {}
+  }
 }
 
 /* Stock Pulse — actualizado desde dashboard */
@@ -54,7 +66,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!page) return;
     document.querySelectorAll('.sidebar .nav-link, .bottom-nav a').forEach((item) => item.classList.remove('active'));
     if (trigger) trigger.classList.add('active');
-    if (frame) frame.src = page;
+    if (frame) {
+      frame.src = page;
+    }
+  }
+  if (frame) {
+    frame.addEventListener('load', function() {
+      var t = getStoredTheme();
+      try {
+        if (frame.contentDocument) {
+          frame.contentDocument.documentElement.setAttribute('data-theme', t);
+        }
+      } catch (_) {}
+      try {
+        frame.contentWindow.postMessage({ type: 'theme-change', theme: t }, '*');
+      } catch (_) {}
+    });
   }
 
   document.querySelectorAll('.sidebar .nav-link').forEach((link) => {
@@ -84,4 +111,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   hydrateUserLabel();
+
+  // ---- Topbar Search (propagar al iframe) ----
+  const topbarSearch = document.getElementById('topbarSearch');
+  if (topbarSearch) {
+    topbarSearch.addEventListener('input', function() {
+      try {
+        frame.contentWindow.postMessage({ type: 'search', query: this.value }, '*');
+      } catch (_) {}
+    });
+  }
+
+  // ---- Notif Bell (demo) ----
+  const notifBell = document.getElementById('notifBell');
+  const notifDot = document.getElementById('notifDot');
+  if (notifBell && notifDot) {
+    notifDot.style.display = 'none';
+    notifBell.addEventListener('click', function(e) {
+      e.preventDefault();
+      showToast('No hay notificaciones pendientes', 'info');
+    });
+  }
 });

@@ -6,60 +6,124 @@
     <title>Ventas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../assets/css/styles.css" />
+    <script>
+      (function() {
+        var theme = localStorage.getItem('inventario_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+      window.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'theme-change') {
+          document.documentElement.setAttribute('data-theme', e.data.theme);
+        }
+      });
+    </script>
   </head>
-  <body class="p-4">
-    <div class="page-shell">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h2 class="fw-bold mb-1">Ventas</h2>
-          <p class="text-muted mb-0">Registra ventas de papas y actualiza el inventario automáticamente</p>
-        </div>
-      </div>
-
-      <div class="row g-4">
-        <div class="col-lg-7">
-          <div class="card table-card p-3">
-            <h5 class="fw-semibold mb-3">Productos disponibles</h5>
-            <div class="table-responsive">
-              <table class="table align-middle table-hover">
-                <thead><tr><th>Producto</th><th class="text-end">Precio</th><th class="text-end">Stock disp.</th><th class="text-center">Acción</th></tr></thead>
-                <tbody id="productSaleTable"></tbody>
-              </table>
-            </div>
+  <body style="height:200vh;display:flex;flex-direction:column;margin:0;">
+    <div class="page-shell" style="flex:1;display:flex;flex-direction:column;min-height:0;">
+      <div class="pos-layout">
+        <!-- LEFT: Products Panel -->
+        <div class="pos-products-panel">
+          <div class="product-grid-header">
+            <h2 class="fw-bold">Nueva Venta</h2>
+            <input id="productSearchInput" class="form-control" placeholder="Buscar producto por nombre..." />
+          </div>
+          <div class="pos-products-scroll" id="posProductsScroll">
+            <div class="row g-3" id="productCardGrid"></div>
           </div>
         </div>
-        <div class="col-lg-5">
-          <div class="card table-card p-3">
-            <h5 class="fw-semibold mb-3">Carrito</h5>
-            <div id="cartItems"></div>
-            <div class="d-flex justify-content-between mt-3 fw-bold">
-              <span>Total</span>
-              <span id="cartTotal" class="display-money">$0.00</span>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Fecha de venta</label>
-              <input id="saleDate" type="datetime-local" class="form-control" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Método de pago</label>
-              <select id="pagoMetodo" class="form-select" onchange="togglePagoQR()">
-                <option value="EFECTIVO">Efectivo</option>
-                <option value="QR">QR</option>
-              </select>
-              <div id="qrPagoContainer" class="d-none mt-2 text-center p-3 bg-light rounded">
-                <p class="mb-1 small text-muted">Escanea para pagar</p>
-                <div id="qrPagoCode"></div>
+
+        <!-- RIGHT: Redesigned Cart -->
+        <div class="pos-cart-panel">
+          <div class="cart-panel">
+            <!-- Section 1: Header -->
+            <div class="cart-header">
+              <h5><i class="bi bi-cart3 me-1"></i> Carrito</h5>
+              <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-outline-secondary" id="clearCartBtn" title="Vaciar carrito" style="padding:0.2rem 0.5rem;font-size:0.75rem;"><i class="bi bi-trash3"></i> Vaciar</button>
+                <span class="badge bg-primary rounded-pill" id="cartCount">0</span>
               </div>
             </div>
-            <div class="small text-muted mb-3">El precio y la cantidad se validan contra el inventario real antes de registrar la venta. Se genera un código QR con el detalle de la venta.</div>
-            <button class="btn btn-success w-100 mt-3" id="checkoutBtn">Registrar venta</button>
+
+            <!-- Section 2: Product list (scrollable only this area) -->
+            <div class="cart-items-wrap" id="cartItemsWrap"></div>
+
+            <!-- Section 3: Summary (always visible, never scrolls) -->
+            <div class="cart-footer">
+              <div class="cart-totals">
+                <div class="cart-total-row">
+                  <span>Subtotal</span>
+                  <span id="cartSubtotal" class="cart-subtotal-val">Bs. 0.00</span>
+                </div>
+                <div class="cart-total-row">
+                  <span>Descuento</span>
+                  <span id="cartDiscount" class="cart-subtotal-val">Bs. 0.00</span>
+                </div>
+                <div class="cart-total-row final">
+                  <span>Total</span>
+                  <span id="cartTotal">Bs. 0.00</span>
+                </div>
+              </div>
+              <div class="row g-1 mb-1">
+                <div class="col-5">
+                  <label class="form-label">CI</label>
+                  <input id="clienteCI" type="text" class="form-control form-control-sm" placeholder="Cédula" oninput="autoBuscarCliente()" />
+                </div>
+                <div class="col-7">
+                  <label class="form-label">Cliente</label>
+                  <input id="clienteNombre" type="text" class="form-control form-control-sm" placeholder="Nombre completo" />
+                </div>
+              </div>
+              <div class="row g-1 mb-1">
+                <div class="col-6">
+                  <label class="form-label">Fecha</label>
+                  <input id="saleDate" type="datetime-local" class="form-control form-control-sm" />
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Pago</label>
+                  <select id="pagoMetodo" class="form-select form-select-sm" onchange="togglePagoQR()">
+                    <option value="EFECTIVO">Efectivo</option>
+                    <option value="QR">QR</option>
+                  </select>
+                </div>
+              </div>
+              <div id="qrPagoContainer" class="d-none mb-1 text-center p-1 rounded" style="background:var(--surface-alt);"></div>
+              <button class="btn btn-primary w-100" id="checkoutBtn" style="padding:0.45rem 0.75rem;font-size:0.82rem;">
+                <i class="bi bi-check2-circle me-1"></i> Registrar Venta
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Modal para mostrar QR / Comprobante -->
+    <!-- ===== Gestión de Ventas ===== -->
+    <div class="card table-card p-3" style="flex-shrink:0;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-semibold mb-0"><i class="bi bi-clock-history me-1"></i> Gesti&oacute;n de Ventas <span class="badge bg-secondary rounded-pill align-middle" id="recentCount" style="font-size:0.65rem;">0</span></h5>
+        <button class="btn btn-sm btn-outline-secondary" onclick="loadRecentSales()"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
+      </div>
+      <div style="max-height:400px;overflow-y:auto;border-radius:var(--radius-sm);">
+        <table class="table align-middle table-hover table-sm mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Cliente</th>
+              <th>Fecha</th>
+              <th class="text-end">Total</th>
+              <th class="text-center">Estado</th>
+              <th class="text-center">Acci&oacute;n</th>
+            </tr>
+          </thead>
+          <tbody id="recentSalesTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== Modal QR / Comprobante ===== -->
     <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -77,7 +141,7 @@
               <div id="comprobanteBody"></div>
               <hr />
               <div id="qrCodeContainer" class="d-flex justify-content-center mb-2"></div>
-              <p class="text-muted small text-center mb-0">Escanea el código QR para verificar</p>
+              <p class="text-muted small text-center mb-0">Escanea el c&oacute;digo QR para verificar</p>
             </div>
           </div>
           <div class="modal-footer no-print">
@@ -88,23 +152,90 @@
       </div>
     </div>
 
+    <!-- ===== Modal Detalle ===== -->
+    <div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="detalleModalLabel">Detalle de Venta</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="detalleModalBody"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Modal Anular ===== -->
+    <div class="modal fade" id="anularModal" tabindex="-1" aria-labelledby="anularModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="anularModalLabel">Anular Venta</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>&iquest;Est&aacute; seguro de anular la venta <strong id="anularVentaLabel"></strong>?</p>
+            <p class="text-danger small">Se restaurar&aacute; el stock de todos los productos vendidos. Esta acci&oacute;n no se puede deshacer.</p>
+            <div class="mb-3">
+              <label class="form-label">Motivo de anulaci&oacute;n <span class="text-danger">*</span></label>
+              <textarea id="anularMotivo" class="form-control" rows="3" placeholder="Describa el motivo de la anulaci&oacute;n"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-danger" id="confirmarAnularBtn">Anular Venta</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Toast container ===== -->
+    <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRec5nsw97kD4lBLX3BVocWvQNBtgPN+QWrgMygmhTWTlQ9r24g+f_FwF1uGA8gFNw/Rfc9mZAlwRSU2hIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="../assets/js/auth.js"></script>
     <script>
       let products = [];
       let cart = [];
+      let ventasAnularId = null;
+      let clienteBuscarTimeout = null;
+
+      const CURRENCY = 'Bs. ';
+
+      function autoBuscarCliente() {
+        clearTimeout(clienteBuscarTimeout);
+        clienteBuscarTimeout = setTimeout(buscarClientePorCI, 500);
+      }
+
+      async function buscarClientePorCI() {
+        const ci = document.getElementById('clienteCI').value.trim();
+        const nombreInput = document.getElementById('clienteNombre');
+        if (!ci) return;
+        try {
+          const cliente = await apiRequest('/api/clientes/' + encodeURIComponent(ci));
+          if (cliente && cliente.nombre) {
+            nombreInput.value = cliente.nombre;
+          }
+        } catch (e) {}
+      }
 
       function togglePagoQR() {
         const metodo = document.getElementById('pagoMetodo').value;
         const container = document.getElementById('qrPagoContainer');
-        const qrDiv = document.getElementById('qrPagoCode');
+        const qrDiv = document.getElementById('qrPagoCode') || document.createElement('div');
+        qrDiv.id = 'qrPagoCode';
         if (metodo === 'QR') {
           container.classList.remove('d-none');
+          container.innerHTML = '<p class="mb-1 small text-muted">Escanea para pagar</p>';
+          container.appendChild(qrDiv);
           qrDiv.innerHTML = '';
           const randomCode = 'PAGO-' + Math.random().toString(36).substring(2, 10).toUpperCase();
           try {
-            new QRCode(qrDiv, { text: randomCode, width: 160, height: 160, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+            new QRCode(qrDiv, { text: randomCode, width: 140, height: 140, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
           } catch (e) {
             qrDiv.innerHTML = '<p class="text-muted small">QR no disponible</p>';
           }
@@ -114,78 +245,38 @@
       }
 
       function getCartQuantity(productId) {
-        const item = cart.find((i) => i.producto_id === productId);
+        const item = cart.find(function(i) { return i.producto_id === productId; });
         return item ? item.cantidad : 0;
       }
 
-      function renderProducts() {
-        const tbody = document.getElementById('productSaleTable');
-        tbody.innerHTML = '';
-        products.forEach((product) => {
-          const inCart = getCartQuantity(product.id);
-          const stockDisponible = product.stock - inCart;
-          tbody.innerHTML += `
-            <tr>
-              <td class="fw-medium">${product.nombre}</td>
-              <td class="text-end display-money-sm">$${Number(product.precio).toFixed(2)}</td>
-              <td class="text-end">${stockDisponible}</td>
-              <td class="text-center">
-                <button class="btn btn-sm ${stockDisponible <= 0 ? 'btn-outline-secondary' : 'btn-outline-primary'}" onclick="addToCart(${product.id})" ${stockDisponible <= 0 ? 'disabled' : ''}><i class="bi bi-plus-lg"></i></button>
-                ${inCart > 0 ? `<button class="btn btn-sm btn-outline-danger ms-1" onclick="removeFromCart(${product.id})"><i class="bi bi-dash-lg"></i></button>` : ''}
-              </td>
-            </tr>
-          `;
-        });
-      }
-
-      function renderCart() {
-        const container = document.getElementById('cartItems');
-        if (!cart.length) {
-          container.innerHTML = '<div class="text-muted">El carrito está vacío</div>';
-          document.getElementById('cartTotal').textContent = '$0.00';
-          return;
-        }
-
-        let total = 0;
-        container.innerHTML = '';
-        cart.forEach((item) => {
-          total += item.subtotal;
-          container.innerHTML += `
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <div>
-                <strong>${item.nombre}</strong><br>
-                <small>${item.cantidad} × $${Number(item.precio_unitario).toFixed(2)}</small>
-              </div>
-              <span class="display-money-sm">$${Number(item.subtotal).toFixed(2)}</span>
-            </div>
-          `;
-        });
-        document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
-      }
-
       function addToCart(productId) {
-        const product = products.find((p) => p.id === productId);
+        const product = products.find(function(p) { return p.id === productId; });
         if (!product) return;
-
         const inCart = getCartQuantity(product.id);
         if (inCart >= product.stock) {
           showToast('Stock insuficiente', 'warning');
           return;
         }
-
-        const existing = cart.find((item) => item.producto_id === productId);
+        const existing = cart.find(function(item) { return item.producto_id === productId; });
         if (existing) {
           existing.cantidad += 1;
           existing.subtotal = existing.cantidad * existing.precio_unitario;
         } else {
-          cart.push({ producto_id: product.id, nombre: product.nombre, cantidad: 1, precio_unitario: Number(product.precio), subtotal: Number(product.precio) });
+          cart.push({
+            producto_id: product.id,
+            nombre: product.nombre,
+            cantidad: 1,
+            precio_unitario: Number(product.precio),
+            subtotal: Number(product.precio),
+            imagen: product.imagen || '../assets/img/product-placeholder.svg'
+          });
         }
         renderCart();
         renderProducts();
       }
 
       function removeFromCart(productId) {
-        const idx = cart.findIndex((item) => item.producto_id === productId);
+        const idx = cart.findIndex(function(i) { return i.producto_id === productId; });
         if (idx === -1) return;
         const item = cart[idx];
         if (item.cantidad > 1) {
@@ -198,43 +289,139 @@
         renderProducts();
       }
 
+      function removeItemFromCart(productId) {
+        cart = cart.filter(function(i) { return i.producto_id !== productId; });
+        renderCart();
+        renderProducts();
+      }
+
+      function clearCart() {
+        cart = [];
+        renderCart();
+        renderProducts();
+      }
+
+      function renderProducts(filtered) {
+        const grid = document.getElementById('productCardGrid');
+        const items = filtered || products;
+        grid.innerHTML = '';
+        if (!items.length) {
+          grid.innerHTML = '<div class="col-12 text-center text-muted py-5">No hay productos disponibles</div>';
+          return;
+        }
+        items.forEach(function(product) {
+          const inCart = getCartQuantity(product.id);
+          const stockDisponible = product.stock - inCart;
+          const imgSrc = product.imagen || '../assets/img/product-placeholder.svg';
+          const outOfStock = stockDisponible <= 0;
+          grid.innerHTML += '<div class="col-6 col-md-4 col-xl-3">'
+            + '<div class="product-card card h-100 border-0 shadow-sm' + (outOfStock ? ' opacity-50' : '') + '">'
+            + '<div class="product-card-img-wrap">'
+            + '<img src="' + imgSrc + '" class="product-card-img" alt="' + product.nombre + '" loading="lazy" onerror="this.src=\'../assets/img/product-placeholder.svg\'" />'
+            + (outOfStock ? '<span class="product-card-badge">AGOTADO</span>' : '')
+            + '</div>'
+            + '<div class="card-body p-2 d-flex flex-column">'
+            + '<h6 class="product-card-title mb-1">' + product.nombre + '</h6>'
+            + '<div class="product-card-price">' + CURRENCY + Number(product.precio).toFixed(2) + '</div>'
+            + '<small class="text-muted mb-2">Stock: ' + stockDisponible + '</small>'
+            + '<button class="btn btn-sm btn-primary w-100 mt-auto" onclick="addToCart(' + product.id + ')" ' + (outOfStock ? 'disabled' : '') + '>'
+            + '<i class="bi bi-plus-lg"></i> Agregar</button>'
+            + '</div></div></div>';
+        });
+      }
+
+      function renderCart() {
+        const wrap = document.getElementById('cartItemsWrap');
+        const countEl = document.getElementById('cartCount');
+        const subtotalEl = document.getElementById('cartSubtotal');
+        const discountEl = document.getElementById('cartDiscount');
+        const totalEl = document.getElementById('cartTotal');
+
+        if (!cart.length) {
+          wrap.innerHTML = '<div class="cart-empty"><i class="bi bi-cart3"></i><p>El carrito est&aacute; vac&iacute;o<br/><span class="small">Agrega productos desde la izquierda</span></p></div>';
+          if (countEl) countEl.textContent = '0';
+          if (subtotalEl) subtotalEl.textContent = CURRENCY + '0.00';
+          if (discountEl) discountEl.textContent = CURRENCY + '0.00';
+          if (totalEl) totalEl.textContent = CURRENCY + '0.00';
+          return;
+        }
+
+        let subtotal = 0;
+        let html = '';
+        cart.forEach(function(item) {
+          subtotal += item.subtotal;
+          html += '<div class="cart-item">'
+            + '<img class="cart-item-thumb" src="' + (item.imagen || '../assets/img/product-placeholder.svg') + '" alt="' + item.nombre + '" onerror="this.src=\'../assets/img/product-placeholder.svg\'" />'
+            + '<div class="cart-item-info">'
+            + '<span class="cart-item-name">' + item.nombre + '</span>'
+            + '<span class="cart-item-price">' + CURRENCY + Number(item.precio_unitario).toFixed(2) + ' /u</span>'
+            + '</div>'
+            + '<div class="cart-item-qty">'
+            + '<button onclick="removeFromCart(' + item.producto_id + ')" title="Reducir">&minus;</button>'
+            + '<span>' + item.cantidad + '</span>'
+            + '<button onclick="addToCart(' + item.producto_id + ')" title="Aumentar">+</button>'
+            + '</div>'
+            + '<span class="cart-item-subtotal">' + CURRENCY + Number(item.subtotal).toFixed(2) + '</span>'
+            + '<button class="cart-item-remove" onclick="removeItemFromCart(' + item.producto_id + ')" title="Eliminar"><i class="bi bi-trash3"></i></button>'
+            + '</div>';
+        });
+        wrap.innerHTML = html;
+        const discount = 0;
+        const total = subtotal - discount;
+        if (countEl) countEl.textContent = cart.length;
+        if (subtotalEl) subtotalEl.textContent = CURRENCY + subtotal.toFixed(2);
+        if (discountEl) discountEl.textContent = CURRENCY + discount.toFixed(2);
+        if (totalEl) totalEl.textContent = CURRENCY + total.toFixed(2);
+      }
+
       async function checkout() {
-        if (!cart.length) return;
+        if (!cart.length) {
+          showToast('El carrito est&aacute; vac&iacute;o', 'warning');
+          return;
+        }
         const fecha = document.getElementById('saleDate').value;
         const metodo_pago = document.getElementById('pagoMetodo').value;
-        const cartSnapshot = cart.map(i => ({ ...i }));
+        const cliente_nombre = document.getElementById('clienteNombre').value.trim();
+        const cliente_ci = document.getElementById('clienteCI').value.trim();
+        const cartSnapshot = cart.map(function(i) { return { ...i }; });
         let result;
         try {
           result = await apiRequest('/api/sales', {
             method: 'POST',
-            body: JSON.stringify({ total: cart.reduce((acc, item) => acc + item.subtotal, 0), items: cart, fecha, metodo_pago }),
+            body: JSON.stringify({
+              total: cart.reduce(function(acc, item) { return acc + item.subtotal; }, 0),
+              items: cart,
+              fecha: fecha,
+              metodo_pago: metodo_pago,
+              cliente_nombre: cliente_nombre,
+              cliente_ci: cliente_ci
+            }),
           });
         } catch (error) {
           showToast(error.message, 'danger');
           return;
         }
 
-        showToast(`Venta registrada con éxito!`, 'success');
+        showToast('Venta registrada con &eacute;xito!', 'success');
         cart = [];
         renderCart();
         await loadProducts();
+        document.getElementById('clienteCI').value = '';
+        document.getElementById('clienteNombre').value = '';
 
         if (result.sale && result.sale.qr_text) {
-          const itemsHtml = cartSnapshot.map((item) =>
-            `<tr><td>${item.nombre}</td><td class="text-center">${item.cantidad}</td><td class="text-end">$${Number(item.precio_unitario).toFixed(2)}</td><td class="text-end fw-medium">$${Number(item.subtotal).toFixed(2)}</td></tr>`
-          ).join('');
+          const itemsHtml = cartSnapshot.map(function(item) {
+            return '<tr><td>' + item.nombre + '</td><td class="text-center">' + item.cantidad + '</td><td class="text-end">' + CURRENCY + Number(item.precio_unitario).toFixed(2) + '</td><td class="text-end fw-medium">' + CURRENCY + Number(item.subtotal).toFixed(2) + '</td></tr>';
+          }).join('');
 
-          const total = cartSnapshot.reduce((acc, item) => acc + item.subtotal, 0);
+          const total = cartSnapshot.reduce(function(acc, item) { return acc + item.subtotal; }, 0);
 
-          document.getElementById('comprobanteBody').innerHTML = `
-            <p><strong>Venta #${result.sale.id}</strong></p>
-            <p class="small text-muted">${new Date().toLocaleString()} &middot; ${metodo_pago}</p>
-            <table class="table table-sm mb-0">
-              <thead><tr><th>Producto</th><th class="text-center">Cant.</th><th class="text-end">P/U</th><th class="text-end">Subtotal</th></tr></thead>
-              <tbody>${itemsHtml}</tbody>
-              <tfoot><tr class="fw-bold"><td colspan="3" class="text-end text-uppercase small">TOTAL</td><td class="text-end fs-5">$${total.toFixed(2)}</td></tr></tfoot>
-            </table>
-          `;
+          document.getElementById('comprobanteBody').innerHTML = '<p><strong>Venta #' + result.sale.id + '</strong></p>'
+            + '<p class="small text-muted">' + new Date().toLocaleString() + ' &middot; ' + metodo_pago + (cliente_nombre ? ' &middot; ' + cliente_nombre : '') + '</p>'
+            + '<table class="table table-sm mb-0">'
+            + '<thead><tr><th>Producto</th><th class="text-center">Cant.</th><th class="text-end">P/U</th><th class="text-end">Subtotal</th></tr></thead>'
+            + '<tbody>' + itemsHtml + '</tbody>'
+            + '<tfoot><tr class="fw-bold"><td colspan="3" class="text-end text-uppercase small">TOTAL</td><td class="text-end fs-5">' + CURRENCY + total.toFixed(2) + '</td></tr></tfoot></table>';
 
           try {
             const qrCodeContainer = document.getElementById('qrCodeContainer');
@@ -243,9 +430,9 @@
               text: result.sale.qr_text,
               width: 128,
               height: 128,
-              colorDark : "#000000",
-              colorLight : "#ffffff",
-              correctLevel : QRCode.CorrectLevel.H
+              colorDark: '#000000',
+              colorLight: '#ffffff',
+              correctLevel: QRCode.CorrectLevel.H
             });
           } catch (e) {
             document.getElementById('qrCodeContainer').innerHTML = '<p class="text-muted small">QR no disponible</p>';
@@ -253,41 +440,170 @@
           try {
             const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
             qrModal.show();
-          } catch (e) { /* modal no disponible */ }
+          } catch (e) {}
         }
       }
 
       async function loadProducts() {
-        products = await apiRequest('/api/products');
+        try {
+          products = await apiRequest('/api/products');
+        } catch (e) {
+          products = [];
+        }
         renderProducts();
       }
 
       function imprimirComprobante() {
         const printContents = document.getElementById('comprobantePrint').innerHTML;
         const win = window.open('', '_blank');
-        win.document.write(`
-          <html><head><title>Comprobante #${document.querySelector('#comprobanteBody p strong')?.textContent || ''}</title>
-          <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-          <style>
-            body { padding: 20px; font-family: 'Courier New', monospace; font-size: 12px; }
-            table { width: 100%; border-collapse: collapse; }
-            td, th { padding: 4px 8px; }
-            hr { border-top: 1px dashed #000; }
-            .text-center { text-align: center; }
-            .text-end { text-align: right; }
-            @media print { .no-print { display: none; } body { padding: 0; } }
-          </style></head><body>${printContents}</body></html>
-        `);
+        win.document.write('<html><head><title>Comprobante</title>'
+          + '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />'
+          + '<style>body{padding:20px;font-family:\'Courier New\',monospace;font-size:12px}table{width:100%;border-collapse:collapse}td,th{padding:4px 8px}hr{border-top:1px dashed #000}.text-center{text-align:center}.text-end{text-align:right}@media print{.no-print{display:none}body{padding:0}}</style></head><body>' + printContents + '</body></html>');
         win.document.close();
-        setTimeout(() => { win.print(); }, 500);
+        setTimeout(function() { win.print(); }, 500);
       }
 
-      document.addEventListener('DOMContentLoaded', async () => {
+      /* ===== Detalle de Venta ===== */
+      async function verDetalle(ventaId) {
+        try {
+          const data = await apiRequest('/api/sales/' + ventaId);
+          const body = document.getElementById('detalleModalBody');
+          const fecha = new Date(data.fecha);
+          const estadoBadge = data.estado === 'ANULADA'
+            ? '<span class="badge bg-danger">ANULADA</span>'
+            : '<span class="badge bg-success">ACTIVA</span>';
+          let itemsHtml = '';
+          data.items.forEach(function(item) {
+            itemsHtml += '<tr>'
+              + '<td>' + item.producto_nombre + '</td>'
+              + '<td class="text-center">' + item.cantidad + '</td>'
+              + '<td class="text-end">' + CURRENCY + Number(item.precio_unitario).toFixed(2) + '</td>'
+              + '<td class="text-end fw-medium">' + CURRENCY + Number(item.subtotal).toFixed(2) + '</td>'
+              + '</tr>';
+          });
+          body.innerHTML = '<div class="mb-3">'
+            + '<div class="d-flex justify-content-between align-items-center mb-2">'
+            + '<h5 class="mb-0 fw-bold">Venta #' + String(data.id).padStart(4, '0') + '</h5>'
+            + estadoBadge
+            + '</div>'
+            + '<table class="table table-sm table-borderless small mb-1">'
+            + '<tr><td class="text-muted">Fecha:</td><td>' + fecha.toLocaleString() + '</td></tr>'
+            + '<tr><td class="text-muted">Cliente:</td><td>' + (data.cliente || '-') + '</td></tr>'
+            + '<tr><td class="text-muted">CI:</td><td>' + (data.cliente_ci || '-') + '</td></tr>'
+            + '<tr><td class="text-muted">M&eacute;todo de pago:</td><td>' + data.metodo_pago + '</td></tr>'
+            + '<tr><td class="text-muted">Registrado por:</td><td>' + (data.usuario || '-') + '</td></tr>'
+            + (data.estado === 'ANULADA' ? '<tr><td class="text-danger">Anulada por:</td><td class="text-danger">' + (data.usuario_anulacion || '-') + '</td></tr>' : '')
+            + (data.estado === 'ANULADA' ? '<tr><td class="text-danger">Motivo:</td><td class="text-danger">' + (data.motivo_anulacion || '-') + '</td></tr>' : '')
+            + '</table>'
+            + '<h6 class="fw-semibold mt-3 mb-2">Productos</h6>'
+            + '<table class="table table-sm mb-0">'
+            + '<thead><tr><th>Producto</th><th class="text-center">Cant.</th><th class="text-end">P/U</th><th class="text-end">Subtotal</th></tr></thead>'
+            + '<tbody>' + itemsHtml + '</tbody>'
+            + '<tfoot><tr class="fw-bold"><td colspan="3" class="text-end">TOTAL</td><td class="text-end">' + CURRENCY + Number(data.total).toFixed(2) + '</td></tr></tfoot>'
+            + '</table></div>';
+          try {
+            new bootstrap.Modal(document.getElementById('detalleModal')).show();
+          } catch (e) {}
+        } catch (e) {
+          showToast('Error al cargar detalle de venta', 'danger');
+        }
+      }
+
+      /* ===== Anular Venta ===== */
+      function showAnularModal(ventaId) {
+        ventasAnularId = ventaId;
+        document.getElementById('anularVentaLabel').textContent = '#' + String(ventaId).padStart(4, '0');
+        document.getElementById('anularMotivo').value = '';
+        try {
+          new bootstrap.Modal(document.getElementById('anularModal')).show();
+        } catch (e) {}
+      }
+
+      document.getElementById('confirmarAnularBtn').addEventListener('click', async function() {
+        const id = ventasAnularId;
+        if (!id) return;
+        const motivo = document.getElementById('anularMotivo').value.trim();
+        if (!motivo) {
+          showToast('Debe ingresar un motivo de anulaci&oacute;n', 'warning');
+          return;
+        }
+        try {
+          await apiRequest('/api/sales/' + id + '/anular', {
+            method: 'POST',
+            body: JSON.stringify({ motivo: motivo })
+          });
+          showToast('Venta anulada correctamente', 'success');
+          try {
+            bootstrap.Modal.getInstance(document.getElementById('anularModal')).hide();
+          } catch (e) {}
+          ventasAnularId = null;
+          loadRecentSales();
+        } catch (e) {
+          showToast(e.message, 'danger');
+        }
+      });
+
+      /* ===== Recent Sales ===== */
+      async function loadRecentSales() {
+        try {
+          const rows = await apiRequest('/api/sales/reportes?tipo=ventas');
+          const tbody = document.getElementById('recentSalesTable');
+          if (!tbody) return;
+          tbody.innerHTML = '';
+          if (!rows || !rows.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">No hay ventas registradas</td></tr>';
+            var countEl = document.getElementById('recentCount');
+            if (countEl) countEl.textContent = '0';
+            return;
+          }
+          var countEl = document.getElementById('recentCount');
+          if (countEl) countEl.textContent = rows.length;
+          rows.forEach(function(row) {
+            var fecha = new Date(row.fecha);
+            var estadoBadge = row.estado === 'ANULADA'
+              ? '<span class="badge bg-danger" style="font-size:0.65rem;">ANULADA</span>'
+              : '<span class="badge bg-success" style="font-size:0.65rem;">ACTIVA</span>';
+            tbody.innerHTML += '<tr class="' + (row.estado === 'ANULADA' ? 'table-danger' : '') + '">'
+              + '<td class="fw-medium">#' + String(row.venta_id).padStart(4, '0') + '</td>'
+              + '<td>' + (row.cliente_nombre || '-') + '</td>'
+              + '<td>' + fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</td>'
+              + '<td class="text-end fw-medium">' + CURRENCY + Number(row.total).toFixed(2) + '</td>'
+              + '<td class="text-center">' + estadoBadge + '</td>'
+              + '<td class="text-center">'
+              + '<button class="btn btn-sm btn-outline-primary me-1" onclick="verDetalle(' + row.venta_id + ')" title="Ver detalle" style="padding:0.1rem 0.3rem;font-size:0.7rem;"><i class="bi bi-eye"></i></button>'
+              + (row.estado !== 'ANULADA' ? '<button class="btn btn-sm btn-outline-danger" onclick="showAnularModal(' + row.venta_id + ')" title="Anular" style="padding:0.1rem 0.3rem;font-size:0.7rem;"><i class="bi bi-x-circle"></i></button>' : '')
+              + '</td></tr>';
+          });
+        } catch (e) {
+          var tbody2 = document.getElementById('recentSalesTable');
+          if (tbody2) tbody2.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-3">Error al cargar ventas</td></tr>';
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', async function() {
         if (!protectPage()) return;
+
         document.getElementById('saleDate').value = new Date().toISOString().slice(0, 16);
         document.getElementById('checkoutBtn').addEventListener('click', checkout);
+        document.getElementById('clearCartBtn').addEventListener('click', clearCart);
+        document.getElementById('productSearchInput').addEventListener('input', function(e) {
+          const term = e.target.value.toLowerCase();
+          renderProducts(products.filter(function(p) { return p.nombre.toLowerCase().includes(term); }));
+        });
+
+        window.addEventListener('message', function(e) {
+          if (e.data && e.data.type === 'search') {
+            const input = document.getElementById('productSearchInput');
+            if (input) {
+              input.value = e.data.query;
+              renderProducts(products.filter(function(p) { return p.nombre.toLowerCase().includes(e.data.query.toLowerCase()); }));
+            }
+          }
+        });
+
         await loadProducts();
         renderCart();
+        loadRecentSales();
       });
     </script>
   </body>

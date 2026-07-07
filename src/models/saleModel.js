@@ -1,7 +1,7 @@
 const db = require('../config/db');
 const alertModel = require('./alertModel');
 
-async function createSale({ usuario_id, total, items, fecha, metodo_pago }) {
+async function createSale({ usuario_id, total, items, fecha, metodo_pago, cliente_nombre, cliente_ci }) {
   const client = await db.pool.connect();
 
   try {
@@ -61,15 +61,35 @@ async function createSale({ usuario_id, total, items, fecha, metodo_pago }) {
       throw new Error('El total de la venta no coincide con el inventario');
     }
 
+    let clienteId = null;
+    let clienteNombreFinal = cliente_nombre || null;
+
+    if (cliente_ci && cliente_ci.trim()) {
+      const existingCliente = await client.query(
+        'SELECT id, nombre FROM cliente WHERE ci = $1',
+        [cliente_ci.trim()]
+      );
+      if (existingCliente.rows.length > 0) {
+        clienteId = existingCliente.rows[0].id;
+        clienteNombreFinal = existingCliente.rows[0].nombre;
+      } else if (cliente_nombre && cliente_nombre.trim()) {
+        const newCliente = await client.query(
+          'INSERT INTO cliente (ci, nombre) VALUES ($1, $2) RETURNING id',
+          [cliente_ci.trim(), cliente_nombre.trim()]
+        );
+        clienteId = newCliente.rows[0].id;
+      }
+    }
+
     const saleDate = fecha ? new Date(fecha) : new Date();
     const pago = metodo_pago || 'EFECTIVO';
     const saleResult = await client.query(
       `
-        INSERT INTO venta (usuario_id, total, metodo_pago, fecha)
-        VALUES ($1, $2, $3, $4)
-        RETURNING id, usuario_id, total, metodo_pago, fecha
+        INSERT INTO venta (usuario_id, total, metodo_pago, fecha, cliente_nombre, cliente_id, estado)
+        VALUES ($1, $2, $3, $4, $5, $6, 'ACTIVA')
+        RETURNING id, usuario_id, total, metodo_pago, fecha, cliente_nombre, cliente_id, estado
       `,
-      [usuario_id, total, pago, saleDate]
+      [usuario_id, total, pago, saleDate, clienteNombreFinal, clienteId]
     );
 
     const sale = saleResult.rows[0];
@@ -257,10 +277,43 @@ async function getSalesReport({ tipo = 'detalle', desde, hasta } = {}) {
     }));
   }
 
+  if (tipo === 'ventas') {
+    const query = `
+      SELECT
+        v.id AS venta_id,
+        v.fecha,
+        v.total,
+        v.metodo_pago,
+        v.estado,
+        v.motivo_anulacion,
+        v.fecha_anulacion,
+        COALESCE(c.nombre, v.cliente_nombre) AS cliente_nombre,
+        u.nombre AS usuario,
+        COUNT(dv.id)::int AS cantidad_productos,
+        STRING_AGG(p.nombre, ', ' ORDER BY p.nombre) AS productos
+      FROM venta v
+      LEFT JOIN detalle_venta dv ON dv.venta_id = v.id
+      LEFT JOIN producto p ON p.id = dv.producto_id
+      LEFT JOIN usuario u ON u.id = v.usuario_id
+      LEFT JOIN cliente c ON c.id = v.cliente_id
+      ${whereClause}
+      GROUP BY v.id, v.fecha, v.total, v.metodo_pago, v.estado, v.motivo_anulacion, v.fecha_anulacion, c.nombre, v.cliente_nombre, u.nombre
+      ORDER BY v.fecha DESC, v.id DESC
+    `;
+
+    const result = await db.query(query, values);
+    return result.rows.map((row) => ({
+      ...row,
+      total: Number(row.total),
+      cantidad_productos: Number(row.cantidad_productos),
+    }));
+  }
+
   const query = `
     SELECT
       v.id AS venta_id,
       v.fecha,
+      v.estado,
       u.nombre AS usuario,
       p.nombre AS producto,
       dv.cantidad,
@@ -282,6 +335,27 @@ async function getSalesReport({ tipo = 'detalle', desde, hasta } = {}) {
     precio_unitario: Number(row.precio_unitario),
     total_producto: Number(row.total_producto),
     total_venta: Number(row.total_venta),
+  }));
+}
+
+async function getSalesByClient(nombre) {
+  const query = `
+    SELECT
+      v.id,
+      v.fecha,
+      v.total,
+      v.metodo_pago,
+      v.cliente_nombre,
+      u.nombre AS usuario
+    FROM venta v
+    LEFT JOIN usuario u ON u.id = v.usuario_id
+    WHERE v.cliente_nombre ILIKE $1
+    ORDER BY v.fecha DESC
+  `;
+  const result = await db.query(query, [`%${nombre}%`]);
+  return result.rows.map((row) => ({
+    ...row,
+    total: Number(row.total),
   }));
 }
 
@@ -307,8 +381,125 @@ async function getDashboard() {
   };
 }
 
+async function getSaleDetail(saleId) {
+  const saleResult = await db.query(`
+    SELECT
+      v.id, v.fecha, v.total, v.metodo_pago, v.estado, v.motivo_anulacion,
+      v.fecha_anulacion, v.cliente_nombre,
+      COALESCE(c.nombre, v.cliente_nombre) AS cliente,
+      c.ci AS cliente_ci,
+      u.nombre AS usuario,
+      ua.nombre AS usuario_anulacion
+    FROM venta v
+    LEFT JOIN usuario u ON u.id = v.usuario_id
+    LEFT JOIN usuario ua ON ua.id = v.usuario_anulacion_id
+    LEFT JOIN cliente c ON c.id = v.cliente_id
+    WHERE v.id = $1
+  `, [saleId]);
+
+  if (saleResult.rows.length === 0) return null;
+
+  const detailResult = await db.query(`
+    SELECT
+      dv.id, dv.producto_id, dv.cantidad, dv.precio_unitario, dv.subtotal,
+      p.nombre AS producto_nombre, p.codigo
+    FROM detalle_venta dv
+    JOIN producto p ON p.id = dv.producto_id
+    WHERE dv.venta_id = $1
+    ORDER BY p.nombre ASC
+  `, [saleId]);
+
+  return {
+    ...saleResult.rows[0],
+    total: Number(saleResult.rows[0].total),
+    items: detailResult.rows.map((r) => ({
+      ...r,
+      cantidad: Number(r.cantidad),
+      precio_unitario: Number(r.precio_unitario),
+      subtotal: Number(r.subtotal),
+    })),
+  };
+}
+
+async function anularSale(saleId, usuarioId, motivo) {
+  const client = await db.pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    const saleResult = await client.query(
+      `SELECT id, estado FROM venta WHERE id = $1 FOR UPDATE`,
+      [saleId]
+    );
+
+    if (saleResult.rows.length === 0) {
+      throw new Error('Venta no encontrada');
+    }
+
+    const sale = saleResult.rows[0];
+    if (sale.estado !== 'ACTIVA') {
+      throw new Error('La venta ya fue anulada anteriormente');
+    }
+
+    if (!motivo || motivo.trim() === '') {
+      throw new Error('El motivo de anulación es obligatorio');
+    }
+
+    const detailResult = await client.query(
+      `SELECT dv.id, dv.producto_id, dv.cantidad
+       FROM detalle_venta dv
+       JOIN producto p ON p.id = dv.producto_id
+       WHERE dv.venta_id = $1
+       FOR UPDATE OF p`,
+      [saleId]
+    );
+
+    for (const item of detailResult.rows) {
+      const productResult = await client.query(
+        `SELECT stock, nombre FROM producto WHERE id = $1 FOR UPDATE`,
+        [item.producto_id]
+      );
+
+      const product = productResult.rows[0];
+      if (!product) continue;
+
+      const stockAnterior = Number(product.stock);
+      const stockNuevo = stockAnterior + Number(item.cantidad);
+
+      await client.query(
+        `UPDATE producto SET stock = $1 WHERE id = $2`,
+        [stockNuevo, item.producto_id]
+      );
+
+      await client.query(
+        `INSERT INTO producto_movimiento (producto_id, tipo, cantidad, stock_anterior, stock_nuevo, motivo, usuario_id)
+         VALUES ($1, 'ENTRADA', $2, $3, $4, $5, $6)`,
+        [item.producto_id, item.cantidad, stockAnterior, stockNuevo, `Anulación Venta #${saleId}`, usuarioId]
+      );
+    }
+
+    await client.query(
+      `UPDATE venta
+       SET estado = 'ANULADA', fecha_anulacion = NOW(), usuario_anulacion_id = $1, motivo_anulacion = $2
+       WHERE id = $3`,
+      [usuarioId, motivo.trim(), saleId]
+    );
+
+    await client.query('COMMIT');
+    return { message: 'Venta anulada correctamente', sale_id: saleId };
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   createSale,
   getSalesReport,
+  getSalesByClient,
   getDashboard,
+  getSaleDetail,
+  anularSale,
 };

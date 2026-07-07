@@ -24,15 +24,17 @@
         <li class="nav-item"><a class="nav-link" href="#" data-page="pages/inventario.html"><i class="bi bi-basket3"></i><span>Mov. Inventario</span></a></li>
         <li class="nav-item"><a class="nav-link" href="#" data-page="pages/insumos.html"><i class="bi bi-box-seam"></i><span>Insumos</span></a></li>
         <li class="nav-item"><a class="nav-link" href="#" data-page="pages/ventas.html"><i class="bi bi-cart3"></i><span>Ventas</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-page="pages/galeria.html"><i class="bi bi-images"></i><span>Galería</span></a></li>
         <li class="nav-item"><a class="nav-link" href="#" data-page="pages/reportes.html"><i class="bi bi-file-earmark-bar-graph"></i><span>Reportes</span></a></li>
         <li class="nav-item"><a class="nav-link" href="#" data-page="pages/proveedores.html"><i class="bi bi-truck"></i><span>Proveedores</span></a></li>
         <li class="nav-item"><a class="nav-link" href="#" data-page="pages/alertas.html"><i class="bi bi-exclamation-triangle"></i><span>Alertas</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-page="pages/backups.html"><i class="bi bi-shield-check"></i><span>Respaldos</span></a></li>
         <li class="nav-item"><a class="nav-link" href="#" data-page="pages/usuarios.html"><i class="bi bi-people"></i><span>Usuarios</span></a></li>
       </ul>
 
       <!-- Stock Pulse -->
       <div class="stock-pulse" id="stockPulse">
-        <div class="stock-pulse-label">Stock Pulse</div>
+        <div class="stock-pulse-label"><span class="stock-pulse-accent"></span>Stock Pulse</div>
         <div class="stock-pulse-track">
           <div class="stock-pulse-segment ok"   id="pulseOk"   style="width:0%"></div>
           <div class="stock-pulse-segment warn" id="pulseWarn" style="width:0%"></div>
@@ -44,7 +46,15 @@
     <div class="main-content">
       <nav class="topbar">
         <button class="btn btn-outline-secondary btn-sm" id="toggleSidebar"><i class="bi bi-list"></i></button>
+        <div class="topbar-search ms-3">
+          <i class="bi bi-search"></i>
+          <input type="search" class="form-control" placeholder="Buscar productos..." id="topbarSearch" />
+        </div>
         <div class="ms-auto d-flex align-items-center gap-2">
+          <a href="#" class="notif-bell" id="notifBell" title="Notificaciones">
+            <i class="bi bi-bell"></i>
+            <span class="badge-dot" id="notifDot" style="display:none"></span>
+          </a>
           <div class="theme-switch-wrapper">
             <button class="theme-switch" id="themeToggle" title="Alternar modo oscuro/claro">
               <span class="theme-switch-slider">
@@ -53,8 +63,11 @@
               </span>
             </button>
           </div>
-          <span id="userLabel" class="fw-semibold mx-2"></span>
-          <button class="btn btn-danger btn-sm" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Salir</button>
+          <div class="d-flex align-items-center gap-2 ms-2" style="padding:4px 12px 4px 8px;background:var(--surface-alt);border-radius:var(--radius-full);border:1px solid var(--border-light);">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font-size:0.75rem;font-weight:700;flex-shrink:0;text-transform:uppercase;" id="userAvatar">U</div>
+            <span id="userLabel" class="fw-semibold" style="font-size:0.82rem;color:var(--text);"></span>
+          </div>
+          <button class="btn btn-danger btn-sm" id="logoutBtn" style="border-radius:var(--radius-full);padding:0.35rem 0.75rem;"><i class="bi bi-box-arrow-right"></i></button>
         </div>
       </nav>
 
@@ -71,10 +84,12 @@
       <a href="#" data-page="pages/productos.html"><i class="bi bi-box2"></i><span>Prod.</span></a>
       <a href="#" data-page="pages/reposiciones.html"><i class="bi bi-arrow-up-circle"></i><span>Repos.</span></a>
       <a href="#" data-page="pages/ventas.html"><i class="bi bi-cart3"></i><span>Ventas</span></a>
+      <a href="#" data-page="pages/galeria.html"><i class="bi bi-images"></i><span>Galería</span></a>
       <a href="#" data-page="pages/inventario.html"><i class="bi bi-basket3"></i><span>Mov.</span></a>
       <a href="#" data-page="pages/reportes.html"><i class="bi bi-file-earmark-bar-graph"></i><span>Reportes</span></a>
       <a href="#" data-page="pages/proveedores.html"><i class="bi bi-truck"></i><span>Prov.</span></a>
       <a href="#" data-page="pages/alertas.html"><i class="bi bi-exclamation-triangle"></i><span>Alertas</span></a>
+      <a href="#" data-page="pages/backups.html"><i class="bi bi-shield-check"></i><span>Resp.</span></a>
     </nav>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

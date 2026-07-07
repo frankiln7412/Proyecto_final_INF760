@@ -1,2 +1,10 @@
 node_modules/
 .env
+backups/*.sql
+coverage/
+frontend/uploads/
+temp_docx/
+*.docx
+*.zip
+.DS_Store
+Thumbs.db

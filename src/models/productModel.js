@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 async function getAllProducts() {
   const query = `
-    SELECT id, nombre, codigo, descripcion, precio, stock, stock_minimo, created_at
+    SELECT id, nombre, codigo, descripcion, precio, stock, stock_minimo, imagen, created_at
     FROM producto
     ORDER BY created_at DESC
   `;
@@ -13,7 +13,7 @@ async function getAllProducts() {
 
 async function getProductById(id) {
   const query = `
-    SELECT id, nombre, codigo, descripcion, precio, stock, stock_minimo, created_at
+    SELECT id, nombre, codigo, descripcion, precio, stock, stock_minimo, imagen, created_at
     FROM producto
     WHERE id = $1
   `;
@@ -26,7 +26,7 @@ async function createProduct({ nombre, codigo, descripcion, precio, stock, stock
   const query = `
     INSERT INTO producto (nombre, codigo, descripcion, precio, stock, stock_minimo)
     VALUES ($1, $2, $3, $4, $5, $6)
-    RETURNING id, nombre, codigo, descripcion, precio, stock, stock_minimo, created_at
+    RETURNING id, nombre, codigo, descripcion, precio, stock, stock_minimo, imagen, created_at
   `;
 
   const result = await db.query(query, [nombre, codigo || null, descripcion, precio, stock, stock_minimo]);
@@ -74,6 +74,12 @@ async function updateProduct(id, data) {
     index += 1;
   }
 
+  if (data.imagen !== undefined) {
+    fields.push(`imagen = $${index}`);
+    values.push(data.imagen);
+    index += 1;
+  }
+
   if (fields.length === 0) {
     return null;
   }
@@ -102,7 +108,7 @@ async function updateProduct(id, data) {
         UPDATE producto
         SET ${fields.join(', ')}
         WHERE id = $${index}
-        RETURNING id, nombre, descripcion, precio, stock, stock_minimo, created_at
+        RETURNING id, nombre, descripcion, precio, stock, stock_minimo, imagen, created_at
       `,
       values
     );
@@ -140,6 +146,14 @@ async function updateProduct(id, data) {
   }
 }
 
+async function updateProductImage(id, imagen) {
+  const result = await db.query(
+    'UPDATE producto SET imagen = $1 WHERE id = $2 RETURNING id, imagen',
+    [imagen, id]
+  );
+  return result.rows[0] || null;
+}
+
 async function deleteProduct(id) {
   const query = `
     DELETE FROM producto
@@ -157,4 +171,5 @@ module.exports = {
   createProduct,
   updateProduct,
   deleteProduct,
+  updateProductImage,
 };
